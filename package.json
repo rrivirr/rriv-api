@@ -1,0 +1,16 @@
+{
+  "name": "rriv-api",
+  "version": "1.0.0",
+  "private": "true",
+  "description": "The main RRIV API, the heart of our platform",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rrivirr/rriv-api.git"
+  }
+}
