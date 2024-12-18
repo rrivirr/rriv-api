@@ -3,6 +3,9 @@
     "dev": "deno run --watch main.ts"
   },
   "imports": {
-    "@std/assert": "jsr:@std/assert@1"
+    "@semantic-release/changelog": "npm:@semantic-release/changelog@^6.0.3",
+    "@semantic-release/git": "npm:@semantic-release/git@^10.0.1",
+    "@std/assert": "jsr:@std/assert@1",
+    "semantic-release-deno": "npm:semantic-release-deno@^0.0.3"
   }
 }
