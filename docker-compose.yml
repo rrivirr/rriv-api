@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  web:
+    build: .
+    container_name: rriv-api-container
+    image: rriv-api
+    ports:
+      - "8000:8000"
