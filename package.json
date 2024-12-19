@@ -12,5 +12,8 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/rrivirr/rriv-api.git"
+  },
+  "dependencies": {
+    "commitlint": "^19.6.1"
   }
 }
