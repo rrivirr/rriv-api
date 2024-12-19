@@ -3,6 +3,7 @@
   "specifiers": {
     "jsr:@std/assert@1": "1.0.10",
     "jsr:@std/internal@^1.0.5": "1.0.5",
+    "npm:@commitlint/config-conventional@^19.6.0": "19.6.0",
     "npm:@semantic-release/changelog@^6.0.3": "6.0.3_semantic-release@24.2.0__marked@12.0.2",
     "npm:@semantic-release/git@^10.0.1": "10.0.1_semantic-release@24.2.0__marked@12.0.2",
     "npm:commitlint@^19.6.1": "19.6.1",
@@ -46,6 +47,13 @@
         "@commitlint/types",
         "tinyexec",
         "yargs@17.7.2"
+      ]
+    },
+    "@commitlint/config-conventional@19.6.0": {
+      "integrity": "sha512-DJT40iMnTYtBtUfw9ApbsLZFke1zKh6llITVJ+x9mtpHD08gsNXaIRqHTmwTZL3dNX5+WoyK7pCN/5zswvkBCQ==",
+      "dependencies": [
+        "@commitlint/types",
+        "conventional-changelog-conventionalcommits"
       ]
     },
     "@commitlint/config-validator@19.5.0": {
@@ -1351,6 +1359,12 @@
     },
     "conventional-changelog-angular@8.0.0": {
       "integrity": "sha512-CLf+zr6St0wIxos4bmaKHRXWAcsCXrJU6F4VdNDrGRK3B8LDLKoX3zuMV5GhtbGkVR/LohZ6MT6im43vZLSjmA==",
+      "dependencies": [
+        "compare-func"
+      ]
+    },
+    "conventional-changelog-conventionalcommits@7.0.2": {
+      "integrity": "sha512-NKXYmMR/Hr1DevQegFB4MwfM5Vv0m4UIxKZTTYuD98lpTknaZlSRrDOG4X7wIXpGkfsYxZTghUN+Qq+T0YQI7w==",
       "dependencies": [
         "compare-func"
       ]
@@ -4813,6 +4827,7 @@
     ],
     "packageJson": {
       "dependencies": [
+        "npm:@commitlint/config-conventional@^19.6.0",
         "npm:commitlint@^19.6.1"
       ]
     }
