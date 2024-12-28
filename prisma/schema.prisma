@@ -70,7 +70,7 @@ model DeviceContext {
   contextId          String           @map("context_id") @db.Uuid
   assignedDeviceName String           @unique @map("assigned_device_name")
   startedAt          DateTime         @default(now()) @map("started_at") @db.Timestamp(6)
-  endedAt            DateTime         @map("ended_at") @db.Timestamp(6)
+  endedAt            DateTime?        @map("ended_at") @db.Timestamp(6)
   archivedAt         DateTime?        @map("archived_at") @db.Timestamp(6)
   ConfigSnapshot     ConfigSnapshot[]
 
@@ -96,7 +96,7 @@ model Bind {
   Account    Account   @relation(fields: [accountId], references: [id])
   accountId  String    @map("account_id") @db.Uuid
   boundAt    DateTime  @map("bound_at") @db.Timestamp(6)
-  unboundAt  DateTime  @map("unbound_at") @db.Timestamp(6)
+  unboundAt  DateTime? @map("unbound_at") @db.Timestamp(6)
   archivedAt DateTime? @map("archived_at") @db.Timestamp(6)
 
   @@map("bind")
@@ -188,7 +188,7 @@ model SystemLibraryConfig {
 model SystemLibraryConfigVersion {
   id               String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   ConfigSnapshot   ConfigSnapshot @relation(fields: [configSnapshotId], references: [id])
-  configSnapshotId String         @db.Uuid
+  configSnapshotId String         @map("config_snapshot_id") @db.Uuid
   version          Int
   Creator          Account        @relation(fields: [creatorId], references: [id])
   creatorId        String         @map("creator_id") @db.Uuid
@@ -290,7 +290,7 @@ model Site {
   latitude            Float
   longitude           Float
   locationDisposition String                                      @map("location_disposition")
-  siteGeography       Unsupported("geometry(MultiPolygon, 4326)")
+  siteGeography       Unsupported("geometry(MultiPolygon, 4326)") @map("site_geography")
   active              Boolean                                     @default(true)
   createdAt           DateTime                                    @default(now()) @map("created_at") @db.Timestamp(6)
   archivedAt          DateTime?                                   @map("archived_at") @db.Timestamp(6)

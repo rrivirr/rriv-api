@@ -47,7 +47,7 @@ CREATE TABLE "device_context" (
     "context_id" UUID NOT NULL,
     "assigned_device_name" TEXT NOT NULL,
     "started_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "ended_at" TIMESTAMP(6) NOT NULL,
+    "ended_at" TIMESTAMP(6),
     "archived_at" TIMESTAMP(6),
 
     CONSTRAINT "device_context_pkey" PRIMARY KEY ("id")
@@ -71,7 +71,7 @@ CREATE TABLE "bind" (
     "device_id" UUID NOT NULL,
     "account_id" UUID NOT NULL,
     "bound_at" TIMESTAMP(6) NOT NULL,
-    "unbound_at" TIMESTAMP(6) NOT NULL,
+    "unbound_at" TIMESTAMP(6),
     "archived_at" TIMESTAMP(6),
 
     CONSTRAINT "bind_pkey" PRIMARY KEY ("id")
@@ -151,7 +151,7 @@ CREATE TABLE "system_library_config" (
 -- CreateTable
 CREATE TABLE "system_library_config_version" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
-    "configSnapshotId" UUID NOT NULL,
+    "config_snapshot_id" UUID NOT NULL,
     "version" INTEGER NOT NULL,
     "creator_id" UUID NOT NULL,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -242,7 +242,7 @@ CREATE TABLE "site" (
     "latitude" DOUBLE PRECISION NOT NULL,
     "longitude" DOUBLE PRECISION NOT NULL,
     "location_disposition" TEXT NOT NULL,
-    "siteGeography" geometry(MultiPolygon, 4326) NOT NULL,
+    "site_geography" geometry(MultiPolygon, 4326) NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "archived_at" TIMESTAMP(6),
@@ -385,7 +385,7 @@ ALTER TABLE "config_snapshot" ADD CONSTRAINT "config_snapshot_creator_id_fkey" F
 ALTER TABLE "system_library_config" ADD CONSTRAINT "system_library_config_creator_id_fkey" FOREIGN KEY ("creator_id") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "system_library_config_version" ADD CONSTRAINT "system_library_config_version_configSnapshotId_fkey" FOREIGN KEY ("configSnapshotId") REFERENCES "config_snapshot"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "system_library_config_version" ADD CONSTRAINT "system_library_config_version_config_snapshot_id_fkey" FOREIGN KEY ("config_snapshot_id") REFERENCES "config_snapshot"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "system_library_config_version" ADD CONSTRAINT "system_library_config_version_creator_id_fkey" FOREIGN KEY ("creator_id") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
