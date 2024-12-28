@@ -15,6 +15,12 @@
   },
   "dependencies": {
     "@commitlint/config-conventional": "^19.6.0",
-    "commitlint": "^19.6.1"
+    "@prisma/client": "^6.1.0",
+    "commitlint": "^19.6.1",
+    "express": "^4.21.2",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "prisma": "^6.1.0"
   }
 }

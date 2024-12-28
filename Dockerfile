@@ -6,6 +6,10 @@ WORKDIR /app
 
 ADD . /app
 
-RUN deno install --entrypoint main.ts
+RUN deno install --entrypoint server.ts
 
-CMD ["run", "--allow-net", "--allow-read", "--allow-env",  "main.ts"]
+RUN deno task prisma generate
+
+RUN deno task prisma migrate deploy
+
+RUN deno task start
