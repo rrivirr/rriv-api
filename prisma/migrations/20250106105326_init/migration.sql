@@ -82,6 +82,7 @@ CREATE TABLE "datalogger_driver" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "name" TEXT NOT NULL,
     "validation" JSONB NOT NULL,
+    "creator_id" UUID NOT NULL,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "archived_at" TIMESTAMP(6),
 
@@ -93,6 +94,7 @@ CREATE TABLE "datalogger_config" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "config" JSONB NOT NULL,
     "datalogger_driver_id" UUID NOT NULL,
+    "creator_id" UUID NOT NULL,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "archived_at" TIMESTAMP(6),
 
@@ -165,6 +167,7 @@ CREATE TABLE "sensor_driver" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "name" TEXT NOT NULL,
     "validation" JSONB NOT NULL,
+    "creator_id" UUID NOT NULL,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "archived_at" TIMESTAMP(6),
 
@@ -176,6 +179,7 @@ CREATE TABLE "sensor_config" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "config" JSONB NOT NULL,
     "sensor_driver_id" UUID NOT NULL,
+    "creator_id" UUID NOT NULL,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "archived_at" TIMESTAMP(6),
 
@@ -223,7 +227,7 @@ CREATE TABLE "project" (
     "name" TEXT NOT NULL,
     "creator_id" UUID NOT NULL,
     "location_name" TEXT NOT NULL,
-    "location_shape" geometry(MultiPolygon, 4326) NOT NULL,
+    "location_shape" geography(MultiPolygon, 4326) NOT NULL,
     "location_coordinate" TEXT NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -242,7 +246,7 @@ CREATE TABLE "site" (
     "latitude" DOUBLE PRECISION NOT NULL,
     "longitude" DOUBLE PRECISION NOT NULL,
     "location_disposition" TEXT NOT NULL,
-    "site_geography" geometry(MultiPolygon, 4326) NOT NULL,
+    "site_geography" geography(MultiPolygon, 4326) NOT NULL,
     "active" BOOLEAN NOT NULL DEFAULT true,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "archived_at" TIMESTAMP(6),
@@ -358,7 +362,13 @@ ALTER TABLE "bind" ADD CONSTRAINT "bind_device_id_fkey" FOREIGN KEY ("device_id"
 ALTER TABLE "bind" ADD CONSTRAINT "bind_account_id_fkey" FOREIGN KEY ("account_id") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "datalogger_driver" ADD CONSTRAINT "datalogger_driver_creator_id_fkey" FOREIGN KEY ("creator_id") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "datalogger_config" ADD CONSTRAINT "datalogger_config_datalogger_driver_id_fkey" FOREIGN KEY ("datalogger_driver_id") REFERENCES "datalogger_driver"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "datalogger_config" ADD CONSTRAINT "datalogger_config_creator_id_fkey" FOREIGN KEY ("creator_id") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "datalogger_library_config" ADD CONSTRAINT "datalogger_library_config_creator_id_fkey" FOREIGN KEY ("creator_id") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -391,7 +401,13 @@ ALTER TABLE "system_library_config_version" ADD CONSTRAINT "system_library_confi
 ALTER TABLE "system_library_config_version" ADD CONSTRAINT "system_library_config_version_creator_id_fkey" FOREIGN KEY ("creator_id") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "sensor_driver" ADD CONSTRAINT "sensor_driver_creator_id_fkey" FOREIGN KEY ("creator_id") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "sensor_config" ADD CONSTRAINT "sensor_config_sensor_driver_id_fkey" FOREIGN KEY ("sensor_driver_id") REFERENCES "sensor_driver"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "sensor_config" ADD CONSTRAINT "sensor_config_creator_id_fkey" FOREIGN KEY ("creator_id") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "sensor_library_config" ADD CONSTRAINT "sensor_library_config_creator_id_fkey" FOREIGN KEY ("creator_id") REFERENCES "account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

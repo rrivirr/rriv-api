@@ -32,6 +32,10 @@ model Account {
   SystemLibraryConfigVersion     SystemLibraryConfigVersion[]
   SensorLibraryConfig            SensorLibraryConfig[]
   SensorLibraryConfigVersion     SensorLibraryConfigVersion[]
+  DataloggerConfig               DataloggerConfig[]
+  DataloggerDriver               DataloggerDriver[]
+  SensorDriver                   SensorDriver[]
+  SensorConfig                   SensorConfig[]
 
   @@map("account")
 }
@@ -106,6 +110,8 @@ model DataloggerDriver {
   id               String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name             String             @unique
   validation       Json
+  Creator          Account            @relation(fields: [creatorId], references: [id])
+  creatorId        String             @map("creator_id") @db.Uuid
   createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamp(6)
   archivedAt       DateTime?          @map("archived_at") @db.Timestamp(6)
   DataloggerConfig DataloggerConfig[]
@@ -118,6 +124,8 @@ model DataloggerConfig {
   config                         Json
   DataloggerDriver               DataloggerDriver                 @relation(fields: [dataloggerDriverId], references: [id])
   dataloggerDriverId             String                           @map("datalogger_driver_id") @db.Uuid
+  Creator                        Account                          @relation(fields: [creatorId], references: [id])
+  creatorId                      String                           @map("creator_id") @db.Uuid
   createdAt                      DateTime                         @default(now()) @map("created_at") @db.Timestamp(6)
   archivedAt                     DateTime?                        @map("archived_at") @db.Timestamp(6)
   DataloggerLibraryConfigVersion DataloggerLibraryConfigVersion[]
@@ -202,6 +210,8 @@ model SensorDriver {
   id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name         String         @unique
   validation   Json
+  Creator      Account        @relation(fields: [creatorId], references: [id])
+  creatorId    String         @map("creator_id") @db.Uuid
   createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
   archivedAt   DateTime?      @map("archived_at") @db.Timestamp(6)
   SensorConfig SensorConfig[]
@@ -214,6 +224,8 @@ model SensorConfig {
   config                     Json
   SensorDriver               SensorDriver                 @relation(fields: [sensorDriverId], references: [id])
   sensorDriverId             String                       @map("sensor_driver_id") @db.Uuid
+  Creator                    Account                      @relation(fields: [creatorId], references: [id])
+  creatorId                  String                       @map("creator_id") @db.Uuid
   createdAt                  DateTime                     @default(now()) @map("created_at") @db.Timestamp(6)
   archivedAt                 DateTime?                    @map("archived_at") @db.Timestamp(6)
   SensorLibraryConfigVersion SensorLibraryConfigVersion[]
@@ -264,36 +276,36 @@ model SensorConfigSnapshot {
 }
 
 model Project {
-  id                 String                                      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                 String                                       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name               String
-  Creator            Account                                     @relation(fields: [creatorId], references: [id])
-  creatorId          String                                      @map("creator_id") @db.Uuid
-  locationName       String                                      @map("location_name")
-  locationShape      Unsupported("geometry(MultiPolygon, 4326)") @map("location_shape")
-  locationCoordinate String                                      @map("location_coordinate")
-  active             Boolean                                     @default(true)
-  createdAt          DateTime                                    @default(now()) @map("created_at") @db.Timestamp(6)
-  archivedAt         DateTime?                                   @map("archived_at") @db.Timestamp(6)
+  Creator            Account                                      @relation(fields: [creatorId], references: [id])
+  creatorId          String                                       @map("creator_id") @db.Uuid
+  locationName       String                                       @map("location_name")
+  locationShape      Unsupported("geography(MultiPolygon, 4326)") @map("location_shape")
+  locationCoordinate String                                       @map("location_coordinate")
+  active             Boolean                                      @default(true)
+  createdAt          DateTime                                     @default(now()) @map("created_at") @db.Timestamp(6)
+  archivedAt         DateTime?                                    @map("archived_at") @db.Timestamp(6)
   Site               Site[]
 
   @@map("project")
 }
 
 model Site {
-  id                  String                                      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id                  String                                       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                String
-  Creator             Account                                     @relation(fields: [creatorId], references: [id])
-  creatorId           String                                      @map("creator_id") @db.Uuid
-  code                String                                      @unique
-  Project             Project?                                    @relation(fields: [projectId], references: [id])
-  projectId           String?                                     @map("project_id") @db.Uuid
+  Creator             Account                                      @relation(fields: [creatorId], references: [id])
+  creatorId           String                                       @map("creator_id") @db.Uuid
+  code                String                                       @unique
+  Project             Project?                                     @relation(fields: [projectId], references: [id])
+  projectId           String?                                      @map("project_id") @db.Uuid
   latitude            Float
   longitude           Float
-  locationDisposition String                                      @map("location_disposition")
-  siteGeography       Unsupported("geometry(MultiPolygon, 4326)") @map("site_geography")
-  active              Boolean                                     @default(true)
-  createdAt           DateTime                                    @default(now()) @map("created_at") @db.Timestamp(6)
-  archivedAt          DateTime?                                   @map("archived_at") @db.Timestamp(6)
+  locationDisposition String                                       @map("location_disposition")
+  siteGeography       Unsupported("geography(MultiPolygon, 4326)") @map("site_geography")
+  active              Boolean                                      @default(true)
+  createdAt           DateTime                                     @default(now()) @map("created_at") @db.Timestamp(6)
+  archivedAt          DateTime?                                    @map("archived_at") @db.Timestamp(6)
   Position            Position[]
 
   @@map("site")
