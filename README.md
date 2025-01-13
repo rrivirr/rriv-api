@@ -24,7 +24,7 @@ deno task prisma migrate dev
 
 ## Note
 
-If a new migration is created, you need to regenerate the Prisma Client via the command below
+If a new migration is created, you need to regenerate the Prisma Client
 
 ```bash
 deno task prisma generate

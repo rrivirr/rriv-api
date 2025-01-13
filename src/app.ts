@@ -14,7 +14,7 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
     if (req.headers["content-type"] !== "application/json") {
       throw new HttpException(
         415,
-        "Invalid content type. API only supports application/json"
+        "Invalid content type. API only supports application/json",
       );
     }
   }
@@ -24,7 +24,7 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
 app.use(
   "/documentation",
   swaggerUi.serve,
-  swaggerUi.setup(swaggerBuilder.getSpec())
+  swaggerUi.setup(swaggerBuilder.getSpec()),
 );
 
 app.use(express.urlencoded({ extended: false }));
