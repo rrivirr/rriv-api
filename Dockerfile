@@ -6,7 +6,7 @@ WORKDIR /app
 
 ADD . /app
 
-RUN deno install --entrypoint server.ts
+RUN deno install --entrypoint src/server.ts
 
 RUN deno task prisma generate
 

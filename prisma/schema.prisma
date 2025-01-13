@@ -14,7 +14,7 @@ model Account {
   id                             String                           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   firstName                      String                           @map("first_name")
   lastName                       String                           @map("last_name")
-  email                          String
+  email                          String                           @unique
   phone                          String
   createdAt                      DateTime                         @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt                      DateTime                         @default(now()) @map("updated_at") @db.Timestamp(6)
@@ -59,7 +59,8 @@ model Context {
   name          String
   Account       Account         @relation(fields: [accountId], references: [id])
   accountId     String          @map("account_id") @db.Uuid
-  createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamp(6)
+  startedAt     DateTime        @default(now()) @map("started_at") @db.Timestamp(6)
+  endedAt       DateTime?       @map("ended_at") @db.Timestamp(6)
   archivedAt    DateTime?       @map("archived_at") @db.Timestamp(6)
   DeviceContext DeviceContext[]
 

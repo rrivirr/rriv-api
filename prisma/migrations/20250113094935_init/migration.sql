@@ -34,7 +34,8 @@ CREATE TABLE "context" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "name" TEXT NOT NULL,
     "account_id" UUID NOT NULL,
-    "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "started_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "ended_at" TIMESTAMP(6),
     "archived_at" TIMESTAMP(6),
 
     CONSTRAINT "context_pkey" PRIMARY KEY ("id")
@@ -300,6 +301,9 @@ CREATE TABLE "session" (
 
     CONSTRAINT "session_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "account_email_key" ON "account"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "device_serial_number_key" ON "device"("serial_number");
