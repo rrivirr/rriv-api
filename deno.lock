@@ -13,7 +13,8 @@
     "npm:@types/node@*": "22.5.4",
     "npm:@types/swagger-jsdoc@*": "6.0.4",
     "npm:@types/swagger-ui-express@*": "4.1.7",
-    "npm:commitlint@^19.6.1": "19.6.1",
+    "npm:commitlint@*": "19.6.1_@types+node@22.5.4",
+    "npm:commitlint@^19.6.1": "19.6.1_@types+node@22.5.4",
     "npm:express@*": "5.0.1",
     "npm:express@^5.0.1": "5.0.1",
     "npm:jsonwebtoken@*": "9.0.2",
@@ -70,7 +71,19 @@
       "dependencies": [
         "@commitlint/format",
         "@commitlint/lint",
-        "@commitlint/load",
+        "@commitlint/load@19.6.1_cosmiconfig@9.0.0__typescript@5.7.2",
+        "@commitlint/read",
+        "@commitlint/types",
+        "tinyexec",
+        "yargs@17.7.2"
+      ]
+    },
+    "@commitlint/cli@19.6.1_@types+node@22.5.4": {
+      "integrity": "sha512-8hcyA6ZoHwWXC76BoC8qVOSr8xHy00LZhZpauiD0iO0VYbVhMnED0da85lTfIULxl7Lj4c6vZgF0Wu/ed1+jlQ==",
+      "dependencies": [
+        "@commitlint/format",
+        "@commitlint/lint",
+        "@commitlint/load@19.6.1_cosmiconfig@9.0.0__typescript@5.7.2_@types+node@22.5.4",
         "@commitlint/read",
         "@commitlint/types",
         "tinyexec",
@@ -129,6 +142,21 @@
       ]
     },
     "@commitlint/load@19.6.1_cosmiconfig@9.0.0__typescript@5.7.2": {
+      "integrity": "sha512-kE4mRKWWNju2QpsCWt428XBvUH55OET2N4QKQ0bF85qS/XbsRGG1MiTByDNlEVpEPceMkDr46LNH95DtRwcsfA==",
+      "dependencies": [
+        "@commitlint/config-validator",
+        "@commitlint/execute-rule",
+        "@commitlint/resolve-extends",
+        "@commitlint/types",
+        "chalk@5.4.0",
+        "cosmiconfig@9.0.0_typescript@5.7.2",
+        "cosmiconfig-typescript-loader",
+        "lodash.isplainobject",
+        "lodash.merge",
+        "lodash.uniq"
+      ]
+    },
+    "@commitlint/load@19.6.1_cosmiconfig@9.0.0__typescript@5.7.2_@types+node@22.5.4": {
       "integrity": "sha512-kE4mRKWWNju2QpsCWt428XBvUH55OET2N4QKQ0bF85qS/XbsRGG1MiTByDNlEVpEPceMkDr46LNH95DtRwcsfA==",
       "dependencies": [
         "@commitlint/config-validator",
@@ -1413,7 +1441,14 @@
     "commitlint@19.6.1": {
       "integrity": "sha512-tU4or+Y2fDXepCZ44o8guEB9uwrRp4if4VupGH1CR+bsVS2zX6Gia4dndA7UPx8cWWw1tvRRJu5keA7RqfXf3w==",
       "dependencies": [
-        "@commitlint/cli",
+        "@commitlint/cli@19.6.1",
+        "@commitlint/types"
+      ]
+    },
+    "commitlint@19.6.1_@types+node@22.5.4": {
+      "integrity": "sha512-tU4or+Y2fDXepCZ44o8guEB9uwrRp4if4VupGH1CR+bsVS2zX6Gia4dndA7UPx8cWWw1tvRRJu5keA7RqfXf3w==",
+      "dependencies": [
+        "@commitlint/cli@19.6.1_@types+node@22.5.4",
         "@commitlint/types"
       ]
     },
