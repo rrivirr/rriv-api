@@ -1,8 +1,9 @@
 import {
   CreateContextDto,
   QueryContextDto,
+  UniqueContextDto,
   UpdateContextDto,
-} from "../handler/context/schema.ts";
+} from "../types/context.types.ts";
 import prisma from "../infra/prisma.ts";
 
 export const createContext = async (requestBody: CreateContextDto) => {
@@ -12,12 +13,22 @@ export const createContext = async (requestBody: CreateContextDto) => {
 };
 
 export const getContext = async (query: QueryContextDto) => {
-  const { search, limit, offset, order, orderBy, name, accountId } = query;
+  const { search, limit, offset, order, orderBy, name, accountId, deviceId } =
+    query;
   return await prisma.context.findMany({
     where: {
       name: name || { contains: search, mode: "insensitive" },
       accountId,
       archivedAt: null,
+      ...(deviceId && {
+        DeviceContext: {
+          some: {
+            archivedAt: null,
+            endedAt: null,
+            deviceId,
+          },
+        },
+      }),
     },
     take: limit,
     skip: offset,
@@ -25,37 +36,40 @@ export const getContext = async (query: QueryContextDto) => {
   });
 };
 
-export const getContextById = async (id: string, accountId: string) => {
-  return await prisma.context.findUnique({ where: { id, accountId } });
+export const getContextById = async (body: UniqueContextDto) => {
+  const { accountId, contextId } = body;
+  return await prisma.context.findUnique({
+    where: { id: contextId, accountId, archivedAt: null },
+  });
 };
 
-export const updateContext = async (requestBody: UpdateContextDto) => {
+export const updateContext = async (
+  requestBody: Omit<UpdateContextDto, "accountId"> & { archive?: true },
+) => {
   const { id, name, archive, end } = requestBody;
 
-  return await prisma.context.update({
-    where: {
-      id,
-    },
-    data: {
-      name,
-      ...(archive && {
-        archivedAt: new Date(),
-        DeviceContext: {
-          updateMany: {
-            where: { archivedAt: null },
-            data: { archivedAt: new Date() },
-          },
-        },
-      }),
-      ...(end && {
-        endedAt: new Date(),
-        DeviceContext: {
-          updateMany: {
-            where: { endedAt: null },
-            data: { endedAt: new Date() },
-          },
-        },
-      }),
-    },
+  return await prisma.$transaction(async (trx) => {
+    if (end) {
+      await trx.deviceContext.updateMany({
+        where: { contextId: id, endedAt: null },
+        data: { endedAt: new Date() },
+      });
+    }
+
+    if (archive) {
+      await trx.deviceContext.updateMany({
+        where: { contextId: id, archivedAt: null },
+        data: { archivedAt: new Date() },
+      });
+    }
+
+    return await trx.context.update({
+      where: { id },
+      data: {
+        name,
+        ...(end && { endedAt: new Date() }),
+        ...(archive && { archivedAt: new Date() }),
+      },
+    });
   });
 };

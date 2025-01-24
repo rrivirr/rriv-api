@@ -1,24 +1,18 @@
-"use strict";
 import {
   CreateContextDto,
   QueryContextDto,
+  UniqueContextDto,
   UpdateContextDto,
-} from "../handler/context/schema.ts";
+} from "../types/context.types.ts";
 import * as contextRepositoy from "../repository/context.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
 
-export const getContext = async (query: QueryContextDto) => {
-  return await contextRepositoy.getContext(query);
+export const getContextById = async (requestBody: UniqueContextDto) => {
+  return await contextRepositoy.getContextById(requestBody);
 };
 
-export const getContextById = async (id: string, accountId: string) => {
-  const context = await contextRepositoy.getContextById(id, accountId);
-
-  if (!context || context.archivedAt) {
-    return null;
-  }
-
-  return context;
+export const getContext = async (query: QueryContextDto) => {
+  return await contextRepositoy.getContext(query);
 };
 
 export const createContext = async (requestBody: CreateContextDto) => {
@@ -35,8 +29,7 @@ export const createContext = async (requestBody: CreateContextDto) => {
 
 export const updateContext = async (requestBody: UpdateContextDto) => {
   const { id, name, accountId } = requestBody;
-  const modifiedRequestBody = { ...requestBody };
-  const context = await getContextById(id, accountId);
+  const context = await getContextById({ contextId: id, accountId });
 
   if (!context) {
     throw new HttpException(404, "context not found");
@@ -46,7 +39,6 @@ export const updateContext = async (requestBody: UpdateContextDto) => {
     const requestBodyCopy = { ...requestBody } as Partial<UpdateContextDto>;
     delete requestBodyCopy.id;
     delete requestBodyCopy.accountId;
-    delete requestBodyCopy.archive;
 
     if (Object.values(requestBodyCopy).length) {
       throw new HttpException(
@@ -70,8 +62,20 @@ export const updateContext = async (requestBody: UpdateContextDto) => {
     }
   }
 
-  if (requestBody.archive && !requestBody.end && !context.endedAt) {
-    modifiedRequestBody.end = true;
+  return await contextRepositoy.updateContext(requestBody);
+};
+
+export const deleteContext = async (requestBody: UniqueContextDto) => {
+  const { contextId } = requestBody;
+  const context = await getContextById(requestBody);
+
+  if (!context) {
+    throw new HttpException(404, "context not found");
   }
-  return await contextRepositoy.updateContext(modifiedRequestBody);
+
+  return await contextRepositoy.updateContext({
+    id: contextId,
+    archive: true,
+    ...(!context.endedAt && { end: true }),
+  });
 };

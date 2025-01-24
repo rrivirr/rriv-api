@@ -9,6 +9,5 @@ export const registerContextSchema = () =>
       accountId: { type: "string", format: "uuid" },
       startedAt: { type: "string", format: "date-time" },
       endedAt: { type: "string", format: "date-time" },
-      archivedAt: { type: "string", format: "date-time" },
     },
   });

@@ -6,6 +6,7 @@ import { HttpException } from "./utils/http-exception.ts";
 import errorHandler from "./utils/error-handler.ts";
 import routes from "./routes/index.ts";
 import { swaggerBuilder } from "./swagger/index.ts";
+import { jwtMiddleware } from "./utils/middleware/jwt.middleware.ts";
 
 const app = express();
 
@@ -29,10 +30,8 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(jwtMiddleware);
 app.use(routes);
 app.use(errorHandler);
 
-app.get(/(.*)/, function (_req: Request, res: Response) {
-  res.status(200).send("not found");
-});
 export default app;

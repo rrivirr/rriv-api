@@ -5,7 +5,7 @@
     "jsr:@std/internal@^1.0.5": "1.0.5",
     "npm:@anatine/zod-openapi@^2.2.6": "2.2.6_openapi3-ts@4.4.0_zod@3.24.1",
     "npm:@commitlint/config-conventional@^19.6.0": "19.6.0",
-    "npm:@prisma/client@^6.1.0": "6.1.0_prisma@6.1.0",
+    "npm:@prisma/client@^6.2.1": "6.2.1_prisma@6.2.1",
     "npm:@semantic-release/changelog@^6.0.3": "6.0.3_semantic-release@24.2.0__marked@12.0.2",
     "npm:@semantic-release/git@^10.0.1": "10.0.1_semantic-release@24.2.0__marked@12.0.2",
     "npm:@types/express@5": "5.0.0",
@@ -20,8 +20,8 @@
     "npm:jsonwebtoken@*": "9.0.2",
     "npm:jsonwebtoken@^9.0.2": "9.0.2",
     "npm:openapi3-ts@^4.4.0": "4.4.0",
-    "npm:prisma@*": "6.1.0",
-    "npm:prisma@^6.1.0": "6.1.0",
+    "npm:prisma@*": "6.2.1",
+    "npm:prisma@^6.2.1": "6.2.1",
     "npm:semantic-release-deno@^0.0.3": "0.0.3_semantic-release@17.4.7__marked@2.1.3",
     "npm:swagger-ui-express@*": "5.0.1_express@5.0.1",
     "npm:swagger-ui-express@^5.0.1": "5.0.1_express@5.0.1",
@@ -671,20 +671,20 @@
         "config-chain"
       ]
     },
-    "@prisma/client@6.1.0_prisma@6.1.0": {
-      "integrity": "sha512-AbQYc5+EJKm1Ydfq3KxwcGiy7wIbm4/QbjCKWWoNROtvy7d6a3gmAGkKjK0iUCzh+rHV8xDhD5Cge8ke/kiy5Q==",
+    "@prisma/client@6.2.1_prisma@6.2.1": {
+      "integrity": "sha512-msKY2iRLISN8t5X0Tj7hU0UWet1u0KuxSPHWuf3IRkB4J95mCvGpyQBfQ6ufcmvKNOMQSq90O2iUmJEN2e5fiA==",
       "dependencies": [
         "prisma"
       ]
     },
-    "@prisma/debug@6.1.0": {
-      "integrity": "sha512-0himsvcM4DGBTtvXkd2Tggv6sl2JyUYLzEGXXleFY+7Kp6rZeSS3hiTW9mwtUlXrwYbJP6pwlVNB7jYElrjWUg=="
+    "@prisma/debug@6.2.1": {
+      "integrity": "sha512-0KItvt39CmQxWkEw6oW+RQMD6RZ43SJWgEUnzxN8VC9ixMysa7MzZCZf22LCK5DSooiLNf8vM3LHZm/I/Ni7bQ=="
     },
-    "@prisma/engines-version@6.1.0-21.11f085a2012c0f4778414c8db2651556ee0ef959": {
-      "integrity": "sha512-PdJqmYM2Fd8K0weOOtQThWylwjsDlTig+8Pcg47/jszMuLL9iLIaygC3cjWJLda69siRW4STlCTMSgOjZzvKPQ=="
+    "@prisma/engines-version@6.2.0-14.4123509d24aa4dede1e864b46351bf2790323b69": {
+      "integrity": "sha512-7tw1qs/9GWSX6qbZs4He09TOTg1ff3gYsB3ubaVNN0Pp1zLm9NC5C5MZShtkz7TyQjx7blhpknB7HwEhlG+PrQ=="
     },
-    "@prisma/engines@6.1.0": {
-      "integrity": "sha512-GnYJbCiep3Vyr1P/415ReYrgJUjP79fBNc1wCo7NP6Eia0CzL2Ot9vK7Infczv3oK7JLrCcawOSAxFxNFsAERQ==",
+    "@prisma/engines@6.2.1": {
+      "integrity": "sha512-lTBNLJBCxVT9iP5I7Mn6GlwqAxTpS5qMERrhebkUhtXpGVkBNd/jHnNJBZQW4kGDCKaQg/r2vlJYkzOHnAb7ZQ==",
       "dependencies": [
         "@prisma/debug",
         "@prisma/engines-version",
@@ -692,16 +692,16 @@
         "@prisma/get-platform"
       ]
     },
-    "@prisma/fetch-engine@6.1.0": {
-      "integrity": "sha512-asdFi7TvPlEZ8CzSZ/+Du5wZ27q6OJbRSXh+S8ISZguu+S9KtS/gP7NeXceZyb1Jv1SM1S5YfiCv+STDsG6rrg==",
+    "@prisma/fetch-engine@6.2.1": {
+      "integrity": "sha512-OO7O9d6Mrx2F9i+Gu1LW+DGXXyUFkP7OE5aj9iBfA/2jjDXEJjqa9X0ZmM9NZNo8Uo7ql6zKm6yjDcbAcRrw1A==",
       "dependencies": [
         "@prisma/debug",
         "@prisma/engines-version",
         "@prisma/get-platform"
       ]
     },
-    "@prisma/get-platform@6.1.0": {
-      "integrity": "sha512-ia8bNjboBoHkmKGGaWtqtlgQOhCi7+f85aOkPJKgNwWvYrT6l78KgojLekE8zMhVk0R9lWcifV0Pf8l3/15V0Q==",
+    "@prisma/get-platform@6.2.1": {
+      "integrity": "sha512-zp53yvroPl5m5/gXYLz7tGCNG33bhG+JYCm74ohxOq1pPnrL47VQYFfF3RbTZ7TzGWCrR3EtoiYMywUBw7UK6Q==",
       "dependencies": [
         "@prisma/debug"
       ]
@@ -3867,8 +3867,8 @@
         "parse-ms"
       ]
     },
-    "prisma@6.1.0": {
-      "integrity": "sha512-aFI3Yi+ApUxkwCJJwyQSwpyzUX7YX3ihzuHNHOyv4GJg3X5tQsmRaJEnZ+ZyfHpMtnyahhmXVfbTZ+lS8ZtfKw==",
+    "prisma@6.2.1": {
+      "integrity": "sha512-hhyM0H13pQleQ+br4CkzGizS5I0oInoeTw3JfLw1BRZduBSQxPILlJLwi+46wZzj9Je7ndyQEMGw/n5cN2fknA==",
       "dependencies": [
         "@prisma/engines",
         "fsevents"
@@ -5037,12 +5037,12 @@
       "dependencies": [
         "npm:@anatine/zod-openapi@^2.2.6",
         "npm:@commitlint/config-conventional@^19.6.0",
-        "npm:@prisma/client@^6.1.0",
+        "npm:@prisma/client@^6.2.1",
         "npm:commitlint@^19.6.1",
         "npm:express@^5.0.1",
         "npm:jsonwebtoken@^9.0.2",
         "npm:openapi3-ts@^4.4.0",
-        "npm:prisma@^6.1.0",
+        "npm:prisma@^6.2.1",
         "npm:swagger-ui-express@^5.0.1",
         "npm:winston@^3.17.0",
         "npm:zod@^3.24.1"

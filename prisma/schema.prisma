@@ -73,7 +73,7 @@ model DeviceContext {
   deviceId           String           @map("device_id") @db.Uuid
   Context            Context          @relation(fields: [contextId], references: [id])
   contextId          String           @map("context_id") @db.Uuid
-  assignedDeviceName String           @unique @map("assigned_device_name")
+  assignedDeviceName String           @map("assigned_device_name")
   startedAt          DateTime         @default(now()) @map("started_at") @db.Timestamp(6)
   endedAt            DateTime?        @map("ended_at") @db.Timestamp(6)
   archivedAt         DateTime?        @map("archived_at") @db.Timestamp(6)
@@ -100,7 +100,7 @@ model Bind {
   deviceId   String    @map("device_id") @db.Uuid
   Account    Account   @relation(fields: [accountId], references: [id])
   accountId  String    @map("account_id") @db.Uuid
-  boundAt    DateTime  @map("bound_at") @db.Timestamp(6)
+  boundAt    DateTime  @default(now()) @map("bound_at") @db.Timestamp(6)
   unboundAt  DateTime? @map("unbound_at") @db.Timestamp(6)
   archivedAt DateTime? @map("archived_at") @db.Timestamp(6)
 

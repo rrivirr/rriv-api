@@ -71,7 +71,7 @@ CREATE TABLE "bind" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
     "device_id" UUID NOT NULL,
     "account_id" UUID NOT NULL,
-    "bound_at" TIMESTAMP(6) NOT NULL,
+    "bound_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "unbound_at" TIMESTAMP(6),
     "archived_at" TIMESTAMP(6),
 
@@ -310,9 +310,6 @@ CREATE UNIQUE INDEX "device_serial_number_key" ON "device"("serial_number");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "device_unique_name_key" ON "device"("unique_name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "device_context_assigned_device_name_key" ON "device_context"("assigned_device_name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "datalogger_driver_name_key" ON "datalogger_driver"("name");

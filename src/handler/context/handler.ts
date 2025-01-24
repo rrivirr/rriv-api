@@ -5,39 +5,45 @@ import {
   contextPatchValidationSchema,
   contextPostValidationSchema,
 } from "./schema.ts";
-import {
-  createContext,
-  getContext,
-  updateContext,
-} from "../../service/context.service.ts";
 import { idValidationSchema } from "../generic/generic.schema.ts";
+import * as contextService from "../../service/context.service.ts";
 
-export const contextPost = async (req: Request, res: Response) => {
+export const createContext = async (req: Request, res: Response) => {
   const accountId = req.accountId;
   const requestBody = contextPostValidationSchema.parse(req.body);
-  const createdContext = await createContext({
+  const createdContext = await contextService.createContext({
     ...requestBody,
     accountId,
   });
   res.status(201).json(createdContext);
 };
 
-export const contextGet = async (req: Request, res: Response) => {
+export const getContext = async (req: Request, res: Response) => {
   const accountId = req.accountId;
   const query = contextGetQueryValidationSchema.parse(req.query);
 
-  const contexts = await getContext({ ...query, accountId });
+  const contexts = await contextService.getContext({ ...query, accountId });
   res.status(200).json(contexts);
 };
 
-export const contextPatch = async (req: Request, res: Response) => {
+export const updateContext = async (req: Request, res: Response) => {
   const accountId = req.accountId;
   const requestBody = contextPatchValidationSchema.parse(req.body);
   const params = idValidationSchema.parse(req.params);
-  const createdContext = await updateContext({
+  const createdContext = await contextService.updateContext({
     ...requestBody,
     ...params,
     accountId,
   });
-  res.status(201).json(createdContext);
+  res.status(200).json(createdContext);
+};
+
+export const deleteContext = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
+  const params = idValidationSchema.parse(req.params);
+  const deletedContext = await contextService.deleteContext({
+    accountId,
+    contextId: params.id,
+  });
+  res.status(200).json(deletedContext);
 };

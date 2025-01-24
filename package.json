@@ -16,7 +16,7 @@
   "dependencies": {
     "@anatine/zod-openapi": "^2.2.6",
     "@commitlint/config-conventional": "^19.6.0",
-    "@prisma/client": "^6.1.0",
+    "@prisma/client": "^6.2.1",
     "commitlint": "^19.6.1",
     "express": "^5.0.1",
     "jsonwebtoken": "^9.0.2",
@@ -26,6 +26,6 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "prisma": "^6.1.0"
+    "prisma": "^6.2.1"
   }
 }

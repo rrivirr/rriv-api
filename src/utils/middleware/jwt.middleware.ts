@@ -2,8 +2,10 @@
 import { NextFunction, Request, Response } from "npm:express";
 import { HttpException } from "../http-exception.ts";
 import { verifyJwtToken } from "../../infra/jwt.ts";
+import prisma from "../../infra/prisma.ts";
+import { idValidationSchema } from "../../handler/generic/generic.schema.ts";
 
-export const jwtMiddleware = (
+export const jwtMiddleware = async (
   req: Request,
   _res: Response,
   next: NextFunction,
@@ -17,6 +19,18 @@ export const jwtMiddleware = (
   if (typeof decoded === "string") {
     throw new HttpException(401, "invalid access token");
   }
-  req["accountId"] = decoded.sub!;
+
+  const { success, data } = idValidationSchema.safeParse({ id: decoded.sub });
+  if (!success) {
+    throw new HttpException(401, "invalid access token");
+  }
+
+  const accountId = data.id;
+  const account = await prisma.account.findUnique({ where: { id: accountId } });
+  if (!account) {
+    throw new HttpException(401, "invalid access token");
+  }
+
+  req["accountId"] = accountId;
   next();
 };
