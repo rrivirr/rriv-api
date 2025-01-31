@@ -15,3 +15,6 @@ export const getPaginationValidationSchema = (
   }).strict();
 
 export const idValidationSchema = z.object({ id: z.string().uuid() }).strict();
+
+export const getNameValidationSchema = (min: number = 3, max: number = 20) =>
+  z.string().min(min).max(max).trim().toLowerCase();

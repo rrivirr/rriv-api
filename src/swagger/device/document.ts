@@ -2,7 +2,7 @@ import { generateSchema } from "@anatine/zod-openapi";
 import { ParameterObject } from "npm:openapi3-ts@^4.4.0/oas31";
 import {
   deviceBindValidationSchema,
-  deviceGetQueryValidationSchema,
+  deviceQueryValidationSchema,
 } from "../../handler/device/schema.ts";
 import { registerDeviceSchema } from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
@@ -20,21 +20,21 @@ const singleDeviceResponse = {
   },
 };
 registerDeviceSchema();
-const DeviceGetQuerySchema = generateSchema(deviceGetQueryValidationSchema);
-const DeviceGetQuerySchemaProperties = DeviceGetQuerySchema.properties;
+const DeviceQuerySchema = generateSchema(deviceQueryValidationSchema);
+const DeviceQuerySchemaProperties = DeviceQuerySchema.properties;
 
 swaggerBuilder.addPath(basePath, {
   get: {
     tags,
     summary: `Get user's list of devices`,
     parameters: [
-      ...Object.keys(DeviceGetQuerySchemaProperties as object).map((
+      ...Object.keys(DeviceQuerySchemaProperties as object).map((
         q: string,
       ) =>
         ({
           name: q,
           in: "query",
-          schema: { ...DeviceGetQuerySchemaProperties![q] },
+          schema: { ...DeviceQuerySchemaProperties![q] },
         }) as ParameterObject
       ),
     ],

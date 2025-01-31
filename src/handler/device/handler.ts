@@ -2,7 +2,7 @@
 import { Request, Response } from "npm:express";
 import {
   deviceBindValidationSchema,
-  deviceGetQueryValidationSchema,
+  deviceQueryValidationSchema,
   serialNumberValidationSchema,
 } from "./schema.ts";
 import * as deviceService from "../../service/device.service.ts";
@@ -29,7 +29,7 @@ export const unbindDevice = async (req: Request, res: Response) => {
 
 export const getDevices = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const query = deviceGetQueryValidationSchema.parse(req.query);
+  const query = deviceQueryValidationSchema.parse(req.query);
 
   const devices = await deviceService.getDevices({ ...query, accountId });
   res.status(200).json(devices);

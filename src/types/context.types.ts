@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { AccountIdDto, IdDto } from "./generic.types.ts";
 import {
-  contextGetQueryValidationSchema,
-  contextPatchValidationSchema,
-  contextPostValidationSchema,
+  contextQueryValidationSchema,
+  createContextValidationSchema,
+  updateContextValidationSchema,
 } from "../handler/context/schema.ts";
 import {
   createDeviceContextValidationSchema,
@@ -12,16 +12,16 @@ import {
 } from "../handler/device-context/schema.ts";
 
 export type CreateContextDto =
-  & z.infer<typeof contextPostValidationSchema>
+  & z.infer<typeof createContextValidationSchema>
   & AccountIdDto;
 
 export type UpdateContextDto =
-  & z.infer<typeof contextPatchValidationSchema>
+  & z.infer<typeof updateContextValidationSchema>
   & AccountIdDto
   & IdDto;
 
 export type QueryContextDto =
-  & z.input<typeof contextGetQueryValidationSchema>
+  & z.input<typeof contextQueryValidationSchema>
   & AccountIdDto
   & { name?: string };
 

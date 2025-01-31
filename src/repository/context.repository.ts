@@ -17,7 +17,7 @@ export const getContext = async (query: QueryContextDto) => {
     query;
   return await prisma.context.findMany({
     where: {
-      name: name || { contains: search, mode: "insensitive" },
+      name: name || { contains: search },
       accountId,
       archivedAt: null,
       ...(deviceId && {

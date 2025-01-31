@@ -38,8 +38,8 @@ export const getDevice = async (query: QueryDeviceDto) => {
 
   return await prisma.device.findMany({
     where: {
-      uniqueName: { contains: search, mode: "insensitive" },
-      serialNumber: { contains: search, mode: "insensitive" },
+      uniqueName: { contains: search },
+      serialNumber: { contains: search },
       archivedAt: null,
       Bind: {
         some: {

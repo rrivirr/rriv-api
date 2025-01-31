@@ -10,6 +10,13 @@ import { jwtMiddleware } from "./utils/middleware/jwt.middleware.ts";
 
 const app = express();
 
+app.use(
+  "/documentation",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerBuilder.getSpec()),
+);
+app.use(jwtMiddleware);
+
 app.use((req: Request, _res: Response, next: NextFunction) => {
   if (req.method === "POST" || req.method === "PATCH" || req.method === "PUT") {
     if (req.headers["content-type"] !== "application/json") {
@@ -22,15 +29,8 @@ app.use((req: Request, _res: Response, next: NextFunction) => {
   next();
 });
 
-app.use(
-  "/documentation",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerBuilder.getSpec()),
-);
-
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(jwtMiddleware);
 app.use(routes);
 app.use(errorHandler);
 

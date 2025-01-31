@@ -1,16 +1,16 @@
 // @deno-types="npm:@types/express@5"
 import { Request, Response } from "npm:express";
 import {
-  contextGetQueryValidationSchema,
-  contextPatchValidationSchema,
-  contextPostValidationSchema,
+  contextQueryValidationSchema,
+  createContextValidationSchema,
+  updateContextValidationSchema,
 } from "./schema.ts";
 import { idValidationSchema } from "../generic/generic.schema.ts";
 import * as contextService from "../../service/context.service.ts";
 
 export const createContext = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const requestBody = contextPostValidationSchema.parse(req.body);
+  const requestBody = createContextValidationSchema.parse(req.body);
   const createdContext = await contextService.createContext({
     ...requestBody,
     accountId,
@@ -20,7 +20,7 @@ export const createContext = async (req: Request, res: Response) => {
 
 export const getContext = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const query = contextGetQueryValidationSchema.parse(req.query);
+  const query = contextQueryValidationSchema.parse(req.query);
 
   const contexts = await contextService.getContext({ ...query, accountId });
   res.status(200).json(contexts);
@@ -28,7 +28,7 @@ export const getContext = async (req: Request, res: Response) => {
 
 export const updateContext = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const requestBody = contextPatchValidationSchema.parse(req.body);
+  const requestBody = updateContextValidationSchema.parse(req.body);
   const params = idValidationSchema.parse(req.params);
   const createdContext = await contextService.updateContext({
     ...requestBody,

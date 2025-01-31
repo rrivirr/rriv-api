@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "npm:express";
 import { HttpException } from "../http-exception.ts";
 import { verifyJwtToken } from "../../infra/jwt.ts";
 import prisma from "../../infra/prisma.ts";
+import winston from "../../winston.ts";
 import { idValidationSchema } from "../../handler/generic/generic.schema.ts";
 
 export const jwtMiddleware = async (
@@ -10,6 +11,7 @@ export const jwtMiddleware = async (
   _res: Response,
   next: NextFunction,
 ) => {
+  const logger = winston.child({ source: "jwtMiddleware" });
   const authorization = req.headers["authorization"];
   if (!authorization) {
     throw new HttpException(401, "invalid access token");
@@ -28,6 +30,7 @@ export const jwtMiddleware = async (
   const accountId = data.id;
   const account = await prisma.account.findUnique({ where: { id: accountId } });
   if (!account) {
+    logger.warn("account not found");
     throw new HttpException(401, "invalid access token");
   }
 

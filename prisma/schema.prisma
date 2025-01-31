@@ -109,7 +109,7 @@ model Bind {
 
 model DataloggerDriver {
   id               String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name             String             @unique
+  name             String
   validation       Json
   Creator          Account            @relation(fields: [creatorId], references: [id])
   creatorId        String             @map("creator_id") @db.Uuid
@@ -122,6 +122,7 @@ model DataloggerDriver {
 
 model DataloggerConfig {
   id                             String                           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                           String
   config                         Json
   DataloggerDriver               DataloggerDriver                 @relation(fields: [dataloggerDriverId], references: [id])
   dataloggerDriverId             String                           @map("datalogger_driver_id") @db.Uuid
@@ -137,7 +138,7 @@ model DataloggerConfig {
 
 model DataloggerLibraryConfig {
   id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name       String    @unique
+  name       String
   Creator    Account   @relation(fields: [creatorId], references: [id])
   creatorId  String    @map("creator_id") @db.Uuid
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
@@ -160,13 +161,12 @@ model DataloggerLibraryConfigVersion {
   createdAt                 DateTime                @default(now()) @map("created_at") @db.Timestamp(6)
   archivedAt                DateTime?               @map("archived_at") @db.Timestamp(6)
 
-  @@unique([dataloggerLibraryConfigId, version])
   @@map("datalogger_library_config_version")
 }
 
 model ConfigSnapshot {
   id                         String                       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name                       String?                      @unique
+  name                       String?
   DeviceContext              DeviceContext                @relation(fields: [deviceContextId], references: [id])
   deviceContextId            String                       @map("device_context_id") @db.Uuid
   DataloggerConfig           DataloggerConfig             @relation(fields: [dataloggerConfigId], references: [id])
@@ -175,6 +175,7 @@ model ConfigSnapshot {
   creatorId                  String                       @map("creator_id") @db.Uuid
   configuredAt               DateTime                     @map("configured_at") @db.Timestamp(6)
   createdAt                  DateTime                     @default(now()) @map("created_at") @db.Timestamp(6)
+  active                     Boolean
   archivedAt                 DateTime?                    @map("archived_at") @db.Timestamp(6)
   SystemLibraryConfigVersion SystemLibraryConfigVersion[]
   SensorConfigSnapshot       SensorConfigSnapshot[]
@@ -185,7 +186,7 @@ model ConfigSnapshot {
 
 model SystemLibraryConfig {
   id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name       String    @unique
+  name       String
   Creator    Account   @relation(fields: [creatorId], references: [id])
   creatorId  String    @map("creator_id") @db.Uuid
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
@@ -209,7 +210,7 @@ model SystemLibraryConfigVersion {
 
 model SensorDriver {
   id           String         @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name         String         @unique
+  name         String
   validation   Json
   Creator      Account        @relation(fields: [creatorId], references: [id])
   creatorId    String         @map("creator_id") @db.Uuid
@@ -222,6 +223,7 @@ model SensorDriver {
 
 model SensorConfig {
   id                         String                       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                       String
   config                     Json
   SensorDriver               SensorDriver                 @relation(fields: [sensorDriverId], references: [id])
   sensorDriverId             String                       @map("sensor_driver_id") @db.Uuid
@@ -237,7 +239,7 @@ model SensorConfig {
 
 model SensorLibraryConfig {
   id                         String                       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name                       String                       @unique
+  name                       String
   Creator                    Account                      @relation(fields: [creatorId], references: [id])
   creatorId                  String                       @map("creator_id") @db.Uuid
   createdAt                  DateTime                     @default(now()) @map("created_at") @db.Timestamp(6)
@@ -259,7 +261,6 @@ model SensorLibraryConfigVersion {
   createdAt             DateTime            @default(now()) @map("created_at") @db.Timestamp(6)
   archivedAt            DateTime?           @map("archived_at") @db.Timestamp(6)
 
-  @@unique([sensorLibraryConfigId, version])
   @@map("sensor_library_config_version")
 }
 

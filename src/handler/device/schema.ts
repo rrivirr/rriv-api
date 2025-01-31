@@ -1,13 +1,16 @@
 import { z } from "zod";
-import { getPaginationValidationSchema } from "../generic/generic.schema.ts";
+import {
+  getNameValidationSchema,
+  getPaginationValidationSchema,
+} from "../generic/generic.schema.ts";
 
 export const deviceBindValidationSchema = z.object({
-  uniqueName: z.string().min(3).max(25).trim().toLowerCase().optional(),
+  uniqueName: getNameValidationSchema().optional(),
 });
 
-export const deviceGetQueryValidationSchema = z
+export const deviceQueryValidationSchema = z
   .object({
-    search: z.string().max(20).trim().optional(),
+    search: getNameValidationSchema().optional(),
     contextId: z.string().uuid().optional(),
   })
   .merge(
@@ -19,6 +22,6 @@ export const deviceGetQueryValidationSchema = z
   .strict();
 
 export const serialNumberValidationSchema = z.object({
-  serialNumber: z.string().min(3).max(25).trim().toLowerCase(),
+  serialNumber: getNameValidationSchema(),
 })
   .strict();

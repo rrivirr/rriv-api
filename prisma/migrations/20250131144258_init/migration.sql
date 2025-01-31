@@ -93,6 +93,7 @@ CREATE TABLE "datalogger_driver" (
 -- CreateTable
 CREATE TABLE "datalogger_config" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "name" TEXT NOT NULL,
     "config" JSONB NOT NULL,
     "datalogger_driver_id" UUID NOT NULL,
     "creator_id" UUID NOT NULL,
@@ -135,6 +136,7 @@ CREATE TABLE "config_snapshot" (
     "creator_id" UUID NOT NULL,
     "configured_at" TIMESTAMP(6) NOT NULL,
     "created_at" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "active" BOOLEAN NOT NULL,
     "archived_at" TIMESTAMP(6),
 
     CONSTRAINT "config_snapshot_pkey" PRIMARY KEY ("id")
@@ -178,6 +180,7 @@ CREATE TABLE "sensor_driver" (
 -- CreateTable
 CREATE TABLE "sensor_config" (
     "id" UUID NOT NULL DEFAULT uuid_generate_v4(),
+    "name" TEXT NOT NULL,
     "config" JSONB NOT NULL,
     "sensor_driver_id" UUID NOT NULL,
     "creator_id" UUID NOT NULL,
@@ -310,30 +313,6 @@ CREATE UNIQUE INDEX "device_serial_number_key" ON "device"("serial_number");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "device_unique_name_key" ON "device"("unique_name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "datalogger_driver_name_key" ON "datalogger_driver"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "datalogger_library_config_name_key" ON "datalogger_library_config"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "datalogger_library_config_version_datalogger_library_config_key" ON "datalogger_library_config_version"("datalogger_library_config_id", "version");
-
--- CreateIndex
-CREATE UNIQUE INDEX "config_snapshot_name_key" ON "config_snapshot"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "system_library_config_name_key" ON "system_library_config"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "sensor_driver_name_key" ON "sensor_driver"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "sensor_library_config_name_key" ON "sensor_library_config"("name");
-
--- CreateIndex
-CREATE UNIQUE INDEX "sensor_library_config_version_sensor_library_config_id_vers_key" ON "sensor_library_config_version"("sensor_library_config_id", "version");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "sensor_config_snapshot_sensor_config_id_config_snapshot_id_key" ON "sensor_config_snapshot"("sensor_config_id", "config_snapshot_id");

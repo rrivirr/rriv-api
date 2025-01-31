@@ -1,9 +1,9 @@
 import { generateSchema } from "@anatine/zod-openapi";
 import { ParameterObject } from "npm:openapi3-ts@^4.4.0/oas31";
 import {
-  contextGetQueryValidationSchema,
-  contextPatchValidationSchema,
-  contextPostValidationSchema,
+  contextQueryValidationSchema,
+  createContextValidationSchema,
+  updateContextValidationSchema,
 } from "../../handler/context/schema.ts";
 import { idValidationSchema } from "../../handler/generic/generic.schema.ts";
 import { registerContextSchema } from "./schema.ts";
@@ -21,21 +21,21 @@ const singleContextResponse = {
   },
 };
 registerContextSchema();
-const ContextGetQuerySchema = generateSchema(contextGetQueryValidationSchema);
-const ContextGetQuerySchemaProperties = ContextGetQuerySchema.properties;
+const ContextQuerySchema = generateSchema(contextQueryValidationSchema);
+const ContextQuerySchemaProperties = ContextQuerySchema.properties;
 
 swaggerBuilder.addPath(basePath, {
   get: {
     tags,
     summary: `Get user's list of contexts`,
     parameters: [
-      ...Object.keys(ContextGetQuerySchemaProperties as object).map((
+      ...Object.keys(ContextQuerySchemaProperties as object).map((
         q: string,
       ) =>
         ({
           name: q,
           in: "query",
-          schema: { ...ContextGetQuerySchemaProperties![q] },
+          schema: { ...ContextQuerySchemaProperties![q] },
         }) as ParameterObject
       ),
     ],
@@ -55,7 +55,7 @@ swaggerBuilder.addPath(basePath, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(contextPostValidationSchema),
+          schema: generateSchema(createContextValidationSchema),
         },
       },
     },
@@ -77,7 +77,7 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(contextPatchValidationSchema),
+          schema: generateSchema(updateContextValidationSchema),
         },
       },
     },
