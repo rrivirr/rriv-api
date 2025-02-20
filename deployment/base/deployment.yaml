@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rriv-api
+  labels:
+    app: rriv-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rriv-api
+  template:
+    metadata:
+      labels:
+        app: rriv-api
+    spec:
+      containers:
+        - name: rriv-api
+          image: rrivirr/rriv-api:1.0.0
+          ports:
+            - containerPort: 80
+          env:
+            - name: DATABASE_URL
+              value: notspecified
+            - name: DATABASE_SCHEMA
+              value: rriv
