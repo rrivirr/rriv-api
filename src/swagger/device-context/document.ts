@@ -5,9 +5,10 @@ import {
   updateDeviceContextValidationSchema,
 } from "../../handler/device-context/schema.ts";
 import { swaggerBuilder } from "../index.ts";
+import { registerDeviceContextSchema } from "./schema.ts";
 
 export const path = "/context/:contextId/device/:deviceId";
-
+registerDeviceContextSchema();
 const tags = ["context"];
 const mediaTypeHeader = "application/json";
 
@@ -55,6 +56,18 @@ swaggerBuilder.addPath(path, {
     tags,
     responses: {
       200: {},
+    },
+  },
+  get: {
+    tags,
+    responses: {
+      200: {
+        content: {
+          [mediaTypeHeader]: {
+            schema: { $ref: "#/components/schemas/DeviceContext" },
+          },
+        },
+      },
     },
   },
 });

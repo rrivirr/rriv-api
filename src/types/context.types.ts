@@ -22,8 +22,7 @@ export type UpdateContextDto =
 
 export type QueryContextDto =
   & z.input<typeof contextQueryValidationSchema>
-  & AccountIdDto
-  & { name?: string };
+  & AccountIdDto;
 
 export type UniqueContextDto = { contextId: string } & AccountIdDto;
 
@@ -41,6 +40,6 @@ export type UpdateDeviceContextDto =
   & UniqueDeviceContextDto
   & AccountIdDto;
 
-export type DeleteDeviceContextDto =
+export type DeviceContextDto =
   & UniqueDeviceContextDto
   & AccountIdDto;

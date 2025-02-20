@@ -11,6 +11,7 @@ export const createContextValidationSchema = z
 export const contextQueryValidationSchema = z
   .object({
     search: getNameValidationSchema().optional(),
+    name: getNameValidationSchema().optional(),
     deviceId: z.string().uuid().optional(),
   })
   .merge(

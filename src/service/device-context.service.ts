@@ -1,12 +1,30 @@
 import {
   CreateDeviceContextDto,
-  DeleteDeviceContextDto,
+  DeviceContextDto,
   UpdateDeviceContextDto,
 } from "../types/context.types.ts";
 import { HttpException } from "../utils/http-exception.ts";
 import { validateDevice } from "./utils/validate-device.ts";
 import * as deviceContextRepository from "../repository/device-context.repository.ts";
 import { validateContext } from "./utils/validate-context.ts";
+
+export const getDeviceContext = async (query: DeviceContextDto) => {
+  const { contextId, deviceId, accountId } = query;
+
+  await validateContext({ contextId, accountId });
+
+  const deviceObject = await validateDevice({ id: deviceId, accountId });
+  if (!deviceObject) {
+    throw new HttpException(404, "device not found");
+  }
+  const { activeDeviceContext } = deviceObject;
+
+  if (!activeDeviceContext || activeDeviceContext.contextId !== contextId) {
+    return null;
+  }
+
+  return { ...activeDeviceContext, Context: undefined };
+};
 
 export const createDeviceContext = async (
   requestBody: CreateDeviceContextDto,
@@ -35,7 +53,10 @@ export const createDeviceContext = async (
   const { activeDeviceContext } = deviceObject;
 
   if (activeDeviceContext) {
-    throw new HttpException(422, "device is already in a context");
+    throw new HttpException(
+      422,
+      `device already in ${activeDeviceContext.Context.name} context`,
+    );
   }
 
   // add device to context
@@ -79,7 +100,7 @@ export const updateDeviceContext = async (body: UpdateDeviceContextDto) => {
   await deviceContextRepository.updateDeviceContext(body);
 };
 
-export const deleteDeviceContext = async (body: DeleteDeviceContextDto) => {
+export const deleteDeviceContext = async (body: DeviceContextDto) => {
   const { contextId, deviceId, accountId } = body;
 
   await validateContext({ contextId, accountId });

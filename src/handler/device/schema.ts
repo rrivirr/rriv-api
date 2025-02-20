@@ -11,6 +11,9 @@ export const deviceBindValidationSchema = z.object({
 export const deviceQueryValidationSchema = z
   .object({
     search: getNameValidationSchema().optional(),
+    serialNumber: getNameValidationSchema().optional(),
+    uniqueName: getNameValidationSchema().optional(),
+    id: z.string().uuid().optional(),
     contextId: z.string().uuid().optional(),
   })
   .merge(

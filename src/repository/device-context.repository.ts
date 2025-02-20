@@ -10,7 +10,7 @@ export const getDeviceContext = async (
   const { contextId, assignedDeviceName } = body;
 
   return await prisma.deviceContext.findMany({
-    where: { contextId, assignedDeviceName, archivedAt: null },
+    where: { contextId, assignedDeviceName, archivedAt: null, endedAt: null },
   });
 };
 
