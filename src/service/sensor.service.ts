@@ -11,10 +11,8 @@ import {
 import * as sensorRepository from "../repository/sensor.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
 import { AccountIdDto, IdDto } from "../types/generic.types.ts";
-
-export const getSensorConfig = async (query: QuerySensorConfigDto) => {
-  return await sensorRepository.getSensorConfig(query);
-};
+import { getDeviceContext } from "./device-context.service.ts";
+import { isDeepStrictEqual } from "node:util";
 
 export const getSensorDriver = async (query: QuerySensorDriverDto) => {
   return await sensorRepository.getSensorDriver(query);
@@ -28,6 +26,10 @@ export const getSensorLibraryConfig = async (
 
 export const getSensorLibraryConfigById = async (query: IdDto) => {
   return await sensorRepository.getSensorLibraryConfigById(query);
+};
+
+const getSensorConfig = async (query: QuerySensorConfigDto) => {
+  return await sensorRepository.getSensorConfig(query);
 };
 
 const getSensorDriverById = async (query: IdDto) => {
@@ -58,11 +60,39 @@ export const createSensorDriver = async (
 export const createSensorConfig = async (
   requestBody: CreateSensorConfigDto,
 ) => {
-  const { name, accountId, sensorDriverId, config } = requestBody;
+  const {
+    name,
+    accountId,
+    sensorDriverId,
+    config,
+    deviceId,
+    contextId,
+    singlePropertyChange,
+  } = requestBody;
 
-  const existingSensorConfig = await getSensorConfig({ name, accountId });
+  const deviceContext = await getDeviceContext({
+    contextId,
+    deviceId,
+    accountId,
+  });
+
+  if (!deviceContext) {
+    throw new HttpException(422, "device context not found");
+  }
+  const { configSnapshotId } = deviceContext;
+
+  const existingSensorConfig = await getSensorConfig({
+    name,
+    accountId,
+    configSnapshotId,
+    active: true,
+  });
+
+  let sensorConfigToDeactivateId: string | undefined;
+  let existingConfig;
   if (existingSensorConfig.length) {
-    throw new HttpException(409, `${name} already exists`);
+    sensorConfigToDeactivateId = existingSensorConfig[0].id;
+    existingConfig = existingSensorConfig[0].config;
   }
 
   const sensorDriver = await getSensorDriverById({
@@ -72,15 +102,26 @@ export const createSensorConfig = async (
     throw new HttpException(409, "sensor driver specified not found");
   }
 
+  const configToCreate = singlePropertyChange
+    // deno-lint-ignore no-explicit-any
+    ? { ...(existingConfig && { ...existingConfig as any }), ...config }
+    : config;
+
   const { validation } = sensorDriver;
   const ajv = new Ajv();
   const validate = ajv.compile(validation as AnySchema);
-  const isValid = validate(config);
+  const isValid = validate(configToCreate);
   if (!isValid) {
     throw new HttpException(422, "invalid config received");
   }
 
-  return await sensorRepository.createSensorConfig(requestBody);
+  return await sensorRepository.createSensorConfig({
+    ...requestBody,
+    config: configToCreate,
+    active: true,
+    configSnapshotId,
+    sensorConfigToDeactivateId,
+  });
 };
 
 export const createSensorLibraryConfig = async (
@@ -98,7 +139,11 @@ export const createSensorLibraryConfig = async (
     throw new HttpException(409, `${name} already exists`);
   }
 
-  return await sensorRepository.createSensorLibraryConfig(requestBody);
+  return await sensorRepository.createSensorLibraryConfig({
+    name,
+    accountId,
+    sensorConfig,
+  });
 };
 
 export const createNewSensorLibraryConfigVersion = async (
@@ -111,32 +156,39 @@ export const createNewSensorLibraryConfigVersion = async (
     throw new HttpException(404, "sensor library config not found");
   }
 
+  const sensorConfig = await getSensorConfigById({ id: sensorConfigId });
+  if (!sensorConfig || sensorConfig.creatorId !== accountId) {
+    throw new HttpException(404, "sensor config not found");
+  }
+
   const sensorLibraryConfigVersions =
     sensorLibraryConfig.SensorLibraryConfigVersion;
 
   if (!sensorLibraryConfigVersions.length) {
     await sensorRepository.createNewSensorLibraryConfigVersion({
       accountId,
-      sensorConfigId,
+      sensorConfig,
       sensorLibraryConfigId: id,
       version: 1,
     });
   } else {
-    // check if sensorConfigId has already been published to this library
-    const existingSensorConfigId = sensorLibraryConfigVersions.find((s) =>
-      s.SensorConfig.id === sensorConfigId
-    );
-    if (existingSensorConfigId) {
-      throw new HttpException(
-        409,
-        `sensorConfigId already added to this library as version ${existingSensorConfigId.version}`,
-      );
-    }
     // already ordered in the db query
     const latestLibraryConfigVersion = sensorLibraryConfigVersions[0];
+
+    const configsEqual = isDeepStrictEqual(
+      latestLibraryConfigVersion.SensorConfig.config,
+      sensorConfig.config,
+    );
+
+    if (configsEqual) {
+      throw new HttpException(
+        409,
+        `current sensor config is published as latest version`,
+      );
+    }
     await sensorRepository.createNewSensorLibraryConfigVersion({
       accountId,
-      sensorConfigId,
+      sensorConfig,
       sensorLibraryConfigId: id,
       version: latestLibraryConfigVersion.version + 1,
     });
@@ -169,13 +221,10 @@ export const deleteSensorConfig = async (requestBody: IdDto & AccountIdDto) => {
     throw new HttpException(404, "sensor driver not found");
   }
 
-  if (
-    sensorConfig.SensorConfigSnapshot.length ||
-    sensorConfig.SensorLibraryConfigVersion.length
-  ) {
+  if (sensorConfig.SensorLibraryConfigVersion.length) {
     throw new HttpException(
       409,
-      "sensor config is in use by a config snapshot or a sensor config library",
+      "sensor config is in use by a sensor config library",
     );
   }
 

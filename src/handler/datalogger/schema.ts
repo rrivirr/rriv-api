@@ -5,7 +5,7 @@ import {
   getPaginationValidationSchema,
 } from "../generic/generic.schema.ts";
 
-export const createSensorDriverValidationSchema = z.object({
+export const createDataloggerDriverValidationSchema = z.object({
   name: getNameValidationSchema(),
   validation: z.record(z.unknown()).refine(
     (data) => {
@@ -23,17 +23,17 @@ export const createSensorDriverValidationSchema = z.object({
   ),
 }).strict();
 
-export const createSensorConfigValidationSchema = z.object({
+export const createDataloggerConfigValidationSchema = z.object({
   name: getNameValidationSchema(),
   config: z.record(z.union([z.string(), z.number(), z.boolean()])),
-  sensorDriverId: z.string().uuid(),
+  dataloggerDriverId: z.string().uuid(),
   deviceId: z.string().uuid(),
   contextId: z.string().uuid(),
   singlePropertyChange: z.boolean(),
   createdAt: z.coerce.date().optional(),
 }).strict();
 
-export const sensorDriverQueryValidationSchema = z
+export const dataloggerDriverQueryValidationSchema = z
   .object({
     search: getNameValidationSchema().optional(),
   })
@@ -41,20 +41,24 @@ export const sensorDriverQueryValidationSchema = z
     getPaginationValidationSchema(["createdAt", "name"], "createdAt"),
   ).strict();
 
-export const createSensorLibraryConfigValidationSchema = z.object({
+export const createDataloggerLibraryConfigValidationSchema = z.object({
   name: getNameValidationSchema(),
   description: getNameValidationSchema().optional(),
-  sensorConfigId: z.string().uuid(),
+  deviceId: z.string().uuid(),
+  contextId: z.string().uuid(),
 }).strict();
 
-export const sensorLibraryConfigQueryValidationSchema = z.object({
+export const dataloggerLibraryConfigQueryValidationSchema = z.object({
   search: getNameValidationSchema().optional(),
   isPublic: z.boolean().optional().default(true),
 }).merge(
   getPaginationValidationSchema(["createdAt", "name"], "createdAt"),
 ).strict();
 
-export const createNewSensorLibraryConfigVersionValidationSchema = z.object({
-  sensorConfigId: z.string().uuid(),
-  description: getNameValidationSchema().optional(),
-}).strict();
+export const createNewDataloggerLibraryConfigVersionValidationSchema = z.object(
+  {
+    deviceId: z.string().uuid(),
+    contextId: z.string().uuid(),
+    description: getNameValidationSchema().optional(),
+  },
+).strict();

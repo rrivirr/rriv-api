@@ -1,14 +1,14 @@
 import { swaggerBuilder } from "../index.ts";
 
-export const registerSensorConfigSchema = () =>
-  swaggerBuilder.addSchema("SensorConfig", {
+export const registerDataloggerConfigSchema = () =>
+  swaggerBuilder.addSchema("DataloggerConfig", {
     type: "object",
     properties: {
       id: { type: "string", format: "uuid" },
       name: { type: "string" },
       config: { type: "object" },
-      sensorDriverId: { type: "string", format: "uuid" },
-      sensorDriver: {
+      dataloggerDriverId: { type: "string", format: "uuid" },
+      dataloggerDriver: {
         type: "object",
         properties: {
           name: { type: "string" },
@@ -20,8 +20,8 @@ export const registerSensorConfigSchema = () =>
     },
   });
 
-export const registerSensorDriverSchema = () =>
-  swaggerBuilder.addSchema("SensorDriver", {
+export const registerDataloggerDriverSchema = () =>
+  swaggerBuilder.addSchema("DataloggerDriver", {
     type: "object",
     properties: {
       id: { type: "string", format: "uuid" },
@@ -38,8 +38,8 @@ export const registerSensorDriverSchema = () =>
     },
   });
 
-export const registerSensorLibraryConfig = () =>
-  swaggerBuilder.addSchema("SensorLibraryConfig", {
+export const registerDataloggerLibraryConfig = () =>
+  swaggerBuilder.addSchema("DataloggerLibraryConfig", {
     type: "object",
     properties: {
       id: { type: "string", format: "uuid" },
@@ -55,8 +55,8 @@ export const registerSensorLibraryConfig = () =>
     },
   });
 
-export const registerSensorLibraryConfigById = () =>
-  swaggerBuilder.addSchema("SensorLibraryConfigById", {
+export const registerDataloggerLibraryConfigById = () =>
+  swaggerBuilder.addSchema("DataloggerLibraryConfigById", {
     type: "object",
     properties: {
       id: { type: "string", format: "uuid" },
@@ -69,7 +69,7 @@ export const registerSensorLibraryConfigById = () =>
           lastName: { type: "string" },
         },
       },
-      SensorLibraryConfigVersion: {
+      DataloggerLibraryConfigVersion: {
         type: "array",
         items: {
           type: "object",
@@ -82,7 +82,7 @@ export const registerSensorLibraryConfigById = () =>
                 lastName: { type: "string" },
               },
             },
-            SensorConfig: {
+            DataloggerConfig: {
               type: "object",
               properties: {
                 id: { type: "string", format: "uuid" },
