@@ -5,7 +5,6 @@ import {
   createSensorConfigValidationSchema,
   createSensorDriverValidationSchema,
   createSensorLibraryConfigValidationSchema,
-  sensorConfigQueryValidationSchema,
   sensorDriverQueryValidationSchema,
   sensorLibraryConfigQueryValidationSchema,
 } from "./schema.ts";
@@ -40,17 +39,6 @@ export const createSensorConfig = async (req: Request, res: Response) => {
     accountId,
   });
   res.status(201).json(sensorConfig);
-};
-
-export const getSensorConfig = async (req: Request, res: Response) => {
-  const accountId = req.accountId;
-  const query = sensorConfigQueryValidationSchema.parse(req.query);
-
-  const sensorConfigs = await sensorService.getSensorConfig({
-    ...query,
-    accountId,
-  });
-  res.status(200).json(sensorConfigs);
 };
 
 export const deleteSensorDriver = async (req: Request, res: Response) => {
@@ -90,9 +78,10 @@ export const createSensorLibraryConfig = async (
 };
 
 export const getSensorLibraryConfig = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
   const query = sensorLibraryConfigQueryValidationSchema.parse(req.query);
   const sensorLibraryConfigs = await sensorService.getSensorLibraryConfig(
-    query,
+    { ...query, accountId },
   );
   res.status(200).json(sensorLibraryConfigs);
 };

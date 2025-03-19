@@ -6,7 +6,6 @@ import {
   deleteSensorConfig,
   deleteSensorDriver,
   deleteSensorLibraryConfig,
-  getSensorConfig,
   getSensorDriver,
   getSensorLibraryConfig,
   getSensorLibraryConfigById,
@@ -21,7 +20,7 @@ const routerWrapper = getExpressRouter();
 
 router.route("/driver").post(createSensorDriver).get(getSensorDriver);
 router.route("/driver/:id").delete(deleteSensorDriver);
-router.route("/config").post(createSensorConfig).get(getSensorConfig);
+router.route("/config").post(createSensorConfig);
 router.route("/config/:id").delete(deleteSensorConfig);
 router.route("/libraryConfig").post(createSensorLibraryConfig).get(
   getSensorLibraryConfig,

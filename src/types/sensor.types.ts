@@ -5,7 +5,6 @@ import {
   createSensorConfigValidationSchema,
   createSensorDriverValidationSchema,
   createSensorLibraryConfigValidationSchema,
-  sensorConfigQueryValidationSchema,
   sensorDriverQueryValidationSchema,
   sensorLibraryConfigQueryValidationSchema,
 } from "../handler/sensor/schema.ts";
@@ -19,9 +18,8 @@ export type CreateSensorConfigDto =
   & AccountIdDto;
 
 export type QuerySensorConfigDto =
-  & z.input<typeof sensorConfigQueryValidationSchema>
   & AccountIdDto
-  & { name?: string };
+  & { name?: string; configSnapshotId?: string; active?: boolean };
 
 export type QuerySensorDriverDto =
   & z.input<typeof sensorDriverQueryValidationSchema>
@@ -33,7 +31,7 @@ export type CreateSensorLibraryConfigDto =
 
 export type QuerySensorLibraryConfigDto =
   & z.input<typeof sensorLibraryConfigQueryValidationSchema>
-  & { name?: string };
+  & { name?: string; accountId?: string };
 
 export type CreateSensorLibraryConfigVersionDto =
   & z.infer<
