@@ -24,6 +24,7 @@ export const getDeviceBySerialNumberOrId = async (
         },
       },
       DeviceContext: {
+        include: { Context: { select: { name: true } } },
         where: {
           archivedAt: null,
           endedAt: null,
@@ -34,12 +35,24 @@ export const getDeviceBySerialNumberOrId = async (
 };
 
 export const getDevice = async (query: QueryDeviceDto) => {
-  const { search, limit, offset, order, orderBy, accountId, contextId } = query;
+  const {
+    search,
+    limit,
+    offset,
+    order,
+    orderBy,
+    accountId,
+    contextId,
+    id,
+    serialNumber,
+    uniqueName,
+  } = query;
 
   return await prisma.device.findMany({
     where: {
-      uniqueName: { contains: search },
-      serialNumber: { contains: search },
+      id,
+      uniqueName: uniqueName || { contains: search },
+      serialNumber: serialNumber || { contains: search },
       archivedAt: null,
       Bind: {
         some: {

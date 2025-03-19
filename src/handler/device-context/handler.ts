@@ -6,6 +6,7 @@ import {
   updateDeviceContextValidationSchema,
 } from "./schema.ts";
 import * as deviceContextService from "../../service/device-context.service.ts";
+import { HttpException } from "../../utils/http-exception.ts";
 
 export const createDeviceContext = async (req: Request, res: Response) => {
   const accountId = req.accountId;
@@ -17,6 +18,21 @@ export const createDeviceContext = async (req: Request, res: Response) => {
     ...requestBody,
   });
   res.status(201).json();
+};
+
+export const getDeviceContext = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
+  const params = deviceContextParamsValidationSchema.parse(req.params);
+  const deviceContext = await deviceContextService.getDeviceContext({
+    accountId,
+    ...params,
+  });
+
+  if (!deviceContext) {
+    throw new HttpException(404, "device context not found");
+  }
+
+  res.status(201).json(deviceContext);
 };
 
 export const updateDeviceContext = async (req: Request, res: Response) => {

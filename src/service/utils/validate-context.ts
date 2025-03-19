@@ -9,6 +9,6 @@ export const validateContext = async (body: UniqueContextDto) => {
     throw new HttpException(404, "context not found");
   }
   if (context.endedAt) {
-    throw new HttpException(404, "context has ended");
+    throw new HttpException(409, "context has ended");
   }
 };
