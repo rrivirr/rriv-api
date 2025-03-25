@@ -5,7 +5,7 @@ The main RRIV API, the heart of our platform.
 # Installation
 
 ```bash
-deno install --entrypoint src/server.ts
+deno install --entrypoint src/server.ts --allow-scripts
 ```
 
 # Post-Installation Instructions
