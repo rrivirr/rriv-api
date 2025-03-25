@@ -27,8 +27,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@mermaid-js/mermaid-cli": "^11.4.2",
     "prisma": "^6.2.1",
-    "prisma-erd-generator": "^2.0.4"
+    "prisma-grapher": "^1.0.0"
   }
 }
