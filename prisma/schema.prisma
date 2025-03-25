@@ -4,11 +4,6 @@ generator client {
   output          = "../node_modules/generated"
 }
 
-generator erd {
-  provider = "prisma-grapher"
-  title    = "RRIV API"
-}
-
 datasource db {
   provider   = "postgresql"
   extensions = [uuidOssp(map: "uuid-ossp"), postgis]
