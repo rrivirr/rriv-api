@@ -5,9 +5,47 @@ import { IdDto } from "../types/generic.types.ts";
 import {
   CreateDataloggerConfigDto,
   CreateDataloggerDriverDto,
+  QueryDataloggerConfigDto,
   QueryDataloggerDriverDto,
   QueryDataloggerLibraryConfigDto,
 } from "../types/datalogger.types.ts";
+
+export const getActiveDataloggerConfig = async (
+  query: { configSnapshotId: string; accountId: string },
+) => {
+  const { configSnapshotId, accountId } = query;
+  return await prisma.dataloggerConfig.findMany({
+    where: {
+      configSnapshotId,
+      active: true,
+      archivedAt: null,
+      creatorId: accountId,
+    },
+  });
+};
+
+export const getDataloggerConfig = async (query: QueryDataloggerConfigDto) => {
+  const {
+    accountId,
+    configSnapshotId,
+    active,
+    order = "desc",
+    limit,
+    offset,
+  } = query;
+  return await prisma.dataloggerConfig.findMany({
+    where: {
+      name,
+      creatorId: accountId,
+      configSnapshotId,
+      active,
+      archivedAt: null,
+    },
+    take: limit,
+    skip: offset,
+    orderBy: { createdAt: order },
+  });
+};
 
 export const getDataloggerDriverById = async (query: IdDto) => {
   const { id } = query;
@@ -106,7 +144,8 @@ export const getDataloggerLibraryConfig = async (
     where: {
       name: name || { contains: search },
       archivedAt: null,
-      ...(!isPublic && { creatorId: accountId }),
+      ...(typeof isPublic === "boolean" &&
+        { creatorId: isPublic ? undefined : accountId }),
     },
     take: limit,
     skip: offset,

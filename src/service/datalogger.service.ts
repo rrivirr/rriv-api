@@ -5,6 +5,7 @@ import {
   CreateDataloggerDriverDto,
   CreateDataloggerLibraryConfigDto,
   CreateDataloggerLibraryConfigVersionDto,
+  QueryDataloggerConfigDto,
   QueryDataloggerDriverDto,
   QueryDataloggerLibraryConfigDto,
 } from "../types/datalogger.types.ts";
@@ -15,6 +16,12 @@ import { getDeviceContext } from "./device-context.service.ts";
 
 export const getDataloggerDriver = async (query: QueryDataloggerDriverDto) => {
   return await dataloggerRepository.getDataloggerDriver(query);
+};
+
+export const getDataloggerConfig = async (
+  query: QueryDataloggerConfigDto,
+) => {
+  return await dataloggerRepository.getDataloggerConfig(query);
 };
 
 export const getDataloggerLibraryConfig = async (
@@ -36,9 +43,19 @@ const getDataloggerConfigById = async (query: IdDto) => {
 };
 
 const getActiveDataloggerConfig = async (
-  query: { deviceId: string; contextId: string; accountId: string },
+  query: {
+    deviceId: string;
+    contextId: string;
+    accountId: string;
+    configSnapshotId?: string;
+  },
 ) => {
-  const { contextId, deviceId, accountId } = query;
+  const {
+    contextId,
+    deviceId,
+    accountId,
+  } = query;
+
   const deviceContext = await getDeviceContext({
     contextId,
     deviceId,
@@ -49,21 +66,19 @@ const getActiveDataloggerConfig = async (
     throw new HttpException(422, "device context not found");
   }
 
-  const { dataloggerConfigId } = deviceContext;
+  const { configSnapshotId } = deviceContext;
 
-  if (!dataloggerConfigId) {
-    throw new HttpException(404, "datalogger config not found");
+  const dataloggerConfigs = await dataloggerRepository
+    .getActiveDataloggerConfig({ configSnapshotId, accountId });
+
+  if (dataloggerConfigs.length > 1) {
+    throw new HttpException(
+      500,
+      `more than one active datalogger config found for config snapshot ${configSnapshotId}`,
+    );
   }
 
-  const dataloggerConfig = await getDataloggerConfigById({
-    id: dataloggerConfigId,
-  });
-
-  if (!dataloggerConfig) {
-    throw new HttpException(500, "datalogger not found by id");
-  }
-
-  return dataloggerConfig;
+  return { dataloggerConfig: dataloggerConfigs[0], configSnapshotId };
 };
 
 export const createDataloggerDriver = async (
@@ -95,29 +110,16 @@ export const createDataloggerConfig = async (
     singlePropertyChange,
   } = requestBody;
 
-  const deviceContext = await getDeviceContext({
-    contextId,
-    deviceId,
-    accountId,
-  });
-
-  if (!deviceContext) {
-    throw new HttpException(422, "device context not found");
-  }
-  const {
-    configSnapshotId,
-    dataloggerConfigId: dataloggerConfigToDeactivateId,
-  } = deviceContext;
+  const { dataloggerConfig, configSnapshotId } =
+    await getActiveDataloggerConfig({
+      contextId,
+      deviceId,
+      accountId,
+    });
 
   let existingConfig;
-  if (dataloggerConfigToDeactivateId && singlePropertyChange) {
-    const existingDatalogger = await getDataloggerConfigById({
-      id: dataloggerConfigToDeactivateId,
-    });
-    if (!existingDatalogger) {
-      throw new HttpException(500, "datalogger not found by id");
-    }
-    existingConfig = existingDatalogger.config;
+  if (dataloggerConfig && singlePropertyChange) {
+    existingConfig = dataloggerConfig.config;
   }
 
   const dataloggerDriver = await getDataloggerDriverById({
@@ -145,7 +147,7 @@ export const createDataloggerConfig = async (
     config: configToCreate,
     active: true,
     configSnapshotId,
-    dataloggerConfigToDeactivateId,
+    dataloggerConfigToDeactivateId: dataloggerConfig.id,
   });
 };
 
@@ -161,11 +163,15 @@ export const createDataloggerLibraryConfig = async (
     throw new HttpException(409, `${name} already exists`);
   }
 
-  const dataloggerConfig = await getActiveDataloggerConfig({
+  const { dataloggerConfig } = await getActiveDataloggerConfig({
     deviceId,
     contextId,
     accountId,
   });
+
+  if (!dataloggerConfig) {
+    throw new HttpException(404, "datalogger config not found");
+  }
 
   return await dataloggerRepository.createDataloggerLibraryConfig({
     name,
@@ -187,11 +193,15 @@ export const createNewDataloggerLibraryConfigVersion = async (
     throw new HttpException(404, "datalogger library config not found");
   }
 
-  const dataloggerConfig = await getActiveDataloggerConfig({
+  const { dataloggerConfig } = await getActiveDataloggerConfig({
     deviceId,
     contextId,
     accountId,
   });
+
+  if (!dataloggerConfig) {
+    throw new HttpException(404, "datalogger config not found");
+  }
 
   const dataloggerLibraryConfigVersions =
     dataloggerLibraryConfig.DataloggerLibraryConfigVersion;

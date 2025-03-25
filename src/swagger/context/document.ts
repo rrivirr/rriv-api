@@ -1,11 +1,11 @@
 import { generateSchema } from "@anatine/zod-openapi";
 import { ParameterObject } from "npm:openapi3-ts@^4.4.0/oas31";
 import {
-  contextQueryValidationSchema,
-  createContextValidationSchema,
-  updateContextValidationSchema,
+  contextQuerySchema,
+  createContextSchema,
+  updateContextSchema,
 } from "../../handler/context/schema.ts";
-import { idValidationSchema } from "../../handler/generic/generic.schema.ts";
+import { idSchema } from "../../handler/generic/generic.schema.ts";
 import { registerContextSchema } from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
 
@@ -21,7 +21,7 @@ const singleContextResponse = {
   },
 };
 registerContextSchema();
-const ContextQuerySchema = generateSchema(contextQueryValidationSchema);
+const ContextQuerySchema = generateSchema(contextQuerySchema);
 const ContextQuerySchemaProperties = ContextQuerySchema.properties;
 
 swaggerBuilder.addPath(basePath, {
@@ -55,7 +55,7 @@ swaggerBuilder.addPath(basePath, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(createContextValidationSchema),
+          schema: generateSchema(createContextSchema),
         },
       },
     },
@@ -69,7 +69,7 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
   parameters: [{
     name: "id",
     in: "path",
-    schema: generateSchema(idValidationSchema).properties!["id"],
+    schema: generateSchema(idSchema).properties!["id"],
   }],
   patch: {
     tags,
@@ -77,7 +77,7 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(updateContextValidationSchema),
+          schema: generateSchema(updateContextSchema),
         },
       },
     },

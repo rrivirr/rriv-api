@@ -90,6 +90,14 @@ export const createSensorConfig = async (
 
   let sensorConfigToDeactivateId: string | undefined;
   let existingConfig;
+
+  if (existingSensorConfig.length > 1) {
+    throw new HttpException(
+      500,
+      `more than one active sensor config found for config snapshot ${configSnapshotId}`,
+    );
+  }
+
   if (existingSensorConfig.length) {
     sensorConfigToDeactivateId = existingSensorConfig[0].id;
     existingConfig = existingSensorConfig[0].config;
@@ -127,7 +135,7 @@ export const createSensorConfig = async (
 export const createSensorLibraryConfig = async (
   requestBody: CreateSensorLibraryConfigDto,
 ) => {
-  const { name, accountId, sensorConfigId } = requestBody;
+  const { name, accountId, sensorConfigId, description } = requestBody;
 
   const sensorConfig = await getSensorConfigById({ id: sensorConfigId });
   if (!sensorConfig || sensorConfig.creatorId !== accountId) {
@@ -143,13 +151,14 @@ export const createSensorLibraryConfig = async (
     name,
     accountId,
     sensorConfig,
+    description,
   });
 };
 
 export const createNewSensorLibraryConfigVersion = async (
   requestBody: CreateSensorLibraryConfigVersionDto,
 ) => {
-  const { id, sensorConfigId, accountId } = requestBody;
+  const { id, sensorConfigId, accountId, description } = requestBody;
 
   const sensorLibraryConfig = await getSensorLibraryConfigById({ id });
   if (!sensorLibraryConfig || sensorLibraryConfig.creatorId !== accountId) {
@@ -170,6 +179,7 @@ export const createNewSensorLibraryConfigVersion = async (
       sensorConfig,
       sensorLibraryConfigId: id,
       version: 1,
+      description,
     });
   } else {
     // already ordered in the db query
@@ -191,6 +201,7 @@ export const createNewSensorLibraryConfigVersion = async (
       sensorConfig,
       sensorLibraryConfigId: id,
       version: latestLibraryConfigVersion.version + 1,
+      description,
     });
   }
 };

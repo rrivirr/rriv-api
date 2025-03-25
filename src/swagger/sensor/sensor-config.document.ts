@@ -1,10 +1,8 @@
 import { generateSchema } from "@anatine/zod-openapi";
 import { swaggerBuilder } from "../index.ts";
 import { registerSensorConfigSchema } from "./schema.ts";
-import {
-  createSensorConfigValidationSchema,
-} from "../../handler/sensor/schema.ts";
-import { idValidationSchema } from "../../handler/generic/generic.schema.ts";
+import { createSensorConfigSchema } from "../../handler/sensor/schema.ts";
+import { idSchema } from "../../handler/generic/generic.schema.ts";
 
 const basePath = "/sensor/config";
 const tags = ["sensor"];
@@ -22,7 +20,7 @@ swaggerBuilder.addPath(basePath, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(createSensorConfigValidationSchema),
+          schema: generateSchema(createSensorConfigSchema),
         },
       },
     },
@@ -36,7 +34,7 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
   parameters: [{
     name: "id",
     in: "path",
-    schema: generateSchema(idValidationSchema).properties!["id"],
+    schema: generateSchema(idSchema).properties!["id"],
   }],
   delete: {
     tags,

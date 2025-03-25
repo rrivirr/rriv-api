@@ -1,29 +1,29 @@
 import { z } from "zod";
 import {
-  getNameValidationSchema,
-  getPaginationValidationSchema,
+  getNameSchema,
+  getPaginationSchema,
 } from "../generic/generic.schema.ts";
 
-export const createContextValidationSchema = z
-  .object({ name: getNameValidationSchema() })
+export const createContextSchema = z
+  .object({ name: getNameSchema() })
   .strict();
 
-export const contextQueryValidationSchema = z
+export const contextQuerySchema = z
   .object({
-    search: getNameValidationSchema().optional(),
-    name: getNameValidationSchema().optional(),
+    search: getNameSchema().optional(),
+    name: getNameSchema().optional(),
     deviceId: z.string().uuid().optional(),
   })
   .merge(
-    getPaginationValidationSchema(
+    getPaginationSchema(
       ["startedAt", "endedAt", "name"],
       "startedAt",
     ),
   )
   .strict();
 
-export const updateContextValidationSchema = z.object({
-  name: getNameValidationSchema().optional(),
+export const updateContextSchema = z.object({
+  name: getNameSchema().optional(),
   end: z.literal(true).optional(),
 }).strict().refine(
   (data) => Object.values(data).length,

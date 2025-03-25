@@ -2,9 +2,9 @@ import { generateSchema } from "@anatine/zod-openapi";
 import { swaggerBuilder } from "../index.ts";
 import { registerDataloggerConfigSchema } from "./schema.ts";
 import {
-  createDataloggerConfigValidationSchema,
+  createDataloggerConfigSchema,
 } from "../../handler/datalogger/schema.ts";
-import { idValidationSchema } from "../../handler/generic/generic.schema.ts";
+import { idSchema } from "../../handler/generic/generic.schema.ts";
 
 const basePath = "/datalogger/config";
 const tags = ["datalogger"];
@@ -22,7 +22,7 @@ swaggerBuilder.addPath(basePath, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(createDataloggerConfigValidationSchema),
+          schema: generateSchema(createDataloggerConfigSchema),
         },
       },
     },
@@ -36,7 +36,7 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
   parameters: [{
     name: "id",
     in: "path",
-    schema: generateSchema(idValidationSchema).properties!["id"],
+    schema: generateSchema(idSchema).properties!["id"],
   }],
   delete: {
     tags,

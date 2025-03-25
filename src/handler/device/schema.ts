@@ -1,30 +1,30 @@
 import { z } from "zod";
 import {
-  getNameValidationSchema,
-  getPaginationValidationSchema,
+  getNameSchema,
+  getPaginationSchema,
 } from "../generic/generic.schema.ts";
 
-export const deviceBindValidationSchema = z.object({
-  uniqueName: getNameValidationSchema().optional(),
+export const deviceBindSchema = z.object({
+  uniqueName: getNameSchema().optional(),
 });
 
-export const deviceQueryValidationSchema = z
+export const deviceQuerySchema = z
   .object({
-    search: getNameValidationSchema().optional(),
-    serialNumber: getNameValidationSchema().optional(),
-    uniqueName: getNameValidationSchema().optional(),
+    search: getNameSchema().optional(),
+    serialNumber: getNameSchema().optional(),
+    uniqueName: getNameSchema().optional(),
     id: z.string().uuid().optional(),
     contextId: z.string().uuid().optional(),
   })
   .merge(
-    getPaginationValidationSchema(
+    getPaginationSchema(
       ["createdAt", "uniqueName", "serialNumber"],
       "createdAt",
     ),
   )
   .strict();
 
-export const serialNumberValidationSchema = z.object({
-  serialNumber: getNameValidationSchema(),
+export const serialNumberSchema = z.object({
+  serialNumber: getNameSchema(),
 })
   .strict();

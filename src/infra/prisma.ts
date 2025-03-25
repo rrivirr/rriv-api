@@ -42,5 +42,17 @@ export default new PrismaClient({
       archivedAt: true,
       creatorId: true,
     },
+    configSnapshot: {
+      archivedAt: true,
+      creatorId: true,
+    },
+    systemLibraryConfig: {
+      archivedAt: true,
+      creatorId: true,
+    },
+    systemLibraryConfigVersion: {
+      archivedAt: true,
+      creatorId: true,
+    },
   },
 });

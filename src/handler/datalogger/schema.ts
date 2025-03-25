@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { Ajv } from "ajv";
 import {
-  getNameValidationSchema,
-  getPaginationValidationSchema,
+  getNameSchema,
+  getPaginationSchema,
 } from "../generic/generic.schema.ts";
 
-export const createDataloggerDriverValidationSchema = z.object({
-  name: getNameValidationSchema(),
+export const createDataloggerDriverSchema = z.object({
+  name: getNameSchema(),
   validation: z.record(z.unknown()).refine(
     (data) => {
       try {
@@ -23,8 +23,8 @@ export const createDataloggerDriverValidationSchema = z.object({
   ),
 }).strict();
 
-export const createDataloggerConfigValidationSchema = z.object({
-  name: getNameValidationSchema(),
+export const createDataloggerConfigSchema = z.object({
+  name: getNameSchema(),
   config: z.record(z.union([z.string(), z.number(), z.boolean()])),
   dataloggerDriverId: z.string().uuid(),
   deviceId: z.string().uuid(),
@@ -33,32 +33,32 @@ export const createDataloggerConfigValidationSchema = z.object({
   createdAt: z.coerce.date().optional(),
 }).strict();
 
-export const dataloggerDriverQueryValidationSchema = z
+export const dataloggerDriverQuerySchema = z
   .object({
-    search: getNameValidationSchema().optional(),
+    search: getNameSchema().optional(),
   })
   .merge(
-    getPaginationValidationSchema(["createdAt", "name"], "createdAt"),
+    getPaginationSchema(["createdAt", "name"], "createdAt"),
   ).strict();
 
-export const createDataloggerLibraryConfigValidationSchema = z.object({
-  name: getNameValidationSchema(),
-  description: getNameValidationSchema().optional(),
+export const createDataloggerLibraryConfigSchema = z.object({
+  name: getNameSchema(),
+  description: getNameSchema().optional(),
   deviceId: z.string().uuid(),
   contextId: z.string().uuid(),
 }).strict();
 
-export const dataloggerLibraryConfigQueryValidationSchema = z.object({
-  search: getNameValidationSchema().optional(),
+export const dataloggerLibraryConfigQuerySchema = z.object({
+  search: getNameSchema().optional(),
   isPublic: z.boolean().optional().default(true),
 }).merge(
-  getPaginationValidationSchema(["createdAt", "name"], "createdAt"),
+  getPaginationSchema(["createdAt", "name"], "createdAt"),
 ).strict();
 
-export const createNewDataloggerLibraryConfigVersionValidationSchema = z.object(
+export const createNewDataloggerLibraryConfigVersionSchema = z.object(
   {
     deviceId: z.string().uuid(),
     contextId: z.string().uuid(),
-    description: getNameValidationSchema().optional(),
+    description: getNameSchema().optional(),
   },
 ).strict();

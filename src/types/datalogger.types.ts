@@ -1,37 +1,44 @@
 import { z } from "zod";
 import { AccountIdDto, IdDto } from "./generic.types.ts";
 import {
-  createDataloggerConfigValidationSchema,
-  createDataloggerDriverValidationSchema,
-  createDataloggerLibraryConfigValidationSchema,
-  createNewDataloggerLibraryConfigVersionValidationSchema,
-  dataloggerDriverQueryValidationSchema,
-  dataloggerLibraryConfigQueryValidationSchema,
+  createDataloggerConfigSchema,
+  createDataloggerDriverSchema,
+  createDataloggerLibraryConfigSchema,
+  createNewDataloggerLibraryConfigVersionSchema,
+  dataloggerDriverQuerySchema,
+  dataloggerLibraryConfigQuerySchema,
 } from "../handler/datalogger/schema.ts";
 
+export type QueryDataloggerConfigDto = AccountIdDto & {
+  configSnapshotId: string;
+  active?: boolean;
+  order?: "asc" | "desc";
+  limit?: number;
+  offset?: number;
+};
 export type CreateDataloggerDriverDto =
-  & z.infer<typeof createDataloggerDriverValidationSchema>
+  & z.infer<typeof createDataloggerDriverSchema>
   & AccountIdDto;
 
 export type CreateDataloggerConfigDto =
-  & z.infer<typeof createDataloggerConfigValidationSchema>
+  & z.infer<typeof createDataloggerConfigSchema>
   & AccountIdDto;
 
 export type QueryDataloggerDriverDto =
-  & z.input<typeof dataloggerDriverQueryValidationSchema>
+  & z.input<typeof dataloggerDriverQuerySchema>
   & { name?: string };
 
 export type CreateDataloggerLibraryConfigDto =
-  & z.input<typeof createDataloggerLibraryConfigValidationSchema>
+  & z.input<typeof createDataloggerLibraryConfigSchema>
   & AccountIdDto;
 
 export type QueryDataloggerLibraryConfigDto =
-  & z.input<typeof dataloggerLibraryConfigQueryValidationSchema>
+  & z.input<typeof dataloggerLibraryConfigQuerySchema>
   & { name?: string; accountId?: string };
 
 export type CreateDataloggerLibraryConfigVersionDto =
   & z.infer<
-    typeof createNewDataloggerLibraryConfigVersionValidationSchema
+    typeof createNewDataloggerLibraryConfigVersionSchema
   >
   & IdDto
   & AccountIdDto;

@@ -1,20 +1,20 @@
 // @deno-types="npm:@types/express@5"
 import { Request, Response } from "npm:express";
 import {
-  createDataloggerConfigValidationSchema,
-  createDataloggerDriverValidationSchema,
-  createDataloggerLibraryConfigValidationSchema,
-  createNewDataloggerLibraryConfigVersionValidationSchema,
-  dataloggerDriverQueryValidationSchema,
-  dataloggerLibraryConfigQueryValidationSchema,
+  createDataloggerConfigSchema,
+  createDataloggerDriverSchema,
+  createDataloggerLibraryConfigSchema,
+  createNewDataloggerLibraryConfigVersionSchema,
+  dataloggerDriverQuerySchema,
+  dataloggerLibraryConfigQuerySchema,
 } from "./schema.ts";
 import * as dataloggerService from "../../service/datalogger.service.ts";
-import { idValidationSchema } from "../generic/generic.schema.ts";
+import { idSchema } from "../generic/generic.schema.ts";
 import { HttpException } from "../../utils/http-exception.ts";
 
 export const createDataloggerDriver = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const requestBody = createDataloggerDriverValidationSchema.parse(req.body);
+  const requestBody = createDataloggerDriverSchema.parse(req.body);
 
   const dataloggerDriver = await dataloggerService.createDataloggerDriver({
     ...requestBody,
@@ -24,15 +24,15 @@ export const createDataloggerDriver = async (req: Request, res: Response) => {
 };
 
 export const getDataloggerDriver = async (req: Request, res: Response) => {
-  const query = dataloggerDriverQueryValidationSchema.parse(req.query);
+  const query = dataloggerDriverQuerySchema.parse(req.query);
 
   const dataloggerDrivers = await dataloggerService.getDataloggerDriver(query);
-  res.status(200).json(dataloggerDrivers);
+  res.json(dataloggerDrivers);
 };
 
 export const createDataloggerConfig = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const requestBody = createDataloggerConfigValidationSchema.parse(req.body);
+  const requestBody = createDataloggerConfigSchema.parse(req.body);
 
   const dataloggerConfig = await dataloggerService.createDataloggerConfig({
     ...requestBody,
@@ -43,24 +43,24 @@ export const createDataloggerConfig = async (req: Request, res: Response) => {
 
 export const deleteDataloggerDriver = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const params = idValidationSchema.parse(req.params);
+  const params = idSchema.parse(req.params);
 
   const dataloggerDriver = await dataloggerService.deleteDataloggerDriver({
     ...params,
     accountId,
   });
-  res.status(200).json(dataloggerDriver);
+  res.json(dataloggerDriver);
 };
 
 export const deleteDataloggerConfig = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const params = idValidationSchema.parse(req.params);
+  const params = idSchema.parse(req.params);
 
   const dataloggerConfig = await dataloggerService.deleteDataloggerConfig({
     ...params,
     accountId,
   });
-  res.status(200).json(dataloggerConfig);
+  res.json(dataloggerConfig);
 };
 
 export const createDataloggerLibraryConfig = async (
@@ -68,7 +68,7 @@ export const createDataloggerLibraryConfig = async (
   res: Response,
 ) => {
   const accountId = req.accountId;
-  const requestBody = createDataloggerLibraryConfigValidationSchema.parse(
+  const requestBody = createDataloggerLibraryConfigSchema.parse(
     req.body,
   );
 
@@ -87,19 +87,19 @@ export const getDataloggerLibraryConfig = async (
   res: Response,
 ) => {
   const accountId = req.accountId;
-  const query = dataloggerLibraryConfigQueryValidationSchema.parse(req.query);
+  const query = dataloggerLibraryConfigQuerySchema.parse(req.query);
   const dataloggerLibraryConfigs = await dataloggerService
     .getDataloggerLibraryConfig(
       { ...query, accountId },
     );
-  res.status(200).json(dataloggerLibraryConfigs);
+  res.json(dataloggerLibraryConfigs);
 };
 
 export const getDataloggerLibraryConfigById = async (
   req: Request,
   res: Response,
 ) => {
-  const params = idValidationSchema.parse(req.params);
+  const params = idSchema.parse(req.params);
   const dataloggerLibraryConfig = await dataloggerService
     .getDataloggerLibraryConfigById(
       params,
@@ -109,7 +109,7 @@ export const getDataloggerLibraryConfigById = async (
     throw new HttpException(404, "datalogger library config not found");
   }
 
-  res.status(200).json({ ...dataloggerLibraryConfig, creatorId: undefined });
+  res.json({ ...dataloggerLibraryConfig, creatorId: undefined });
 };
 
 export const createNewDataloggerLibraryConfigVersion = async (
@@ -117,11 +117,11 @@ export const createNewDataloggerLibraryConfigVersion = async (
   res: Response,
 ) => {
   const accountId = req.accountId;
-  const requestBody = createNewDataloggerLibraryConfigVersionValidationSchema
+  const requestBody = createNewDataloggerLibraryConfigVersionSchema
     .parse(
       req.body,
     );
-  const params = idValidationSchema.parse(req.params);
+  const params = idSchema.parse(req.params);
 
   await dataloggerService.createNewDataloggerLibraryConfigVersion({
     ...requestBody,
@@ -136,7 +136,7 @@ export const deleteDataloggerLibraryConfig = async (
   res: Response,
 ) => {
   const accountId = req.accountId;
-  const params = idValidationSchema.parse(req.params);
+  const params = idSchema.parse(req.params);
 
   const dataloggerLibraryConfig = await dataloggerService
     .deleteDataloggerLibraryConfig(
@@ -146,5 +146,5 @@ export const deleteDataloggerLibraryConfig = async (
       },
     );
 
-  res.status(200).json(dataloggerLibraryConfig);
+  res.json(dataloggerLibraryConfig);
 };

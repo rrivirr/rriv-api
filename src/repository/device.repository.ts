@@ -28,7 +28,7 @@ export const getDeviceBySerialNumberOrId = async (
         include: {
           Context: { select: { name: true } },
           ConfigSnapshot: {
-            select: { id: true, dataloggerConfigId: true },
+            select: { id: true },
             where: { name: ACTIVE_CONFIG_SNAPSHOT_NAME, archivedAt: null },
           },
         },

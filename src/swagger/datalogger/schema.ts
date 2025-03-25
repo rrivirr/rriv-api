@@ -8,6 +8,7 @@ export const registerDataloggerConfigSchema = () =>
       name: { type: "string" },
       config: { type: "object" },
       dataloggerDriverId: { type: "string", format: "uuid" },
+      configSnapshotId: { type: "string", format: "uuid" },
       dataloggerDriver: {
         type: "object",
         properties: {

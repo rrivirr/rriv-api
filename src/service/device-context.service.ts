@@ -26,7 +26,6 @@ export const getDeviceContext = async (query: DeviceContextDto) => {
   }
 
   let configSnapshotId: string;
-  let dataloggerConfigId: string | null | undefined;
   if (!activeDeviceContext.ConfigSnapshot.length) {
     const configSnapshot = await configSnapshotRepository.createConfigSnapshot({
       name: ACTIVE_CONFIG_SNAPSHOT_NAME,
@@ -36,8 +35,6 @@ export const getDeviceContext = async (query: DeviceContextDto) => {
     configSnapshotId = configSnapshot.id;
   } else {
     configSnapshotId = activeDeviceContext.ConfigSnapshot[0].id;
-    dataloggerConfigId =
-      activeDeviceContext.ConfigSnapshot[0].dataloggerConfigId;
   }
 
   return {
@@ -45,7 +42,6 @@ export const getDeviceContext = async (query: DeviceContextDto) => {
     configSnapshotId,
     Context: undefined,
     ConfigSnapshot: undefined,
-    dataloggerConfigId,
   };
 };
 

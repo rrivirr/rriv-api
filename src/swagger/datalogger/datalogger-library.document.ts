@@ -6,11 +6,11 @@ import {
 } from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
 import {
-  createDataloggerLibraryConfigValidationSchema,
-  createNewDataloggerLibraryConfigVersionValidationSchema,
-  dataloggerLibraryConfigQueryValidationSchema,
+  createDataloggerLibraryConfigSchema,
+  createNewDataloggerLibraryConfigVersionSchema,
+  dataloggerLibraryConfigQuerySchema,
 } from "../../handler/datalogger/schema.ts";
-import { idValidationSchema } from "../../handler/generic/generic.schema.ts";
+import { idSchema } from "../../handler/generic/generic.schema.ts";
 
 const basePath = "/datalogger/libraryConfig";
 const tags = ["datalogger"];
@@ -26,7 +26,7 @@ registerDataloggerLibraryConfig();
 registerDataloggerLibraryConfigById();
 
 const DataloggerLibraryConfigQuerySchema = generateSchema(
-  dataloggerLibraryConfigQueryValidationSchema,
+  dataloggerLibraryConfigQuerySchema,
 );
 const DataloggerLibraryConfigQuerySchemaProperties =
   DataloggerLibraryConfigQuerySchema.properties;
@@ -66,7 +66,7 @@ swaggerBuilder.addPath(basePath, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(createDataloggerLibraryConfigValidationSchema),
+          schema: generateSchema(createDataloggerLibraryConfigSchema),
         },
       },
     },
@@ -80,7 +80,7 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
   parameters: [{
     name: "id",
     in: "path",
-    schema: generateSchema(idValidationSchema).properties!["id"],
+    schema: generateSchema(idSchema).properties!["id"],
   }],
   delete: {
     tags,
@@ -109,7 +109,7 @@ swaggerBuilder.addPath(`${basePath}/:id/version`, {
   parameters: [{
     name: "id",
     in: "path",
-    schema: generateSchema(idValidationSchema).properties!["id"],
+    schema: generateSchema(idSchema).properties!["id"],
   }],
   post: {
     tags,
@@ -118,7 +118,7 @@ swaggerBuilder.addPath(`${basePath}/:id/version`, {
       content: {
         [mediaTypeHeader]: {
           schema: generateSchema(
-            createNewDataloggerLibraryConfigVersionValidationSchema,
+            createNewDataloggerLibraryConfigVersionSchema,
           ),
         },
       },

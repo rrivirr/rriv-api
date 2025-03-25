@@ -83,6 +83,9 @@ export const getSensorConfig = async (query: QuerySensorConfigDto) => {
     accountId,
     configSnapshotId,
     active,
+    limit,
+    offset,
+    order,
   } = query;
   return await prisma.sensorConfig.findMany({
     where: {
@@ -99,6 +102,9 @@ export const getSensorConfig = async (query: QuerySensorConfigDto) => {
         },
       },
     },
+    take: limit,
+    skip: offset,
+    orderBy: { createdAt: order },
   });
 };
 
@@ -132,7 +138,8 @@ export const getSensorLibraryConfig = async (
     where: {
       name: name || { contains: search },
       archivedAt: null,
-      ...(!isPublic && { creatorId: accountId }),
+      ...(typeof isPublic === "boolean" &&
+        { creatorId: isPublic ? undefined : accountId }),
     },
     take: limit,
     skip: offset,
@@ -200,13 +207,19 @@ export const createSensorConfig = async (
 };
 
 export const createSensorLibraryConfig = async (
-  body: { name: string; sensorConfig: SensorConfig; accountId: string },
+  body: {
+    name: string;
+    sensorConfig: SensorConfig;
+    accountId: string;
+    description?: string;
+  },
 ) => {
-  const { name, sensorConfig, accountId } = body;
+  const { name, sensorConfig, accountId, description } = body;
   return await prisma.sensorLibraryConfig.create({
     data: {
       name,
       Creator: { connect: { id: accountId } },
+      description,
       SensorLibraryConfigVersion: {
         create: {
           version: 1,
@@ -234,13 +247,21 @@ export const createNewSensorLibraryConfigVersion = async (
     version: number;
     sensorLibraryConfigId: string;
     sensorConfig: SensorConfig;
+    description?: string;
   },
 ) => {
-  const { accountId, version, sensorConfig, sensorLibraryConfigId } = body;
+  const {
+    accountId,
+    version,
+    sensorConfig,
+    sensorLibraryConfigId,
+    description,
+  } = body;
   return await prisma.sensorLibraryConfigVersion.create({
     data: {
       version,
       Creator: { connect: { id: accountId } },
+      description,
       SensorConfig: {
         create: {
           name: sensorConfig.name,

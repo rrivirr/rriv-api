@@ -3,10 +3,10 @@ import { ParameterObject } from "npm:openapi3-ts@^4.4.0/oas31";
 import { registerDataloggerDriverSchema } from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
 import {
-  createDataloggerDriverValidationSchema,
-  dataloggerDriverQueryValidationSchema,
+  createDataloggerDriverSchema,
+  dataloggerDriverQuerySchema,
 } from "../../handler/datalogger/schema.ts";
-import { idValidationSchema } from "../../handler/generic/generic.schema.ts";
+import { idSchema } from "../../handler/generic/generic.schema.ts";
 
 const basePath = "/datalogger/driver";
 const tags = ["datalogger"];
@@ -18,7 +18,7 @@ const singleDataloggerDriverResponse = {
 registerDataloggerDriverSchema();
 
 const DataloggerDriverQuerySchema = generateSchema(
-  dataloggerDriverQueryValidationSchema,
+  dataloggerDriverQuerySchema,
 );
 const DataloggerDriverQuerySchemaProperties =
   DataloggerDriverQuerySchema.properties;
@@ -54,7 +54,7 @@ swaggerBuilder.addPath(basePath, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(createDataloggerDriverValidationSchema),
+          schema: generateSchema(createDataloggerDriverSchema),
         },
       },
     },
@@ -68,7 +68,7 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
   parameters: [{
     name: "id",
     in: "path",
-    schema: generateSchema(idValidationSchema).properties!["id"],
+    schema: generateSchema(idSchema).properties!["id"],
   }],
   delete: {
     tags,

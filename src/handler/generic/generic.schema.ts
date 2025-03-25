@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const getPaginationValidationSchema = (
+export const getPaginationSchema = (
   orderByAllowedFields: [string, ...string[]],
   defaultOrderByValue: string,
 ) =>
@@ -14,7 +14,7 @@ export const getPaginationValidationSchema = (
       .default(defaultOrderByValue),
   }).strict();
 
-export const idValidationSchema = z.object({ id: z.string().uuid() }).strict();
+export const idSchema = z.object({ id: z.string().uuid() }).strict();
 
-export const getNameValidationSchema = (min: number = 3, max: number = 20) =>
+export const getNameSchema = (min: number = 3, max: number = 20) =>
   z.string().min(min).max(max).trim().toLowerCase();
