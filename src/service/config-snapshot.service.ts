@@ -40,6 +40,7 @@ const getActiveConfigSnapshotId = async (query: QueryActiveConfigDto) => {
 const getActiveConfigSnapshot = async (query: QueryActiveConfigDto) => {
   const configSnapshotId = await getActiveConfigSnapshotId(query);
   const configSnapshot = await getConfigSnapshotById({ id: configSnapshotId });
+
   if (!configSnapshot) {
     throw new HttpException(404, "no active config snapshot found");
   }
@@ -47,12 +48,8 @@ const getActiveConfigSnapshot = async (query: QueryActiveConfigDto) => {
   return configSnapshot;
 };
 
-// saved/tagged config snapshots only
 export const getConfigSnapshots = async (query: QueryConfigSnapshotDto) => {
-  return await configSnapshotRepository.getConfigSnapshots({
-    ...query,
-    active: false,
-  });
+  return await configSnapshotRepository.getConfigSnapshots(query);
 };
 
 export const getActiveConfig = async (
@@ -62,8 +59,8 @@ export const getActiveConfig = async (
   const { DataloggerConfig, SensorConfig } = configSnapshot;
 
   return {
-    dataloggerConfig: DataloggerConfig[0]?.config || {},
-    sensorConfig: SensorConfig.map((s) => (s.config)),
+    dataloggerConfig: { config: DataloggerConfig[0]?.config || {} },
+    sensorConfig: SensorConfig.map((s) => ({ config: s.config, name: s.name })),
   };
 };
 
@@ -118,15 +115,32 @@ export const getConfigSnapshotLibraryConfigById = async (query: IdDto) => {
 export const saveConfigSnapshot = async (body: SaveConfigSnapshotDto) => {
   const { deviceId, contextId, accountId, name } = body;
 
+  const existingConfiSnapshot = await getConfigSnapshots({
+    accountId,
+    name,
+  });
+
+  if (existingConfiSnapshot.length) {
+    throw new HttpException(409, `config snapshot with ${name} already exists`);
+  }
+
   const configSnapshot = await getActiveConfigSnapshot({
     deviceId,
     contextId,
     accountId,
   });
 
+  if (
+    !configSnapshot.DataloggerConfig.length &&
+    !configSnapshot.SensorConfig.length
+  ) {
+    throw new HttpException(409, `no active config snapshot found`);
+  }
+
   return await configSnapshotRepository.saveConfigSnapshot({
     name,
     configSnapshot,
+    accountId,
   });
 };
 

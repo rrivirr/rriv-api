@@ -9,6 +9,25 @@ export const registerConfigSnapshotSchema = () =>
       createdAt: { type: "string", format: "date-time" },
       active: { type: "boolean" },
       deviceContextId: { type: "string", format: "uuid" },
+      dataloggerConfig: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            config: { type: "object" },
+          },
+        },
+      },
+      sensorConfig: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            config: { type: "object" },
+          },
+        },
+      },
     },
   });
 
@@ -17,7 +36,7 @@ export const registerActiveConfigSnapshotSchema = () =>
     type: "object",
     properties: {
       dataloggerConfig: { type: "object" },
-      sensorConfig: { type: "object" },
+      sensorConfig: { type: "array", items: { type: "object" } },
     },
   });
 
@@ -31,7 +50,7 @@ export const registerConfigSnapshotHistorySchema = () =>
           type: "object",
           properties: {
             id: { type: "string", format: "uuid" },
-            changesMade: { type: "string" },
+            changesMade: { type: "object" },
             name: { type: "string" },
             config: { type: "object" },
             dataloggerDriverId: { type: "string", format: "uuid" },
@@ -60,7 +79,7 @@ export const registerConfigSnapshotHistorySchema = () =>
             active: { type: "boolean" },
             createdAt: { type: "string", format: "date-time" },
             deactivatedAt: { type: "string", format: "date-time" },
-            changesMade: { type: "string" },
+            changesMade: { type: "object" },
           },
         },
       },

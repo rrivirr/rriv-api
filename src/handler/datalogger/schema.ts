@@ -30,7 +30,7 @@ export const createDataloggerConfigSchema = z.object({
   deviceId: z.string().uuid(),
   contextId: z.string().uuid(),
   singlePropertyChange: z.boolean(),
-  createdAt: z.coerce.date().optional(),
+  createdAt: z.coerce.date(),
 }).strict();
 
 export const dataloggerDriverQuerySchema = z

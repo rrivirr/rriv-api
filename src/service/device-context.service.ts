@@ -31,6 +31,7 @@ export const getDeviceContext = async (query: DeviceContextDto) => {
       name: ACTIVE_CONFIG_SNAPSHOT_NAME,
       accountId,
       active: true,
+      deviceContextId: activeDeviceContext.id,
     });
     configSnapshotId = configSnapshot.id;
   } else {

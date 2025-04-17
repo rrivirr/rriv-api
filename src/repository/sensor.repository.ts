@@ -188,7 +188,7 @@ export const createSensorConfig = async (
     if (sensorConfigToDeactivateId) {
       await trx.sensorConfig.update({
         where: { id: sensorConfigToDeactivateId },
-        data: { active: false, deactivatedAt: new Date() },
+        data: { active: false, deactivatedAt: createdAt },
       });
     }
 

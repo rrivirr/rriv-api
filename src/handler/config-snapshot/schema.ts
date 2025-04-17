@@ -24,11 +24,11 @@ export const configSnapshotHistoryQuerySchema = z
     contextId: z.string().uuid(),
     limit: z.number().int().min(1).max(100).optional().default(100),
     offset: z.number().int().min(0).max(100).optional().default(0),
-    order: z.enum(["asc", "desc"]).optional().default("desc"),
+    order: z.enum(["asc", "desc"]).optional().default("asc"),
   }).strict();
 
 export const saveConfigSnapshotSchema = z.object({
-  name: z.string().uuid(),
+  name: getNameSchema(),
   deviceId: z.string().uuid(),
   contextId: z.string().uuid(),
 }).strict();

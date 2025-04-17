@@ -8,11 +8,21 @@ import { IdDto } from "../types/generic.types.ts";
 import { InputJsonValue } from "generated/runtime/library.d.ts";
 
 export const createConfigSnapshot = async (
-  body: { name: string; accountId: string; active: boolean },
+  body: {
+    name: string;
+    accountId: string;
+    active: boolean;
+    deviceContextId: string;
+  },
 ) => {
-  const { name, accountId, active } = body;
+  const { name, accountId, active, deviceContextId } = body;
   return await prisma.configSnapshot.create({
-    data: { name, active, Creator: { connect: { id: accountId } } },
+    data: {
+      name,
+      active,
+      Creator: { connect: { id: accountId } },
+      DeviceContext: { connect: { id: deviceContextId } },
+    },
   });
 };
 
@@ -35,16 +45,27 @@ export const getConfigSnapshotById = async (body: IdDto) => {
 };
 
 export const getConfigSnapshots = async (
-  body: QueryConfigSnapshotDto & { active: boolean },
+  body: QueryConfigSnapshotDto,
 ) => {
-  const { accountId, orderBy, limit, offset, order, search, active } = body;
+  const { accountId, orderBy, limit, offset, order, search, active, name } =
+    body;
 
   return await prisma.configSnapshot.findMany({
     where: {
       active,
       archivedAt: null,
       creatorId: accountId,
-      name: { contains: search },
+      name: name || { contains: search },
+    },
+    include: {
+      DataloggerConfig: {
+        where: { archivedAt: null },
+        select: { config: true },
+      },
+      SensorConfig: {
+        where: { archivedAt: null },
+        select: { config: true, name: true },
+      },
     },
     take: limit,
     skip: offset,
@@ -122,17 +143,19 @@ export const saveConfigSnapshot = async (
   body: {
     name: string;
     configSnapshot: ConfigSnapshotDto;
+    accountId: string;
   },
 ) => {
   const {
     name,
-    configSnapshot: { SensorConfig, DataloggerConfig, ...configSnapshot },
+    configSnapshot: { SensorConfig, DataloggerConfig },
+    accountId,
   } = body;
 
   return await prisma.configSnapshot.create({
     data: {
       name,
-      Creator: { connect: { id: configSnapshot.creatorId } },
+      Creator: { connect: { id: accountId } },
       active: false,
       ...(DataloggerConfig.length && {
         DataloggerConfig: {
@@ -140,7 +163,7 @@ export const saveConfigSnapshot = async (
             name: DataloggerConfig[0].name,
             config: DataloggerConfig[0].config as InputJsonValue,
             active: false,
-            creatorId: configSnapshot.creatorId,
+            creatorId: accountId,
             dataloggerDriverId: DataloggerConfig[0].dataloggerDriverId,
           },
         },
@@ -152,7 +175,7 @@ export const saveConfigSnapshot = async (
               name: s.name,
               config: s.config as InputJsonValue,
               active: false,
-              creatorId: configSnapshot.creatorId,
+              creatorId: accountId,
               sensorDriverId: s.sensorDriverId,
             })),
           },

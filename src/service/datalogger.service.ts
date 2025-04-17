@@ -147,7 +147,7 @@ export const createDataloggerConfig = async (
     config: configToCreate,
     active: true,
     configSnapshotId,
-    dataloggerConfigToDeactivateId: dataloggerConfig.id,
+    dataloggerConfigToDeactivateId: dataloggerConfig?.id,
   });
 };
 

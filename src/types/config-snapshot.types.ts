@@ -19,7 +19,8 @@ export type SaveConfigSnapshotDto =
 
 export type QueryConfigSnapshotDto =
   & z.input<typeof configSnapshotQuerySchema>
-  & AccountIdDto;
+  & AccountIdDto
+  & { active?: boolean; name?: string };
 
 export type QueryActiveConfigDto =
   & z.input<

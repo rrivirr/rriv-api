@@ -35,7 +35,6 @@ export const getDataloggerConfig = async (query: QueryDataloggerConfigDto) => {
   } = query;
   return await prisma.dataloggerConfig.findMany({
     where: {
-      name,
       creatorId: accountId,
       configSnapshotId,
       active,
@@ -196,7 +195,7 @@ export const createDataloggerConfig = async (
     if (dataloggerConfigToDeactivateId) {
       await trx.dataloggerConfig.update({
         where: { id: dataloggerConfigToDeactivateId },
-        data: { active: false, deactivatedAt: new Date() },
+        data: { active: false, deactivatedAt: createdAt },
       });
     }
 
