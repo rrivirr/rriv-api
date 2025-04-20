@@ -5,14 +5,14 @@ import {
 } from "../generic/generic.schema.ts";
 
 export const deviceBindSchema = z.object({
-  uniqueName: getNameSchema().optional(),
+  uniqueName: z.string().min(3).max(25).trim().optional(),
 });
 
 export const deviceQuerySchema = z
   .object({
     search: getNameSchema().optional(),
-    serialNumber: getNameSchema().optional(),
-    uniqueName: getNameSchema().optional(),
+    serialNumber: z.string().min(3).max(25).trim().optional(),
+    uniqueName: z.string().min(3).max(25).trim().optional(),
     id: z.string().uuid().optional(),
     contextId: z.string().uuid().optional(),
   })
@@ -25,6 +25,6 @@ export const deviceQuerySchema = z
   .strict();
 
 export const serialNumberSchema = z.object({
-  serialNumber: getNameSchema(),
+  serialNumber: z.string().min(3).max(25).trim(),
 })
   .strict();

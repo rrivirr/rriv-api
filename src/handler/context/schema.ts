@@ -13,6 +13,10 @@ export const contextQuerySchema = z
     search: getNameSchema().optional(),
     name: getNameSchema().optional(),
     deviceId: z.string().uuid().optional(),
+    ended: z.preprocess(
+      (val) => val === "true" ? true : val === "false" ? false : undefined,
+      z.boolean().optional(),
+    ),
   })
   .merge(
     getPaginationSchema(
