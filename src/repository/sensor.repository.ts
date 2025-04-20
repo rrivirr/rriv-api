@@ -1,11 +1,10 @@
 // @ts-types="generated/index.d.ts"
-import { Prisma } from "generated/index.js";
+import { Prisma, SensorConfig } from "generated/index.js";
 import prisma from "../infra/prisma.ts";
 import { IdDto } from "../types/generic.types.ts";
 import {
   CreateSensorConfigDto,
   CreateSensorDriverDto,
-  CreateSensorLibraryConfigDto,
   QuerySensorConfigDto,
   QuerySensorDriverDto,
   QuerySensorLibraryConfigDto,
@@ -35,11 +34,6 @@ export const getSensorConfigById = async (query: IdDto) => {
     omit: { creatorId: false },
     include: {
       SensorLibraryConfigVersion: {
-        where: {
-          archivedAt: null,
-        },
-      },
-      SensorConfigSnapshot: {
         where: {
           archivedAt: null,
         },
@@ -85,20 +79,20 @@ export const getSensorLibraryConfigById = async (query: IdDto) => {
 
 export const getSensorConfig = async (query: QuerySensorConfigDto) => {
   const {
-    search,
+    name,
+    accountId,
+    configSnapshotId,
+    active,
     limit,
     offset,
     order,
-    orderBy,
-    name,
-    accountId,
-    sensorDriverId,
   } = query;
   return await prisma.sensorConfig.findMany({
     where: {
-      name: name || { contains: search },
+      name,
       creatorId: accountId,
-      sensorDriverId,
+      configSnapshotId,
+      active,
       archivedAt: null,
     },
     include: {
@@ -110,7 +104,7 @@ export const getSensorConfig = async (query: QuerySensorConfigDto) => {
     },
     take: limit,
     skip: offset,
-    orderBy: orderBy ? { [orderBy]: order } : undefined,
+    orderBy: { createdAt: order },
   });
 };
 
@@ -138,11 +132,14 @@ export const getSensorDriver = async (query: QuerySensorDriverDto) => {
 export const getSensorLibraryConfig = async (
   query: QuerySensorLibraryConfigDto,
 ) => {
-  const { search, limit, offset, order, orderBy, name } = query;
+  const { search, limit, offset, order, orderBy, name, isPublic, accountId } =
+    query;
   return await prisma.sensorLibraryConfig.findMany({
     where: {
       name: name || { contains: search },
       archivedAt: null,
+      ...(typeof isPublic === "boolean" &&
+        { creatorId: isPublic ? undefined : accountId }),
     },
     take: limit,
     skip: offset,
@@ -169,31 +166,75 @@ export const createSensorDriver = async (body: CreateSensorDriverDto) => {
   });
 };
 
-export const createSensorConfig = async (body: CreateSensorConfigDto) => {
-  const { name, config, accountId, sensorDriverId } = body;
-  return await prisma.sensorConfig.create({
-    data: {
-      name,
-      config,
-      SensorDriver: { connect: { id: sensorDriverId } },
-      Creator: { connect: { id: accountId } },
-    },
+export const createSensorConfig = async (
+  body: CreateSensorConfigDto & {
+    active: boolean;
+    configSnapshotId: string;
+    sensorConfigToDeactivateId?: string;
+  },
+) => {
+  const {
+    name,
+    config,
+    accountId,
+    sensorDriverId,
+    active,
+    configSnapshotId,
+    sensorConfigToDeactivateId,
+    createdAt,
+  } = body;
+
+  return await prisma.$transaction(async (trx) => {
+    if (sensorConfigToDeactivateId) {
+      await trx.sensorConfig.update({
+        where: { id: sensorConfigToDeactivateId },
+        data: { active: false, deactivatedAt: createdAt },
+      });
+    }
+
+    return await trx.sensorConfig.create({
+      data: {
+        name,
+        config,
+        active,
+        createdAt,
+        SensorDriver: { connect: { id: sensorDriverId } },
+        Creator: { connect: { id: accountId } },
+        ConfigSnapshot: { connect: { id: configSnapshotId } },
+      },
+    });
   });
 };
 
 export const createSensorLibraryConfig = async (
-  body: CreateSensorLibraryConfigDto,
+  body: {
+    name: string;
+    sensorConfig: SensorConfig;
+    accountId: string;
+    description?: string;
+  },
 ) => {
-  const { name, sensorConfigId, accountId } = body;
+  const { name, sensorConfig, accountId, description } = body;
   return await prisma.sensorLibraryConfig.create({
     data: {
       name,
       Creator: { connect: { id: accountId } },
+      description,
       SensorLibraryConfigVersion: {
         create: {
           version: 1,
           Creator: { connect: { id: accountId } },
-          SensorConfig: { connect: { id: sensorConfigId } },
+          SensorConfig: {
+            create: {
+              name: sensorConfig.name,
+              config: sensorConfig.config as Prisma.InputJsonObject,
+              active: false,
+              SensorDriver: {
+                connect: { id: sensorConfig.sensorDriverId },
+              },
+              Creator: { connect: { id: accountId } },
+            },
+          },
         },
       },
     },
@@ -205,15 +246,33 @@ export const createNewSensorLibraryConfigVersion = async (
     accountId: string;
     version: number;
     sensorLibraryConfigId: string;
-    sensorConfigId: string;
+    sensorConfig: SensorConfig;
+    description?: string;
   },
 ) => {
-  const { accountId, version, sensorConfigId, sensorLibraryConfigId } = body;
+  const {
+    accountId,
+    version,
+    sensorConfig,
+    sensorLibraryConfigId,
+    description,
+  } = body;
   return await prisma.sensorLibraryConfigVersion.create({
     data: {
       version,
       Creator: { connect: { id: accountId } },
-      SensorConfig: { connect: { id: sensorConfigId } },
+      description,
+      SensorConfig: {
+        create: {
+          name: sensorConfig.name,
+          config: sensorConfig.config as Prisma.InputJsonObject,
+          active: false,
+          SensorDriver: {
+            connect: { id: sensorConfig.sensorDriverId },
+          },
+          Creator: { connect: { id: accountId } },
+        },
+      },
       SensorLibraryConfig: { connect: { id: sensorLibraryConfigId } },
     },
   });
@@ -237,13 +296,25 @@ export const deleteSensorConfig = async (body: IdDto) => {
 
 export const deleteSensorLibraryConfig = async (body: IdDto) => {
   const { id } = body;
-  return await prisma.sensorLibraryConfig.update({
-    where: { id },
-    data: {
-      archivedAt: new Date(),
-      SensorLibraryConfigVersion: {
-        updateMany: { where: {}, data: { archivedAt: new Date() } },
+
+  return await prisma.$transaction(async (trx) => {
+    const libraryConfigVersions = await trx.sensorLibraryConfigVersion
+      .updateManyAndReturn({
+        where: { sensorLibraryConfigId: id },
+        data: { archivedAt: new Date() },
+        select: { sensorConfigId: true },
+      });
+
+    await trx.sensorConfig.updateMany({
+      where: {
+        id: { in: libraryConfigVersions.map((l) => l.sensorConfigId) },
       },
-    },
+      data: { archivedAt: new Date() },
+    });
+
+    return await trx.sensorLibraryConfig.update({
+      where: { id },
+      data: { archivedAt: new Date() },
+    });
   });
 };

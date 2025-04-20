@@ -1,4 +1,5 @@
 import prisma from "../infra/prisma.ts";
+import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "../service/utils/constants.ts";
 import {
   AccountUniqueDeviceDto,
   BindDeviceDto,
@@ -24,7 +25,13 @@ export const getDeviceBySerialNumberOrId = async (
         },
       },
       DeviceContext: {
-        include: { Context: { select: { name: true } } },
+        include: {
+          Context: { select: { name: true } },
+          ConfigSnapshot: {
+            select: { id: true },
+            where: { name: ACTIVE_CONFIG_SNAPSHOT_NAME, archivedAt: null },
+          },
+        },
         where: {
           archivedAt: null,
           endedAt: null,
@@ -51,8 +58,8 @@ export const getDevice = async (query: QueryDeviceDto) => {
   return await prisma.device.findMany({
     where: {
       id,
-      uniqueName: uniqueName || { contains: search },
-      serialNumber: serialNumber || { contains: search },
+      uniqueName: uniqueName || { contains: search, mode: "insensitive" },
+      serialNumber: serialNumber || { contains: search, mode: "insensitive" },
       archivedAt: null,
       Bind: {
         some: {

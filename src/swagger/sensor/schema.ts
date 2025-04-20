@@ -14,7 +14,9 @@ export const registerSensorConfigSchema = () =>
           name: { type: "string" },
         },
       },
+      active: { type: "boolean" },
       createdAt: { type: "string", format: "date-time" },
+      deactivatedAt: { type: "string", format: "date-time" },
     },
   });
 

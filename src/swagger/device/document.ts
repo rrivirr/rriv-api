@@ -1,12 +1,12 @@
 import { generateSchema } from "@anatine/zod-openapi";
 import { ParameterObject } from "npm:openapi3-ts@^4.4.0/oas31";
 import {
-  deviceBindValidationSchema,
-  deviceQueryValidationSchema,
+  deviceBindSchema,
+  deviceQuerySchema,
 } from "../../handler/device/schema.ts";
 import { registerDeviceSchema } from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
-import { serialNumberValidationSchema } from "../../handler/device/schema.ts";
+import { serialNumberSchema } from "../../handler/device/schema.ts";
 
 export const basePath = "/device";
 const tags = ["device"];
@@ -20,7 +20,7 @@ const singleDeviceResponse = {
   },
 };
 registerDeviceSchema();
-const DeviceQuerySchema = generateSchema(deviceQueryValidationSchema);
+const DeviceQuerySchema = generateSchema(deviceQuerySchema);
 const DeviceQuerySchemaProperties = DeviceQuerySchema.properties;
 
 swaggerBuilder.addPath(basePath, {
@@ -57,13 +57,13 @@ swaggerBuilder.addPath(`${basePath}/:serialNumber/bind`, {
     parameters: [{
       name: "id",
       in: "path",
-      schema: generateSchema(serialNumberValidationSchema)
+      schema: generateSchema(serialNumberSchema)
         .properties!["serialNumber"],
     }],
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(deviceBindValidationSchema),
+          schema: generateSchema(deviceBindSchema),
         },
       },
     },
@@ -81,7 +81,7 @@ swaggerBuilder.addPath(`${basePath}/:serialNumber/unbind`, {
     parameters: [{
       name: "id",
       in: "path",
-      schema: generateSchema(serialNumberValidationSchema)
+      schema: generateSchema(serialNumberSchema)
         .properties!["serialNumber"],
     }],
     responses: {
@@ -96,7 +96,7 @@ swaggerBuilder.addPath(`${basePath}/:serialNumber`, {
     parameters: [{
       name: "id",
       in: "path",
-      schema: generateSchema(serialNumberValidationSchema)
+      schema: generateSchema(serialNumberSchema)
         .properties!["serialNumber"],
     }],
     responses: {

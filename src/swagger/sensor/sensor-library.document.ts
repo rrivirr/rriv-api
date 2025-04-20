@@ -6,11 +6,11 @@ import {
 } from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
 import {
-  createNewSensorLibraryConfigVersionValidationSchema,
-  createSensorLibraryConfigValidationSchema,
-  sensorLibraryConfigQueryValidationSchema,
+  createNewSensorLibraryConfigVersionSchema,
+  createSensorLibraryConfigSchema,
+  sensorLibraryConfigQuerySchema,
 } from "../../handler/sensor/schema.ts";
-import { idValidationSchema } from "../../handler/generic/generic.schema.ts";
+import { idSchema } from "../../handler/generic/generic.schema.ts";
 
 const basePath = "/sensor/libraryConfig";
 const tags = ["sensor"];
@@ -23,7 +23,7 @@ registerSensorLibraryConfig();
 registerSensorLibraryConfigById();
 
 const SensorLibraryConfigQuerySchema = generateSchema(
-  sensorLibraryConfigQueryValidationSchema,
+  sensorLibraryConfigQuerySchema,
 );
 const SensorLibraryConfigQuerySchemaProperties =
   SensorLibraryConfigQuerySchema.properties;
@@ -62,7 +62,7 @@ swaggerBuilder.addPath(basePath, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(createSensorLibraryConfigValidationSchema),
+          schema: generateSchema(createSensorLibraryConfigSchema),
         },
       },
     },
@@ -76,7 +76,7 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
   parameters: [{
     name: "id",
     in: "path",
-    schema: generateSchema(idValidationSchema).properties!["id"],
+    schema: generateSchema(idSchema).properties!["id"],
   }],
   delete: {
     tags,
@@ -103,7 +103,7 @@ swaggerBuilder.addPath(`${basePath}/:id/version`, {
   parameters: [{
     name: "id",
     in: "path",
-    schema: generateSchema(idValidationSchema).properties!["id"],
+    schema: generateSchema(idSchema).properties!["id"],
   }],
   post: {
     tags,
@@ -112,7 +112,7 @@ swaggerBuilder.addPath(`${basePath}/:id/version`, {
       content: {
         [mediaTypeHeader]: {
           schema: generateSchema(
-            createNewSensorLibraryConfigVersionValidationSchema,
+            createNewSensorLibraryConfigVersionSchema,
           ),
         },
       },
