@@ -1,42 +1,42 @@
 import { z } from "zod";
 import { AccountIdDto, IdDto } from "./generic.types.ts";
 import {
-  contextQueryValidationSchema,
-  createContextValidationSchema,
-  updateContextValidationSchema,
+  contextQuerySchema,
+  createContextSchema,
+  updateContextSchema,
 } from "../handler/context/schema.ts";
 import {
-  createDeviceContextValidationSchema,
-  deviceContextParamsValidationSchema,
-  updateDeviceContextValidationSchema,
+  createDeviceContextSchema,
+  deviceContextParamsSchema,
+  updateDeviceContextSchema,
 } from "../handler/device-context/schema.ts";
 
 export type CreateContextDto =
-  & z.infer<typeof createContextValidationSchema>
+  & z.infer<typeof createContextSchema>
   & AccountIdDto;
 
 export type UpdateContextDto =
-  & z.infer<typeof updateContextValidationSchema>
+  & z.infer<typeof updateContextSchema>
   & AccountIdDto
   & IdDto;
 
 export type QueryContextDto =
-  & z.input<typeof contextQueryValidationSchema>
+  & z.input<typeof contextQuerySchema>
   & AccountIdDto;
 
 export type UniqueContextDto = { contextId: string } & AccountIdDto;
 
 export type UniqueDeviceContextDto = z.infer<
-  typeof deviceContextParamsValidationSchema
+  typeof deviceContextParamsSchema
 >;
 
 export type CreateDeviceContextDto =
-  & z.infer<typeof createDeviceContextValidationSchema>
+  & z.infer<typeof createDeviceContextSchema>
   & UniqueDeviceContextDto
   & AccountIdDto;
 
 export type UpdateDeviceContextDto =
-  & z.infer<typeof updateDeviceContextValidationSchema>
+  & z.infer<typeof updateDeviceContextSchema>
   & UniqueDeviceContextDto
   & AccountIdDto;
 

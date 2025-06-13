@@ -13,13 +13,23 @@ export const createContext = async (requestBody: CreateContextDto) => {
 };
 
 export const getContext = async (query: QueryContextDto) => {
-  const { search, limit, offset, order, orderBy, name, accountId, deviceId } =
-    query;
+  const {
+    search,
+    limit,
+    offset,
+    order,
+    orderBy,
+    name,
+    accountId,
+    deviceId,
+    ended,
+  } = query;
   return await prisma.context.findMany({
     where: {
       name: name || { contains: search },
       accountId,
       archivedAt: null,
+      endedAt: ended ? { not: null } : ended === false ? null : undefined,
       ...(deviceId && {
         DeviceContext: {
           some: {
