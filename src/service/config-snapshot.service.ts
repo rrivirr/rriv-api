@@ -60,7 +60,11 @@ export const getActiveConfig = async (
 
   return {
     dataloggerConfig: { config: DataloggerConfig[0]?.config || {} },
-    sensorConfig: SensorConfig.map((s) => ({ config: s.config, name: s.name })),
+    sensorConfig: SensorConfig.map((s) => ({
+      config: s.config,
+      name: s.name,
+      id: s.id,
+    })),
   };
 };
 

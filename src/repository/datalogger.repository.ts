@@ -87,6 +87,12 @@ export const getDataloggerLibraryConfigById = async (query: IdDto) => {
     },
     omit: { creatorId: false },
     include: {
+      Creator: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
       DataloggerLibraryConfigVersion: {
         where: {
           archivedAt: null,
@@ -94,6 +100,7 @@ export const getDataloggerLibraryConfigById = async (query: IdDto) => {
         orderBy: { version: "desc" },
         select: {
           version: true,
+          description: true,
           DataloggerConfig: {
             select: {
               id: true,
@@ -233,7 +240,7 @@ export const createDataloggerLibraryConfig = async (
           Creator: { connect: { id: accountId } },
           DataloggerConfig: {
             create: {
-              name: dataloggerConfig.name,
+              name: `v1`,
               config: dataloggerConfig.config as Prisma.InputJsonObject,
               active: false,
               DataloggerDriver: {
@@ -272,7 +279,7 @@ export const createNewDataloggerLibraryConfigVersion = async (
       DataloggerLibraryConfig: { connect: { id: dataloggerLibraryConfigId } },
       DataloggerConfig: {
         create: {
-          name: dataloggerConfig.name,
+          name: `v${version}`,
           config: dataloggerConfig.config as Prisma.InputJsonObject,
           active: false,
           DataloggerDriver: {

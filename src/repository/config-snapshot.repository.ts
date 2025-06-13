@@ -38,7 +38,7 @@ export const getConfigSnapshotById = async (body: IdDto) => {
       },
       SensorConfig: {
         where: { active: true, archivedAt: null },
-        select: { config: true, name: true, sensorDriverId: true },
+        select: { config: true, name: true, sensorDriverId: true, id: true },
       },
     },
   });
@@ -108,6 +108,12 @@ export const getConfigSnapshotLibraryConfigById = async (query: IdDto) => {
     },
     omit: { creatorId: false },
     include: {
+      Creator: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
       SystemLibraryConfigVersion: {
         where: {
           archivedAt: null,
@@ -115,6 +121,7 @@ export const getConfigSnapshotLibraryConfigById = async (query: IdDto) => {
         orderBy: { version: "desc" },
         select: {
           version: true,
+          description: true,
           ConfigSnapshot: {
             select: {
               id: true,
@@ -195,7 +202,7 @@ export const createConfigSnapshotLibraryConfig = async (body: {
     name,
     accountId,
     description,
-    configSnapshot: { SensorConfig, DataloggerConfig, ...configSnapshot },
+    configSnapshot: { SensorConfig, DataloggerConfig },
   } = body;
 
   return await prisma.systemLibraryConfig.create({
@@ -209,7 +216,7 @@ export const createConfigSnapshotLibraryConfig = async (body: {
           Creator: { connect: { id: accountId } },
           ConfigSnapshot: {
             create: {
-              name: configSnapshot.name,
+              name: `v1`,
               Creator: { connect: { id: accountId } },
               active: false,
               ...(DataloggerConfig.length && {
@@ -254,7 +261,7 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (body: {
   const {
     accountId,
     version,
-    configSnapshot: { DataloggerConfig, SensorConfig, ...configSnapshot },
+    configSnapshot: { DataloggerConfig, SensorConfig },
     configSnapshotLibraryConfigId,
     description,
   } = body;
@@ -267,7 +274,7 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (body: {
       SystemLibraryConfig: { connect: { id: configSnapshotLibraryConfigId } },
       ConfigSnapshot: {
         create: {
-          name: configSnapshot.name,
+          name: `v${version}`,
           Creator: { connect: { id: accountId } },
           active: false,
           ...(DataloggerConfig.length && {

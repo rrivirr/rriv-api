@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Ajv } from "ajv";
 import {
+  booleanQuerySchema,
   getNameSchema,
   getPaginationSchema,
 } from "../generic/generic.schema.ts";
@@ -50,7 +51,8 @@ export const createDataloggerLibraryConfigSchema = z.object({
 
 export const dataloggerLibraryConfigQuerySchema = z.object({
   search: getNameSchema().optional(),
-  isPublic: z.boolean().optional().default(true),
+  name: getNameSchema().optional(),
+  isPublic: booleanQuerySchema,
 }).merge(
   getPaginationSchema(["createdAt", "name"], "createdAt"),
 ).strict();

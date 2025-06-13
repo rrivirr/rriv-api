@@ -18,3 +18,8 @@ export const idSchema = z.object({ id: z.string().uuid() }).strict();
 
 export const getNameSchema = (min: number = 3, max: number = 20) =>
   z.string().min(min).max(max).trim().toLowerCase();
+
+export const booleanQuerySchema = z.preprocess(
+  (val) => val === "true" ? true : val === "false" ? false : undefined,
+  z.boolean().optional(),
+);

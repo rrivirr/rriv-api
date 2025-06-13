@@ -51,6 +51,12 @@ export const getSensorLibraryConfigById = async (query: IdDto) => {
     },
     omit: { creatorId: false },
     include: {
+      Creator: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
       SensorLibraryConfigVersion: {
         where: {
           archivedAt: null,
@@ -58,6 +64,7 @@ export const getSensorLibraryConfigById = async (query: IdDto) => {
         orderBy: { version: "desc" },
         select: {
           version: true,
+          description: true,
           SensorConfig: {
             select: {
               id: true,
@@ -226,7 +233,7 @@ export const createSensorLibraryConfig = async (
           Creator: { connect: { id: accountId } },
           SensorConfig: {
             create: {
-              name: sensorConfig.name,
+              name: `${sensorConfig.name}v1`,
               config: sensorConfig.config as Prisma.InputJsonObject,
               active: false,
               SensorDriver: {
@@ -264,7 +271,7 @@ export const createNewSensorLibraryConfigVersion = async (
       description,
       SensorConfig: {
         create: {
-          name: sensorConfig.name,
+          name: `${sensorConfig.name}v${version}`,
           config: sensorConfig.config as Prisma.InputJsonObject,
           active: false,
           SensorDriver: {

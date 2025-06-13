@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Ajv } from "ajv";
 import {
+  booleanQuerySchema,
   getNameSchema,
   getPaginationSchema,
 } from "../generic/generic.schema.ts";
@@ -49,7 +50,8 @@ export const createSensorLibraryConfigSchema = z.object({
 
 export const sensorLibraryConfigQuerySchema = z.object({
   search: getNameSchema().optional(),
-  isPublic: z.boolean().optional().default(true),
+  name: getNameSchema().optional(),
+  isPublic: booleanQuerySchema,
 }).merge(
   getPaginationSchema(["createdAt", "name"], "createdAt"),
 ).strict();

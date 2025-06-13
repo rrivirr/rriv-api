@@ -190,6 +190,18 @@ export const createNewSensorLibraryConfigVersion = async (
       sensorConfig.config,
     );
 
+    const sensorConfigName = sensorConfig.name;
+
+    const librarySensorConfigName =
+      latestLibraryConfigVersion.SensorConfig.name.split("v")[0];
+
+    if (sensorConfigName !== librarySensorConfigName) {
+      throw new HttpException(
+        409,
+        `sensors in the same library must be of the same type`,
+      );
+    }
+
     if (configsEqual) {
       throw new HttpException(
         409,

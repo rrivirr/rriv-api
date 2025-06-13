@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  booleanQuerySchema,
   getNameSchema,
   getPaginationSchema,
 } from "../generic/generic.schema.ts";
@@ -7,6 +8,7 @@ import {
 export const configSnapshotQuerySchema = z
   .object({
     search: getNameSchema().optional(),
+    name: getNameSchema().optional(),
   })
   .merge(
     getPaginationSchema(["createdAt", "name"], "createdAt"),
@@ -35,7 +37,8 @@ export const saveConfigSnapshotSchema = z.object({
 
 export const configSnapshotLibraryConfigQuerySchema = z.object({
   search: getNameSchema().optional(),
-  isPublic: z.boolean().optional().default(true),
+  name: getNameSchema().optional(),
+  isPublic: booleanQuerySchema,
 }).merge(
   getPaginationSchema(["createdAt", "name"], "createdAt"),
 ).strict();

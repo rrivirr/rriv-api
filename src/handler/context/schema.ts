@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  booleanQuerySchema,
   getNameSchema,
   getPaginationSchema,
 } from "../generic/generic.schema.ts";
@@ -13,10 +14,7 @@ export const contextQuerySchema = z
     search: getNameSchema().optional(),
     name: getNameSchema().optional(),
     deviceId: z.string().uuid().optional(),
-    ended: z.preprocess(
-      (val) => val === "true" ? true : val === "false" ? false : undefined,
-      z.boolean().optional(),
-    ),
+    ended: booleanQuerySchema,
   })
   .merge(
     getPaginationSchema(
