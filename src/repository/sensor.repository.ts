@@ -271,7 +271,7 @@ export const createNewSensorLibraryConfigVersion = async (
       description,
       SensorConfig: {
         create: {
-          name: `${sensorConfig.name}v${version}`,
+          name: sensorConfig.name,
           config: sensorConfig.config as Prisma.InputJsonObject,
           active: false,
           SensorDriver: {

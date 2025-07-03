@@ -6,6 +6,7 @@ import {
   getConfigSnapshotLibraryConfig,
   getConfigSnapshotLibraryConfigById,
   getConfigSnapshots,
+  overwriteActiveConfigSnapshot,
   saveConfigSnapshot,
 } from "../handler/config-snapshot/handler.ts";
 import { getExpressRouter } from "../utils/helper-functions.ts";
@@ -17,7 +18,7 @@ const routerWrapper = getExpressRouter();
 
 router.route("/").get(getConfigSnapshots);
 router.route("/history").get(getConfigSnapshotHistory);
-router.route("/active").get(getActiveConfig);
+router.route("/active").put(overwriteActiveConfigSnapshot).get(getActiveConfig);
 router.route("/save").post(saveConfigSnapshot);
 router.route("/libraryConfig").post(createConfigSnapshotLibraryConfig).get(
   getConfigSnapshotLibraryConfig,

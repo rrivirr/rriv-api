@@ -10,6 +10,7 @@ import {
   activeConfigQuerySchema,
   configSnapshotHistoryQuerySchema,
   configSnapshotQuerySchema,
+  overwriteActiveConfigSnapshotSchema,
   saveConfigSnapshotSchema,
 } from "../../handler/config-snapshot/schema.ts";
 
@@ -128,6 +129,17 @@ swaggerBuilder.addPath(`${basePath}/active`, {
               },
             },
           },
+        },
+      },
+    },
+  },
+  put: {
+    tags,
+    summary: `completely overwrite the active config snapshot`,
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(overwriteActiveConfigSnapshotSchema),
         },
       },
     },

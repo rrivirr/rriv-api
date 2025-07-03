@@ -193,7 +193,7 @@ export const createNewSensorLibraryConfigVersion = async (
     const sensorConfigName = sensorConfig.name;
 
     const librarySensorConfigName =
-      latestLibraryConfigVersion.SensorConfig.name.split("v")[0];
+      latestLibraryConfigVersion.SensorConfig.name;
 
     if (sensorConfigName !== librarySensorConfigName) {
       throw new HttpException(

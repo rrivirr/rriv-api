@@ -2,6 +2,7 @@ import { isDeepStrictEqual } from "node:util";
 import {
   CreateConfigSnapshotLibraryConfigDto,
   CreateConfigSnapshotLibraryConfigVersionDto,
+  OverwriteActiveConfigSnapshotDto,
   QueryActiveConfigDto,
   QueryConfigSnapshotDto,
   QueryConfigSnapshotHistoryDto,
@@ -114,6 +115,31 @@ export const getConfigSnapshotLibraryConfigById = async (query: IdDto) => {
   return await configSnapshotRepository.getConfigSnapshotLibraryConfigById(
     query,
   );
+};
+
+export const overwriteActiveConfigSnapshot = async (
+  body: OverwriteActiveConfigSnapshotDto,
+) => {
+  const {
+    accountId,
+    contextId,
+    deviceId,
+    sensorConfigIds,
+    dataloggerConfigId,
+  } = body;
+
+  const configSnapshot = await getActiveConfigSnapshot({
+    accountId,
+    contextId,
+    deviceId,
+  });
+
+  await configSnapshotRepository.overwriteActiveConfigSnapshot({
+    configSnapshotId: configSnapshot.id,
+    sensorConfigIds,
+    dataloggerConfigId,
+    accountId,
+  });
 };
 
 export const saveConfigSnapshot = async (body: SaveConfigSnapshotDto) => {

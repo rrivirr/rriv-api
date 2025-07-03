@@ -15,6 +15,7 @@ export const registerConfigSnapshotSchema = () =>
           type: "object",
           properties: {
             config: { type: "object" },
+            id: { type: "string" },
           },
         },
       },
@@ -25,6 +26,7 @@ export const registerConfigSnapshotSchema = () =>
           properties: {
             name: { type: "string" },
             config: { type: "object" },
+            id: { type: "string" },
           },
         },
       },

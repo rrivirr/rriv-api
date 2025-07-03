@@ -7,6 +7,7 @@ import {
   configSnapshotQuerySchema,
   createConfigSnapshotLibraryConfigSchema,
   createNewConfigSnapshotLibraryConfigVersionSchema,
+  overwriteActiveConfigSnapshotSchema,
   saveConfigSnapshotSchema,
 } from "../handler/config-snapshot/schema.ts";
 // @ts-types="generated/index.d.ts"
@@ -15,6 +16,10 @@ import { JsonValue } from "generated/runtime/library.d.ts";
 
 export type SaveConfigSnapshotDto =
   & z.infer<typeof saveConfigSnapshotSchema>
+  & AccountIdDto;
+
+export type OverwriteActiveConfigSnapshotDto =
+  & z.infer<typeof overwriteActiveConfigSnapshotSchema>
   & AccountIdDto;
 
 export type QueryConfigSnapshotDto =

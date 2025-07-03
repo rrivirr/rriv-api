@@ -279,7 +279,7 @@ export const createNewDataloggerLibraryConfigVersion = async (
       DataloggerLibraryConfig: { connect: { id: dataloggerLibraryConfigId } },
       DataloggerConfig: {
         create: {
-          name: `v${version}`,
+          name: dataloggerConfig.name,
           config: dataloggerConfig.config as Prisma.InputJsonObject,
           active: false,
           DataloggerDriver: {

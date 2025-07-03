@@ -7,6 +7,7 @@ import {
   configSnapshotQuerySchema,
   createConfigSnapshotLibraryConfigSchema,
   createNewConfigSnapshotLibraryConfigVersionSchema,
+  overwriteActiveConfigSnapshotSchema,
   saveConfigSnapshotSchema,
 } from "./schema.ts";
 import { idSchema } from "../generic/generic.schema.ts";
@@ -57,6 +58,21 @@ export const getConfigSnapshotHistory = async (
     });
 
   res.json(configSnapshotHistory);
+};
+
+export const overwriteActiveConfigSnapshot = async (
+  req: Request,
+  res: Response,
+) => {
+  const accountId = req.accountId;
+  const body = overwriteActiveConfigSnapshotSchema.parse(req.body);
+
+  await configSnapshotService.overwriteActiveConfigSnapshot({
+    ...body,
+    accountId,
+  });
+
+  res.status(201).json();
 };
 
 export const saveConfigSnapshot = async (req: Request, res: Response) => {

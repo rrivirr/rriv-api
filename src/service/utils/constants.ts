@@ -1,1 +1,1 @@
-export const ACTIVE_CONFIG_SNAPSHOT_NAME = "default";
+export const ACTIVE_CONFIG_SNAPSHOT_NAME = "active";

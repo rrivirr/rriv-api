@@ -1,3 +1,5 @@
+// @ts-types="generated/index.d.ts"
+import { Prisma } from "generated/index.js";
 import prisma from "../infra/prisma.ts";
 import {
   ConfigSnapshotDto,
@@ -6,6 +8,7 @@ import {
 } from "../types/config-snapshot.types.ts";
 import { IdDto } from "../types/generic.types.ts";
 import { InputJsonValue } from "generated/runtime/library.d.ts";
+import { HttpException } from "../utils/http-exception.ts";
 
 export const createConfigSnapshot = async (
   body: {
@@ -60,11 +63,11 @@ export const getConfigSnapshots = async (
     include: {
       DataloggerConfig: {
         where: { archivedAt: null },
-        select: { config: true },
+        select: { config: true, id: true },
       },
       SensorConfig: {
         where: { archivedAt: null },
-        select: { config: true, name: true },
+        select: { config: true, name: true, id: true },
       },
     },
     take: limit,
@@ -304,5 +307,75 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (body: {
         },
       },
     },
+  });
+};
+
+export const overwriteActiveConfigSnapshot = async (
+  body: {
+    configSnapshotId: string;
+    sensorConfigIds: Array<string>;
+    dataloggerConfigId?: string;
+    accountId: string;
+  },
+) => {
+  const { configSnapshotId, sensorConfigIds, dataloggerConfigId, accountId } =
+    body;
+
+  return await prisma.$transaction(async (trx) => {
+    await trx.dataloggerConfig.updateMany({
+      where: { configSnapshotId, active: true, deactivatedAt: null },
+      data: { active: false, deactivatedAt: new Date() },
+    });
+
+    await trx.sensorConfig.updateMany({
+      where: { configSnapshotId, active: true, deactivatedAt: null },
+      data: { active: false, deactivatedAt: new Date() },
+    });
+
+    if (dataloggerConfigId) {
+      const dataloggerConfig = await trx.dataloggerConfig.findUnique({
+        where: { id: dataloggerConfigId },
+      });
+
+      if (!dataloggerConfig) {
+        throw new HttpException(422, "invalid datalogger config id received");
+      }
+
+      const { config, dataloggerDriverId } = dataloggerConfig;
+
+      await trx.dataloggerConfig.create({
+        data: {
+          name: "datalogger",
+          config: config as Prisma.JsonObject,
+          active: true,
+          createdAt: new Date(),
+          DataloggerDriver: { connect: { id: dataloggerDriverId } },
+          Creator: { connect: { id: accountId } },
+          ConfigSnapshot: { connect: { id: configSnapshotId } },
+        },
+      });
+    }
+
+    if (sensorConfigIds.length) {
+      const sensorConfigs = await trx.sensorConfig.findMany({
+        where: { id: { in: sensorConfigIds } },
+      });
+
+      if (sensorConfigs.length !== sensorConfigIds.length) {
+        throw new HttpException(422, "invalid sensor config id received");
+      }
+
+      await trx.sensorConfig.createMany({
+        data: sensorConfigs.map((s) => ({
+          name: s.name,
+          config: s.config as Prisma.JsonObject,
+          active: true,
+          createdAt: new Date(),
+          sensorDriverId: s.sensorDriverId,
+          creatorId: accountId,
+          configSnapshotId,
+        })),
+      });
+    }
   });
 };
