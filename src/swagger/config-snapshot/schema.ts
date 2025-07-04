@@ -145,6 +145,7 @@ export const registerConfigSnapshotLibraryConfigById = () =>
                     type: "object",
                     properties: {
                       name: { type: "string" },
+                      id: { type: "string" },
                       config: { type: "object" },
                     },
                   },
@@ -154,7 +155,7 @@ export const registerConfigSnapshotLibraryConfigById = () =>
                   items: {
                     type: "object",
                     properties: {
-                      name: { type: "string" },
+                      id: { type: "string" },
                       config: { type: "object" },
                     },
                   },

@@ -89,6 +89,7 @@ export const registerDataloggerLibraryConfigById = () =>
                 id: { type: "string", format: "uuid" },
                 name: { type: "string" },
                 config: { type: "object" },
+                dataloggerDriverId: { type: "string" },
               },
             },
           },

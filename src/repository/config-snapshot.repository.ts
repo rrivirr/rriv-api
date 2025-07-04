@@ -130,10 +130,10 @@ export const getConfigSnapshotLibraryConfigById = async (query: IdDto) => {
               id: true,
               name: true,
               DataloggerConfig: {
-                select: { config: true },
+                select: { config: true, id: true },
               },
               SensorConfig: {
-                select: { name: true, config: true },
+                select: { name: true, config: true, id: true },
               },
             },
           },
@@ -322,15 +322,18 @@ export const overwriteActiveConfigSnapshot = async (
     body;
 
   return await prisma.$transaction(async (trx) => {
-    await trx.dataloggerConfig.updateMany({
+    const r = await trx.dataloggerConfig.updateMany({
+      where: { configSnapshotId, active: true, deactivatedAt: null },
+      data: { active: false, deactivatedAt: new Date() },
+    });
+    console.log(r);
+
+    const t = await trx.sensorConfig.updateMany({
       where: { configSnapshotId, active: true, deactivatedAt: null },
       data: { active: false, deactivatedAt: new Date() },
     });
 
-    await trx.sensorConfig.updateMany({
-      where: { configSnapshotId, active: true, deactivatedAt: null },
-      data: { active: false, deactivatedAt: new Date() },
-    });
+    console.log(t);
 
     if (dataloggerConfigId) {
       const dataloggerConfig = await trx.dataloggerConfig.findUnique({

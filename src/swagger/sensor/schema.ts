@@ -88,6 +88,7 @@ export const registerSensorLibraryConfigById = () =>
                 id: { type: "string", format: "uuid" },
                 name: { type: "string" },
                 config: { type: "object" },
+                sensorDriverId: { type: "string" },
               },
             },
           },

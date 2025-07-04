@@ -106,6 +106,7 @@ export const getDataloggerLibraryConfigById = async (query: IdDto) => {
               id: true,
               name: true,
               config: true,
+              dataloggerDriverId: true,
             },
           },
           Creator: {
@@ -240,7 +241,7 @@ export const createDataloggerLibraryConfig = async (
           Creator: { connect: { id: accountId } },
           DataloggerConfig: {
             create: {
-              name: `v1`,
+              name: `datalogger`,
               config: dataloggerConfig.config as Prisma.InputJsonObject,
               active: false,
               DataloggerDriver: {

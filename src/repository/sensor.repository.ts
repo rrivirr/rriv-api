@@ -70,6 +70,7 @@ export const getSensorLibraryConfigById = async (query: IdDto) => {
               id: true,
               name: true,
               config: true,
+              sensorDriverId: true,
             },
           },
           Creator: {
@@ -233,7 +234,7 @@ export const createSensorLibraryConfig = async (
           Creator: { connect: { id: accountId } },
           SensorConfig: {
             create: {
-              name: `${sensorConfig.name}v1`,
+              name: `${sensorConfig.name}`,
               config: sensorConfig.config as Prisma.InputJsonObject,
               active: false,
               SensorDriver: {
