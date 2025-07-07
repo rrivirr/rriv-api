@@ -9,7 +9,7 @@ export const registerConfigSnapshotSchema = () =>
       createdAt: { type: "string", format: "date-time" },
       active: { type: "boolean" },
       deviceContextId: { type: "string", format: "uuid" },
-      dataloggerConfig: {
+      DataloggerConfig: {
         type: "array",
         items: {
           type: "object",
@@ -19,7 +19,7 @@ export const registerConfigSnapshotSchema = () =>
           },
         },
       },
-      sensorConfig: {
+      SensorConfig: {
         type: "array",
         items: {
           type: "object",
@@ -37,8 +37,21 @@ export const registerActiveConfigSnapshotSchema = () =>
   swaggerBuilder.addSchema("ActiveConfigSnapshot", {
     type: "object",
     properties: {
-      dataloggerConfig: { type: "object" },
-      sensorConfig: { type: "array", items: { type: "object" } },
+      dataloggerConfig: {
+        type: "object",
+        properties: { config: { type: "object" } },
+      },
+      sensorConfig: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            name: { type: "string" },
+            config: { type: "object" },
+          },
+        },
+      },
     },
   });
 
@@ -114,7 +127,7 @@ export const registerConfigSnapshotLibraryConfigById = () =>
       name: { type: "string" },
       createdAt: { type: "string", format: "date-time" },
       description: { type: "string" },
-      creator: {
+      Creator: {
         type: "object",
         properties: {
           firstName: { type: "string" },
@@ -127,7 +140,8 @@ export const registerConfigSnapshotLibraryConfigById = () =>
           type: "object",
           properties: {
             version: { type: "number" },
-            creator: {
+            description: { type: "string" },
+            Creator: {
               type: "object",
               properties: {
                 firstName: { type: "string" },

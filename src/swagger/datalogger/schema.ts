@@ -62,8 +62,9 @@ export const registerDataloggerLibraryConfigById = () =>
     properties: {
       id: { type: "string", format: "uuid" },
       name: { type: "string" },
+      description: { type: "string" },
       createdAt: { type: "string", format: "date-time" },
-      creator: {
+      Creator: {
         type: "object",
         properties: {
           firstName: { type: "string" },
@@ -76,7 +77,8 @@ export const registerDataloggerLibraryConfigById = () =>
           type: "object",
           properties: {
             version: { type: "number" },
-            creator: {
+            description: { type: "string" },
+            Creator: {
               type: "object",
               properties: {
                 firstName: { type: "string" },

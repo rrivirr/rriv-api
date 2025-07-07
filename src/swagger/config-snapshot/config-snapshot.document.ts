@@ -91,10 +91,7 @@ swaggerBuilder.addPath(`${basePath}/history`, {
         content: {
           [mediaTypeHeader]: {
             schema: {
-              type: "array",
-              items: {
-                $ref: "#/components/schemas/ConfigSnapshotHistory",
-              },
+              $ref: "#/components/schemas/ConfigSnapshotHistory",
             },
           },
         },
@@ -123,10 +120,7 @@ swaggerBuilder.addPath(`${basePath}/active`, {
         content: {
           [mediaTypeHeader]: {
             schema: {
-              type: "array",
-              items: {
-                $ref: "#/components/schemas/ActiveConfigSnapshot",
-              },
+              $ref: "#/components/schemas/ActiveConfigSnapshot",
             },
           },
         },
