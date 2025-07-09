@@ -316,24 +316,27 @@ export const overwriteActiveConfigSnapshot = async (
     sensorConfigIds: Array<string>;
     dataloggerConfigId?: string;
     accountId: string;
+    createdAt: Date;
   },
 ) => {
-  const { configSnapshotId, sensorConfigIds, dataloggerConfigId, accountId } =
-    body;
+  const {
+    configSnapshotId,
+    sensorConfigIds,
+    dataloggerConfigId,
+    accountId,
+    createdAt,
+  } = body;
 
   return await prisma.$transaction(async (trx) => {
-    const r = await trx.dataloggerConfig.updateMany({
+    await trx.dataloggerConfig.updateMany({
       where: { configSnapshotId, active: true, deactivatedAt: null },
-      data: { active: false, deactivatedAt: new Date() },
-    });
-    console.log(r);
-
-    const t = await trx.sensorConfig.updateMany({
-      where: { configSnapshotId, active: true, deactivatedAt: null },
-      data: { active: false, deactivatedAt: new Date() },
+      data: { active: false, deactivatedAt: createdAt },
     });
 
-    console.log(t);
+    await trx.sensorConfig.updateMany({
+      where: { configSnapshotId, active: true, deactivatedAt: null },
+      data: { active: false, deactivatedAt: createdAt },
+    });
 
     if (dataloggerConfigId) {
       const dataloggerConfig = await trx.dataloggerConfig.findUnique({
@@ -351,7 +354,7 @@ export const overwriteActiveConfigSnapshot = async (
           name: "datalogger",
           config: config as Prisma.JsonObject,
           active: true,
-          createdAt: new Date(),
+          createdAt,
           DataloggerDriver: { connect: { id: dataloggerDriverId } },
           Creator: { connect: { id: accountId } },
           ConfigSnapshot: { connect: { id: configSnapshotId } },
@@ -373,7 +376,7 @@ export const overwriteActiveConfigSnapshot = async (
           name: s.name,
           config: s.config as Prisma.JsonObject,
           active: true,
-          createdAt: new Date(),
+          createdAt,
           sensorDriverId: s.sensorDriverId,
           creatorId: accountId,
           configSnapshotId,

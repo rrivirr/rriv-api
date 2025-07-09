@@ -126,6 +126,7 @@ export const overwriteActiveConfigSnapshot = async (
     deviceId,
     sensorConfigIds,
     dataloggerConfigId,
+    createdAt,
   } = body;
 
   const configSnapshot = await getActiveConfigSnapshot({
@@ -139,6 +140,7 @@ export const overwriteActiveConfigSnapshot = async (
     sensorConfigIds,
     dataloggerConfigId,
     accountId,
+    createdAt,
   });
 };
 

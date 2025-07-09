@@ -40,6 +40,7 @@ export const overwriteActiveConfigSnapshotSchema = z.object({
   contextId: z.string().uuid(),
   dataloggerConfigId: z.string().uuid().optional(),
   sensorConfigIds: z.string().uuid().array(),
+  createdAt: z.coerce.date(),
 }).strict();
 
 export const configSnapshotLibraryConfigQuerySchema = z.object({
