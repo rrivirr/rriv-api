@@ -1,0 +1,41 @@
+# Put this in your .github/workflows directory
+
+name: Deploy to Environment
+on:
+  workflow_dispatch:
+    inputs:
+      env:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - staging
+          - prod
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  deploy:
+    env:
+      ENV: ${{ github.event.inputs.env }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prepare deployment
+        uses: rrivirr/github-actions/.github/actions/prepare-deployment.yaml@v1.1.1 # make sure you point at the latest version!
+        with:
+          ENV: ${{ env.ENV }}
+          # This line is required to pass the AWS role to the action
+          AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', upper(env.ENV))] }}
+      
+      - name: Deploy ${{ env.ENV }} environment
+        run: |
+          echo "Deploying to ${{ env.ENV }} environment"
+          kubectl apply -f overlays/${{ env.ENV }} # Point this at your k8s manifests
+
+      - name: Send notification
+        run: |
+          echo "Deployment to ${{ env.ENV }} completed successfully"
