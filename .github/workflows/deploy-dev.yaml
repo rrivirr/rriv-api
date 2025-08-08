@@ -24,8 +24,15 @@ jobs:
       ENV: ${{ github.event.inputs.env }}
     runs-on: ubuntu-latest
     steps:
+      - name: Check out the github actions repo
+        uses: actions/checkout@v4
+        with:
+          repository: rrivirr/github-actions
+          ref: v1.1.0
+          token: ${{ secrets.GITHUB_ACTIONS_ACCESS_TOKEN }}
+          path: ./.github/actions/rrivirr-github-actions
       - name: Prepare deployment
-        uses: rrivirr/github-actions/.github/actions/prepare-deployment.yaml@v1.1.0 # make sure you point at the latest version!
+        uses: ./.github/actions/rrivirr-github-actions/.github/actions/prepare-deployment.yaml@v1.1.0 # make sure you point at the latest version!
         with:
           ENV: ${{ env.ENV }}
           # This line is required to pass the AWS role to the action
