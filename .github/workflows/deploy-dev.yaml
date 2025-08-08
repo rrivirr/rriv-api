@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Prepare deployment
-        uses: rrivirr/github-actions/.github/actions/prepare-deployment.yaml@v1.1.1 # make sure you point at the latest version!
+        uses: rrivirr/github-actions/.github/actions/prepare-deployment.yaml@v1.1.0 # make sure you point at the latest version!
         with:
           ENV: ${{ env.ENV }}
           # This line is required to pass the AWS role to the action
