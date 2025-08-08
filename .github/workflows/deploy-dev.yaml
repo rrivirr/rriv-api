@@ -29,7 +29,7 @@ jobs:
         with:
           ENV: ${{ env.ENV }}
           # This line is required to pass the AWS role to the action
-          AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', upper(env.ENV))] }}
+          AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', 'DEV')] }}
       
       - name: Deploy ${{ env.ENV }} environment
         run: |
