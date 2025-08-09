@@ -1,10 +1,12 @@
 FROM denoland/deno
 
-EXPOSE 8000
+EXPOSE 3006
 
 WORKDIR /app
 
-ADD . /app
+COPY . /app
+
+RUN apt-get update -y && apt-get install -y openssl
 
 RUN deno install --entrypoint src/server.ts
 
