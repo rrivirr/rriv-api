@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       env:
-        description: 'Environment to deploy to'
+        description: "Environment to deploy to"
         required: true
-        default: 'dev'
+        default: "dev"
         type: choice
         options:
           - dev
@@ -37,7 +37,7 @@ jobs:
           ENV: ${{ env.ENV }}
           # This line is required to pass the AWS role to the action
           AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', 'DEV')] }}
-      
+
       - name: Deploy ${{ env.ENV }} environment
         run: |
           echo "Deploying to ${{ env.ENV }} environment"

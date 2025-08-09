@@ -9,6 +9,15 @@ spec:
         - name: rriv-api
           env:
             - name: KEYCLOAK_PUBLIC_KEY
-              value: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyV7SDFMJuH17oms+gl++Vx6xR0B/y4tKTgXlowUEVJpvJiTFpiiA9y9E00frsvVZPnEKzif7X0bYuBl3NYc0r8DUjgVQFjPY+Kda0n3BSunyGi/tMFqrmVQbquHXy8wRQl8ZTjiEr82CSpQcj0ck6ycUYRxrM8T0JQ54Nwo3tqRlzA96+pNaV4nariLBTs3Ok2FYr/FuYfGgG0q6R1SqYP0ZEHzsnGR4sKldHSmtp6cgZgtjV4qx5gNJQetu06aM4w3grWOuK9AAjD1Cba1wkKMnDZEgtVPb6Hak91XbPdF9/pDZukWC3RF+ArMIz+WVFlguKZLtKnT0xq0adJbuWQIDAQAB
+              value: |
+                -----BEGIN PUBLIC KEY-----
+                MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyV7SDFMJuH17oms+gl++
+                Vx6xR0B/y4tKTgXlowUEVJpvJiTFpiiA9y9E00frsvVZPnEKzif7X0bYuBl3NYc0
+                r8DUjgVQFjPY+Kda0n3BSunyGi/tMFqrmVQbquHXy8wRQl8ZTjiEr82CSpQcj0ck
+                6ycUYRxrM8T0JQ54Nwo3tqRlzA96+pNaV4nariLBTs3Ok2FYr/FuYfGgG0q6R1Sq
+                YP0ZEHzsnGR4sKldHSmtp6cgZgtjV4qx5gNJQetu06aM4w3grWOuK9AAjD1Cba1w
+                kKMnDZEgtVPb6Hak91XbPdF9/pDZukWC3RF+ArMIz+WVFlguKZLtKnT0xq0adJbu
+                WQIDAQAB
+                -----END PUBLIC KEY-----
             - name: KEYCLOAK_ISSUER
               value: https://auth-dev.rriv.org/realms/rriv-beta-dev
