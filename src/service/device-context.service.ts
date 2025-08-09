@@ -6,7 +6,9 @@ import {
 import { HttpException } from "../utils/http-exception.ts";
 import { validateDevice } from "./utils/validate-device.ts";
 import * as deviceContextRepository from "../repository/device-context.repository.ts";
+import * as configSnapshotRepository from "../repository/config-snapshot.repository.ts";
 import { validateContext } from "./utils/validate-context.ts";
+import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "./utils/constants.ts";
 
 export const getDeviceContext = async (query: DeviceContextDto) => {
   const { contextId, deviceId, accountId } = query;
@@ -23,7 +25,25 @@ export const getDeviceContext = async (query: DeviceContextDto) => {
     return null;
   }
 
-  return { ...activeDeviceContext, Context: undefined };
+  let configSnapshotId: string;
+  if (!activeDeviceContext.ConfigSnapshot.length) {
+    const configSnapshot = await configSnapshotRepository.createConfigSnapshot({
+      name: ACTIVE_CONFIG_SNAPSHOT_NAME,
+      accountId,
+      active: true,
+      deviceContextId: activeDeviceContext.id,
+    });
+    configSnapshotId = configSnapshot.id;
+  } else {
+    configSnapshotId = activeDeviceContext.ConfigSnapshot[0].id;
+  }
+
+  return {
+    ...activeDeviceContext,
+    configSnapshotId,
+    Context: undefined,
+    ConfigSnapshot: undefined,
+  };
 };
 
 export const createDeviceContext = async (
@@ -64,6 +84,7 @@ export const createDeviceContext = async (
     deviceId,
     contextId,
     assignedDeviceName,
+    accountId,
   });
 };
 

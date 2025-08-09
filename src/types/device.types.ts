@@ -1,26 +1,26 @@
 import { z } from "zod";
 import { AccountIdDto } from "./generic.types.ts";
 import {
-  deviceBindValidationSchema,
-  deviceQueryValidationSchema,
-  serialNumberValidationSchema,
+  deviceBindSchema,
+  deviceQuerySchema,
+  serialNumberSchema,
 } from "../handler/device/schema.ts";
 
 export type BindDeviceDto =
-  & z.infer<typeof deviceBindValidationSchema>
-  & z.infer<typeof serialNumberValidationSchema>
+  & z.infer<typeof deviceBindSchema>
+  & z.infer<typeof serialNumberSchema>
   & AccountIdDto;
 
 export type UnbindDeviceDto =
-  & z.infer<typeof serialNumberValidationSchema>
+  & z.infer<typeof serialNumberSchema>
   & AccountIdDto;
 
 export type QueryDeviceDto =
-  & z.input<typeof deviceQueryValidationSchema>
+  & z.input<typeof deviceQuerySchema>
   & AccountIdDto;
 
 export type SerialNumberDeviceDto = z.input<
-  typeof serialNumberValidationSchema
+  typeof serialNumberSchema
 >;
 
 export type AccountUniqueDeviceDto = SerialNumberDeviceDto & AccountIdDto;

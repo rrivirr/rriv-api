@@ -14,7 +14,9 @@ export const registerSensorConfigSchema = () =>
           name: { type: "string" },
         },
       },
+      active: { type: "boolean" },
       createdAt: { type: "string", format: "date-time" },
+      deactivatedAt: { type: "string", format: "date-time" },
     },
   });
 
@@ -59,8 +61,9 @@ export const registerSensorLibraryConfigById = () =>
     properties: {
       id: { type: "string", format: "uuid" },
       name: { type: "string" },
+      description: { type: "string" },
       createdAt: { type: "string", format: "date-time" },
-      creator: {
+      Creator: {
         type: "object",
         properties: {
           firstName: { type: "string" },
@@ -73,7 +76,8 @@ export const registerSensorLibraryConfigById = () =>
           type: "object",
           properties: {
             version: { type: "number" },
-            creator: {
+            description: { type: "string" },
+            Creator: {
               type: "object",
               properties: {
                 firstName: { type: "string" },
@@ -86,6 +90,7 @@ export const registerSensorLibraryConfigById = () =>
                 id: { type: "string", format: "uuid" },
                 name: { type: "string" },
                 config: { type: "object" },
+                sensorDriverId: { type: "string" },
               },
             },
           },

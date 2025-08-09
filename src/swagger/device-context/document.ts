@@ -1,8 +1,8 @@
 import { generateSchema } from "@anatine/zod-openapi";
 import {
-  createDeviceContextValidationSchema,
-  deviceContextParamsValidationSchema,
-  updateDeviceContextValidationSchema,
+  createDeviceContextSchema,
+  deviceContextParamsSchema,
+  updateDeviceContextSchema,
 } from "../../handler/device-context/schema.ts";
 import { swaggerBuilder } from "../index.ts";
 import { registerDeviceContextSchema } from "./schema.ts";
@@ -16,12 +16,12 @@ swaggerBuilder.addPath(path, {
   parameters: [{
     name: "contextId",
     in: "path",
-    schema: generateSchema(deviceContextParamsValidationSchema)
+    schema: generateSchema(deviceContextParamsSchema)
       .properties!["contextId"],
   }, {
     name: "deviceId",
     in: "path",
-    schema: generateSchema(deviceContextParamsValidationSchema)
+    schema: generateSchema(deviceContextParamsSchema)
       .properties!["deviceId"],
   }],
   post: {
@@ -30,7 +30,7 @@ swaggerBuilder.addPath(path, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(createDeviceContextValidationSchema),
+          schema: generateSchema(createDeviceContextSchema),
         },
       },
     },
@@ -44,7 +44,7 @@ swaggerBuilder.addPath(path, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(updateDeviceContextValidationSchema),
+          schema: generateSchema(updateDeviceContextSchema),
         },
       },
     },

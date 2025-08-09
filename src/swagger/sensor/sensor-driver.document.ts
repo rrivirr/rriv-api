@@ -3,10 +3,10 @@ import { ParameterObject } from "npm:openapi3-ts@^4.4.0/oas31";
 import { registerSensorDriverSchema } from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
 import {
-  createSensorDriverValidationSchema,
-  sensorDriverQueryValidationSchema,
+  createSensorDriverSchema,
+  sensorDriverQuerySchema,
 } from "../../handler/sensor/schema.ts";
-import { idValidationSchema } from "../../handler/generic/generic.schema.ts";
+import { idSchema } from "../../handler/generic/generic.schema.ts";
 
 const basePath = "/sensor/driver";
 const tags = ["sensor"];
@@ -18,7 +18,7 @@ const singleSensorDriverResponse = {
 registerSensorDriverSchema();
 
 const SensorDriverQuerySchema = generateSchema(
-  sensorDriverQueryValidationSchema,
+  sensorDriverQuerySchema,
 );
 const SensorDriverQuerySchemaProperties = SensorDriverQuerySchema.properties;
 
@@ -53,7 +53,7 @@ swaggerBuilder.addPath(basePath, {
     requestBody: {
       content: {
         [mediaTypeHeader]: {
-          schema: generateSchema(createSensorDriverValidationSchema),
+          schema: generateSchema(createSensorDriverSchema),
         },
       },
     },
@@ -67,7 +67,7 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
   parameters: [{
     name: "id",
     in: "path",
-    schema: generateSchema(idValidationSchema).properties!["id"],
+    schema: generateSchema(idSchema).properties!["id"],
   }],
   delete: {
     tags,

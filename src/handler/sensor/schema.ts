@@ -1,12 +1,13 @@
 import { z } from "zod";
 import { Ajv } from "ajv";
 import {
-  getNameValidationSchema,
-  getPaginationValidationSchema,
+  booleanQuerySchema,
+  getNameSchema,
+  getPaginationSchema,
 } from "../generic/generic.schema.ts";
 
-export const createSensorDriverValidationSchema = z.object({
-  name: getNameValidationSchema(),
+export const createSensorDriverSchema = z.object({
+  name: getNameSchema(),
   validation: z.record(z.unknown()).refine(
     (data) => {
       try {
@@ -23,40 +24,39 @@ export const createSensorDriverValidationSchema = z.object({
   ),
 }).strict();
 
-export const createSensorConfigValidationSchema = z.object({
-  name: getNameValidationSchema(),
+export const createSensorConfigSchema = z.object({
+  name: getNameSchema(),
   config: z.record(z.union([z.string(), z.number(), z.boolean()])),
   sensorDriverId: z.string().uuid(),
-});
+  deviceId: z.string().uuid(),
+  contextId: z.string().uuid(),
+  singlePropertyChange: z.boolean(),
+  createdAt: z.coerce.date(),
+}).strict();
 
-export const sensorConfigQueryValidationSchema = z
+export const sensorDriverQuerySchema = z
   .object({
-    search: getNameValidationSchema().optional(),
-    sensorDriverId: z.string().uuid().optional(),
+    search: getNameSchema().optional(),
   })
   .merge(
-    getPaginationValidationSchema(["createdAt", "name"], "createdAt"),
+    getPaginationSchema(["createdAt", "name"], "createdAt"),
   ).strict();
 
-export const sensorDriverQueryValidationSchema = z
-  .object({
-    search: getNameValidationSchema().optional(),
-  })
-  .merge(
-    getPaginationValidationSchema(["createdAt", "name"], "createdAt"),
-  ).strict();
-
-export const createSensorLibraryConfigValidationSchema = z.object({
-  name: getNameValidationSchema(),
+export const createSensorLibraryConfigSchema = z.object({
+  name: getNameSchema(),
+  description: getNameSchema().optional(),
   sensorConfigId: z.string().uuid(),
 }).strict();
 
-export const sensorLibraryConfigQueryValidationSchema = z.object({
-  search: getNameValidationSchema().optional(),
+export const sensorLibraryConfigQuerySchema = z.object({
+  search: getNameSchema().optional(),
+  name: getNameSchema().optional(),
+  isPublic: booleanQuerySchema,
 }).merge(
-  getPaginationValidationSchema(["createdAt", "name"], "createdAt"),
+  getPaginationSchema(["createdAt", "name"], "createdAt"),
 ).strict();
 
-export const createNewSensorLibraryConfigVersionValidationSchema = z.object({
+export const createNewSensorLibraryConfigVersionSchema = z.object({
   sensorConfigId: z.string().uuid(),
+  description: getNameSchema().optional(),
 }).strict();

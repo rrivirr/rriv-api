@@ -1,4 +1,5 @@
 import prisma from "../infra/prisma.ts";
+import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "../service/utils/constants.ts";
 import {
   UniqueDeviceContextDto,
   UpdateDeviceContextDto,
@@ -15,10 +16,25 @@ export const getDeviceContext = async (
 };
 
 export const createDeviceContext = async (
-  body: UniqueDeviceContextDto & { assignedDeviceName: string },
+  body: UniqueDeviceContextDto & {
+    assignedDeviceName: string;
+    accountId: string;
+  },
 ) => {
+  const { accountId, deviceId, contextId, assignedDeviceName } = body;
   return await prisma.deviceContext.create({
-    data: { ...body },
+    data: {
+      deviceId,
+      contextId,
+      assignedDeviceName,
+      ConfigSnapshot: {
+        create: {
+          name: ACTIVE_CONFIG_SNAPSHOT_NAME,
+          active: true,
+          Creator: { connect: { id: accountId } },
+        },
+      },
+    },
   });
 };
 

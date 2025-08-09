@@ -1,21 +1,20 @@
 // @deno-types="npm:@types/express@5"
 import { Request, Response } from "npm:express";
 import {
-  createNewSensorLibraryConfigVersionValidationSchema,
-  createSensorConfigValidationSchema,
-  createSensorDriverValidationSchema,
-  createSensorLibraryConfigValidationSchema,
-  sensorConfigQueryValidationSchema,
-  sensorDriverQueryValidationSchema,
-  sensorLibraryConfigQueryValidationSchema,
+  createNewSensorLibraryConfigVersionSchema,
+  createSensorConfigSchema,
+  createSensorDriverSchema,
+  createSensorLibraryConfigSchema,
+  sensorDriverQuerySchema,
+  sensorLibraryConfigQuerySchema,
 } from "./schema.ts";
 import * as sensorService from "../../service/sensor.service.ts";
-import { idValidationSchema } from "../generic/generic.schema.ts";
+import { idSchema } from "../generic/generic.schema.ts";
 import { HttpException } from "../../utils/http-exception.ts";
 
 export const createSensorDriver = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const requestBody = createSensorDriverValidationSchema.parse(req.body);
+  const requestBody = createSensorDriverSchema.parse(req.body);
 
   const sensorDriver = await sensorService.createSensorDriver({
     ...requestBody,
@@ -25,15 +24,15 @@ export const createSensorDriver = async (req: Request, res: Response) => {
 };
 
 export const getSensorDriver = async (req: Request, res: Response) => {
-  const query = sensorDriverQueryValidationSchema.parse(req.query);
+  const query = sensorDriverQuerySchema.parse(req.query);
 
   const sensorDrivers = await sensorService.getSensorDriver(query);
-  res.status(200).json(sensorDrivers);
+  res.json(sensorDrivers);
 };
 
 export const createSensorConfig = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const requestBody = createSensorConfigValidationSchema.parse(req.body);
+  const requestBody = createSensorConfigSchema.parse(req.body);
 
   const sensorConfig = await sensorService.createSensorConfig({
     ...requestBody,
@@ -42,37 +41,26 @@ export const createSensorConfig = async (req: Request, res: Response) => {
   res.status(201).json(sensorConfig);
 };
 
-export const getSensorConfig = async (req: Request, res: Response) => {
-  const accountId = req.accountId;
-  const query = sensorConfigQueryValidationSchema.parse(req.query);
-
-  const sensorConfigs = await sensorService.getSensorConfig({
-    ...query,
-    accountId,
-  });
-  res.status(200).json(sensorConfigs);
-};
-
 export const deleteSensorDriver = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const params = idValidationSchema.parse(req.params);
+  const params = idSchema.parse(req.params);
 
   const sensorDriver = await sensorService.deleteSensorDriver({
     ...params,
     accountId,
   });
-  res.status(200).json(sensorDriver);
+  res.json(sensorDriver);
 };
 
 export const deleteSensorConfig = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const params = idValidationSchema.parse(req.params);
+  const params = idSchema.parse(req.params);
 
   const sensorConfig = await sensorService.deleteSensorConfig({
     ...params,
     accountId,
   });
-  res.status(200).json(sensorConfig);
+  res.json(sensorConfig);
 };
 
 export const createSensorLibraryConfig = async (
@@ -80,7 +68,7 @@ export const createSensorLibraryConfig = async (
   res: Response,
 ) => {
   const accountId = req.accountId;
-  const requestBody = createSensorLibraryConfigValidationSchema.parse(req.body);
+  const requestBody = createSensorLibraryConfigSchema.parse(req.body);
 
   const sensorLibraryConfig = await sensorService.createSensorLibraryConfig({
     ...requestBody,
@@ -90,18 +78,19 @@ export const createSensorLibraryConfig = async (
 };
 
 export const getSensorLibraryConfig = async (req: Request, res: Response) => {
-  const query = sensorLibraryConfigQueryValidationSchema.parse(req.query);
+  const accountId = req.accountId;
+  const query = sensorLibraryConfigQuerySchema.parse(req.query);
   const sensorLibraryConfigs = await sensorService.getSensorLibraryConfig(
-    query,
+    { ...query, accountId },
   );
-  res.status(200).json(sensorLibraryConfigs);
+  res.json(sensorLibraryConfigs);
 };
 
 export const getSensorLibraryConfigById = async (
   req: Request,
   res: Response,
 ) => {
-  const params = idValidationSchema.parse(req.params);
+  const params = idSchema.parse(req.params);
   const sensorLibraryConfig = await sensorService.getSensorLibraryConfigById(
     params,
   );
@@ -110,7 +99,7 @@ export const getSensorLibraryConfigById = async (
     throw new HttpException(404, "sensor library config not found");
   }
 
-  res.status(200).json({ ...sensorLibraryConfig, creatorId: undefined });
+  res.json({ ...sensorLibraryConfig, creatorId: undefined });
 };
 
 export const createNewSensorLibraryConfigVersion = async (
@@ -118,10 +107,10 @@ export const createNewSensorLibraryConfigVersion = async (
   res: Response,
 ) => {
   const accountId = req.accountId;
-  const requestBody = createNewSensorLibraryConfigVersionValidationSchema.parse(
+  const requestBody = createNewSensorLibraryConfigVersionSchema.parse(
     req.body,
   );
-  const params = idValidationSchema.parse(req.params);
+  const params = idSchema.parse(req.params);
 
   await sensorService.createNewSensorLibraryConfigVersion({
     ...requestBody,
@@ -136,12 +125,12 @@ export const deleteSensorLibraryConfig = async (
   res: Response,
 ) => {
   const accountId = req.accountId;
-  const params = idValidationSchema.parse(req.params);
+  const params = idSchema.parse(req.params);
 
   const sensorLibraryConfig = await sensorService.deleteSensorLibraryConfig({
     ...params,
     accountId,
   });
 
-  res.status(200).json(sensorLibraryConfig);
+  res.json(sensorLibraryConfig);
 };

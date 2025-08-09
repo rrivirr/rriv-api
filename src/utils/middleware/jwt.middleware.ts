@@ -4,7 +4,7 @@ import { HttpException } from "../http-exception.ts";
 import { verifyJwtToken } from "../../infra/jwt.ts";
 import prisma from "../../infra/prisma.ts";
 import winston from "../../winston.ts";
-import { idValidationSchema } from "../../handler/generic/generic.schema.ts";
+import { idSchema } from "../../handler/generic/generic.schema.ts";
 
 export const jwtMiddleware = async (
   req: Request,
@@ -22,7 +22,7 @@ export const jwtMiddleware = async (
     throw new HttpException(401, "invalid access token");
   }
 
-  const { success, data } = idValidationSchema.safeParse({ id: decoded.sub });
+  const { success, data } = idSchema.safeParse({ id: decoded.sub });
   if (!success) {
     throw new HttpException(401, "invalid access token");
   }
