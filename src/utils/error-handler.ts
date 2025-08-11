@@ -19,10 +19,18 @@ export default (
 ) => {
   const errorLogger = logger.child({ source: "errorHandler" });
   if (err instanceof HttpException) {
-    res.status(err.code).send({
-      code: err.code,
-      message: err.message,
-    });
+    if (err.code === 500) {
+      errorLogger.error(err.message);
+      res.status(err.code).send({
+        code: err.code,
+        message: "Internal Server Error",
+      });
+    } else {
+      res.status(err.code).send({
+        code: err.code,
+        message: err.message,
+      });
+    }
   } else if (err instanceof ZodError) {
     res.status(422).send({
       code: 422,

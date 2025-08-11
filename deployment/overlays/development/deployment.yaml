@@ -19,5 +19,11 @@ spec:
                 kKMnDZEgtVPb6Hak91XbPdF9/pDZukWC3RF+ArMIz+WVFlguKZLtKnT0xq0adJbu
                 WQIDAQAB
                 -----END PUBLIC KEY-----
-            - name: KEYCLOAK_ISSUER
-              value: https://auth-dev.rriv.org/realms/rriv-beta-dev
+            - name: KEYCLOAK_CLIENT_ID
+              value: secret
+            - name: KEYCLOAK_CLIENT_SECRET
+              value: secret
+            - name: KEYCLOAK_URL
+              value: https://auth-dev.rriv.org
+            - name: KEYCLOAK_REALM=master
+              value: rriv-beta-dev
