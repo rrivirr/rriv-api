@@ -22,7 +22,7 @@ export const jwtMiddleware = async (
     throw new HttpException(401, "invalid access token");
   }
   const jwtToken = authorization.replace("Bearer ", "");
-  const decoded = verifyJwtToken(jwtToken);
+  const decoded = await verifyJwtToken(jwtToken);
   if (typeof decoded === "string") {
     throw new HttpException(401, "invalid access token");
   }
