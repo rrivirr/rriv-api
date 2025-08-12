@@ -7,6 +7,6 @@ export const createAccountSchema = z
     lastName: getNameSchema(),
     email: z.string().email(),
     password: z.string().min(5),
-    phone: z.string().min(10).max(13),
+    phone: z.string().max(13),
   })
   .strict();
