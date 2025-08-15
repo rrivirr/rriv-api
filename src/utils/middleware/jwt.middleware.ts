@@ -12,12 +12,17 @@ export const jwtMiddleware = async (
   next: NextFunction,
 ) => {
   const logger = winston.child({ source: "jwtMiddleware" });
+
+  if (req.url === "/account" && req.method === "POST") {
+    return next();
+  }
+
   const authorization = req.headers["authorization"];
   if (!authorization) {
     throw new HttpException(401, "invalid access token");
   }
   const jwtToken = authorization.replace("Bearer ", "");
-  const decoded = verifyJwtToken(jwtToken);
+  const decoded = await verifyJwtToken(jwtToken);
   if (typeof decoded === "string") {
     throw new HttpException(401, "invalid access token");
   }
