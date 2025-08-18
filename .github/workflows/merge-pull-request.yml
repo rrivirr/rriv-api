@@ -20,6 +20,6 @@ jobs:
         with:
           deno-version: v2.x
 
-      - run: deno run -allow-read --allow-write npm:semantic-release
+      - run: deno run --allow-read --allow-write npm:semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
