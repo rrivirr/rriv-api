@@ -1,3 +1,11 @@
+# [1.1.0](https://github.com/rrivirr/rriv-api/compare/v1.0.0...v1.1.0) (2025-08-18)
+
+
+### Features
+
+* add semantic release npm plugin ([5085875](https://github.com/rrivirr/rriv-api/commit/50858759f723f127a833c7f757a74314399e5f8e))
+* prevent semantic release from publishing to npm ([19a7438](https://github.com/rrivirr/rriv-api/commit/19a7438d50f892fff360b1a7910d8982225ca234))
+
 # 1.0.0 (2025-08-18)
 
 
