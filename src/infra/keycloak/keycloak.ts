@@ -75,9 +75,16 @@ export const createUser = async (
     return userId;
     // deno-lint-ignore no-explicit-any
   } catch (error: any) {
-    const errorMessage = error?.response?.data?.errorMessage;
-    const errorStatus = error?.response.status;
+    const errorResponse = error?.response?.data;
+    const errorMessage = errorResponse.errorMessage;
+    const errorStatus = error?.status;
     if (!errorMessage) {
+      if (errorStatus === 400 || errorStatus === 409) {
+        throw new HttpException(
+          error.status,
+          errorResponse.error_description || errorResponse.error_description,
+        );
+      }
       throw new HttpException(500, `keycloak: ${JSON.stringify(error)}`);
     }
     if (errorStatus === 400 || errorStatus === 409) {
