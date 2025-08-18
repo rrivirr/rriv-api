@@ -4,6 +4,9 @@
       "tags": ["recommended"]
     }
   },
+  "fmt": {
+    "exclude": ["CHANGELOG.md"]
+  },
   "nodeModulesDir": "auto",
   "tasks": {
     "dev": "deno run --allow-ffi --allow-sys --allow-read --allow-net --allow-env --env-file --watch src/server.ts",
