@@ -1,6 +1,9 @@
 import { generateSchema } from "@anatine/zod-openapi";
 import { swaggerBuilder } from "../index.ts";
-import { createAccountSchema } from "../../handler/account/schema.ts";
+import {
+  createAccountSchema,
+  emailSchema,
+} from "../../handler/account/schema.ts";
 
 const basePath = "/account";
 const tags = ["account"];
@@ -17,8 +20,34 @@ swaggerBuilder.addPath(basePath, {
         },
       },
     },
-    responses: {
-      201: {},
+    responses: { 201: {} },
+  },
+});
+
+swaggerBuilder.addPath(`${basePath}/verifyEmail`, {
+  post: {
+    tags,
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(emailSchema),
+        },
+      },
     },
+    responses: { 204: {} },
+  },
+});
+
+swaggerBuilder.addPath(`${basePath}/resetPassword`, {
+  post: {
+    tags,
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(emailSchema),
+        },
+      },
+    },
+    responses: { 204: {} },
   },
 });

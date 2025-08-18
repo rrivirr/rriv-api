@@ -9,3 +9,11 @@ export const createAccount = async (
     data: { id, firstName, lastName, email, phone },
   });
 };
+
+export const getAccountByEmail = async (email: string) => {
+  return await prisma.account.findUnique({
+    where: {
+      email,
+    },
+  });
+};

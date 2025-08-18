@@ -6,6 +6,8 @@ import {
   keycloakRealm,
   keycloakUrl,
 } from "./config.ts";
+import { KEYCLOAK_ACTIONS_EMAIL } from "./enum.ts";
+import winston from "../../winston.ts";
 
 export const getPublicKey = async () => {
   try {
@@ -85,11 +87,41 @@ export const createUser = async (
           errorResponse.error_description || errorResponse.error_description,
         );
       }
-      throw new HttpException(500, `keycloak: ${JSON.stringify(error)}`);
+      throw new HttpException(
+        500,
+        `keycloakCreateUser: ${JSON.stringify(error?.response || error)}`,
+      );
     }
     if (errorStatus === 400 || errorStatus === 409) {
       throw new HttpException(errorStatus, errorMessage);
     }
     throw new HttpException(500, errorMessage);
+  }
+};
+
+export const executeActionsEmail = async (
+  action: KEYCLOAK_ACTIONS_EMAIL,
+  userId: string,
+  errorOut: boolean,
+) => {
+  const m2mToken = await getM2MToken();
+  try {
+    await axios.put(
+      `${keycloakUrl}/admin/realms/${keycloakRealm}/users/${userId}/execute-actions-email`,
+      [action],
+      { headers: { Authorization: `Bearer ${m2mToken}` } },
+    );
+    // deno-lint-ignore no-explicit-any
+  } catch (error: any) {
+    const errorInformation = error?.response?.data || error;
+    if (errorOut) {
+      throw new HttpException(
+        500,
+        JSON.stringify(errorInformation),
+      );
+    } else {
+      const logger = winston.child({ source: "executeActionsEmail" });
+      logger.error(errorInformation);
+    }
   }
 };

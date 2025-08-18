@@ -13,7 +13,11 @@ export const jwtMiddleware = async (
 ) => {
   const logger = winston.child({ source: "jwtMiddleware" });
 
-  if (req.url === "/account" && req.method === "POST") {
+  if (
+    req.url === "/account" && req.method === "POST" ||
+    req.url === "/account/verifyEmail" && req.method === "POST" ||
+    req.url === "/account/resetPassword" && req.method === "POST"
+  ) {
     return next();
   }
 
