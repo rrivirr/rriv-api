@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/rrivirr/rriv-api/compare/v1.1.0...v1.1.1) (2025-08-19)
+
+
+### Bug Fixes
+
+* correct the keycloak secret inject ([34f52f9](https://github.com/rrivirr/rriv-api/commit/34f52f9f47ee48a4c8b2895b9ac673c7a4f8efd6))
+
 # [1.1.0](https://github.com/rrivirr/rriv-api/compare/v1.0.0...v1.1.0) (2025-08-18)
 
 
