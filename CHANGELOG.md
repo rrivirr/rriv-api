@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/rrivirr/rriv-api/compare/v1.1.1...v1.2.0) (2025-08-19)
+
+
+### Bug Fixes
+
+* update keycloak error handling ([4899ffb](https://github.com/rrivirr/rriv-api/commit/4899ffbba642bf8ab7e6692631343077b49c6e27))
+
+
+### Features
+
+* verify and reset password ([f9c184f](https://github.com/rrivirr/rriv-api/commit/f9c184f0be1af32e7fd5a30d1162c791ad795994))
+
 ## [1.1.1](https://github.com/rrivirr/rriv-api/compare/v1.1.0...v1.1.1) (2025-08-19)
 
 
