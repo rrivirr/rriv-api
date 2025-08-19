@@ -21,7 +21,7 @@ spec:
         vault.hashicorp.com/agent-inject-template-credentials: |
           {{ with secret "secret/data/dev-rriv-api-creds" }}
           export DATABASE_URL="{{ .Data.data.database_url }}"
-          export KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloack_client_secret }}"
+          export KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
           {{ end }}
     spec:
       serviceAccountName: internal-app
