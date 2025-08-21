@@ -78,6 +78,18 @@ export const getDevice = async (query: QueryDeviceDto) => {
         },
       }),
     },
+    include: {
+      DeviceContext: {
+        where: {
+          endedAt: null,
+          archivedAt: null,
+        },
+        select: {
+          assignedDeviceName: true,
+          Context: { select: { name: true } },
+        },
+      },
+    },
     take: limit,
     skip: offset,
     orderBy: orderBy ? { [orderBy]: order } : undefined,

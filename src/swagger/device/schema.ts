@@ -8,5 +8,20 @@ export const registerDeviceSchema = () =>
       serialNumber: { type: "string" },
       uniqueName: { type: "string" },
       createdAt: { type: "string", format: "date-time" },
+      DeviceContext: {
+        type: "array",
+        items: {
+          type: "object",
+          properties: {
+            Context: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+              },
+            },
+            assignedDeviceName: { type: "string" },
+          },
+        },
+      },
     },
   });
