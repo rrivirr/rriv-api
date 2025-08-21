@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/rrivirr/rriv-api/compare/v1.2.1...v1.3.0) (2025-08-21)
+
+
+### Features
+
+* return device contexts ([1ae1b94](https://github.com/rrivirr/rriv-api/commit/1ae1b94ce4b441d930d42c41a98c58506da3e42f))
+
 ## [1.2.1](https://github.com/rrivirr/rriv-api/compare/v1.2.0...v1.2.1) (2025-08-21)
 
 
