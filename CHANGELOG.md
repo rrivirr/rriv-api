@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/rrivirr/rriv-api/compare/v1.2.0...v1.2.1) (2025-08-21)
+
+
+### Bug Fixes
+
+* add timestamp to logs ([2652ed8](https://github.com/rrivirr/rriv-api/commit/2652ed8d21feb6f7acdbce353e0d3b910b934b9c))
+
 # [1.2.0](https://github.com/rrivirr/rriv-api/compare/v1.1.1...v1.2.0) (2025-08-19)
 
 
