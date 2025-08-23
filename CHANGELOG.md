@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/rrivirr/rriv-api/compare/v1.3.0...v1.4.0) (2025-08-23)
+
+
+### Features
+
+* set up dev CI/CD deployment ([837d0cf](https://github.com/rrivirr/rriv-api/commit/837d0cf96e108550e6e0fd1e196b54a13bf0126d))
+
 # [1.3.0](https://github.com/rrivirr/rriv-api/compare/v1.2.1...v1.3.0) (2025-08-21)
 
 
