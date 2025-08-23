@@ -23,3 +23,44 @@ jobs:
       - run: deno task semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: get-npm-version
+        id: package-version
+        uses: martinbeentjes/npm-get-version-action@v1.3.1
+
+      - name: Check out the github actions repo
+        uses: actions/checkout@v4
+        with:
+          repository: rrivirr/github-actions
+          ref: v1.1.0
+          token: ${{ secrets.GH_ACTIONS_ACCESS_TOKEN }}
+          path: ./.github/actions/rrivirr-github-actions
+
+      - name: Prepare deployment
+        uses: ./.github/actions/rrivirr-github-actions/.github/actions/prepare-deployment.yaml@v1.1.0 # make sure you point at the latest version!
+        with:
+          ENV: dev
+          # This line is required to pass the AWS role to the action
+          AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', 'DEV')] }}
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DigitalOcean Registry
+        run: doctl registry login
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: registry.digitalocean.com/rriv/rriv-api:${{ steps.package-version.outputs.current-version }}
+
+      - name: Update image tag
+        run: (cd deployment/overlays/development && kubectl kustomize edit set image registry.digitalocean.com/rriv/rriv-api:${{ steps.package-version.outputs.current-version }} )
+
+      - name: apply update
+        run: kubectl apply --wait
