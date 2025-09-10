@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/rrivirr/rriv-api/compare/v1.4.0...v1.5.0) (2025-09-10)
+
+
+### Features
+
+* get snapshot at a particular time in history ([6d94f55](https://github.com/rrivirr/rriv-api/commit/6d94f5559b93661db4e1662523e32d755f81c6eb))
+
 # [1.4.0](https://github.com/rrivirr/rriv-api/compare/v1.3.0...v1.4.0) (2025-08-23)
 
 
