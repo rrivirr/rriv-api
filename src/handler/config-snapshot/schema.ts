@@ -27,6 +27,7 @@ export const configSnapshotHistoryQuerySchema = z
     limit: z.number().int().min(1).max(100).optional().default(100),
     offset: z.number().int().min(0).max(100).optional().default(0),
     order: z.enum(["asc", "desc"]).optional().default("asc"),
+    asAt: z.coerce.date().optional(),
   }).strict();
 
 export const saveConfigSnapshotSchema = z.object({

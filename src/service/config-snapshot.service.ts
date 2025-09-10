@@ -72,7 +72,7 @@ export const getActiveConfig = async (
 export const getConfigSnapshotHistory = async (
   query: QueryConfigSnapshotHistoryDto,
 ) => {
-  const { contextId, deviceId, limit, offset, order, accountId } = query;
+  const { contextId, deviceId, limit, offset, order, accountId, asAt } = query;
   const configSnapshotId = await getActiveConfigSnapshotId({
     accountId,
     deviceId,
@@ -85,6 +85,7 @@ export const getConfigSnapshotHistory = async (
     limit,
     offset,
     order,
+    asAt,
   });
   const sensorConfigs = await getSensorConfig({
     accountId,
@@ -92,7 +93,15 @@ export const getConfigSnapshotHistory = async (
     limit,
     offset,
     order,
+    asAt,
   });
+
+  if (asAt) {
+    return {
+      dataloggerConfigs,
+      sensorConfigs,
+    };
+  }
 
   const dataloggerConfigWithDifference = getDataloggerConfigChanges(
     dataloggerConfigs,

@@ -32,7 +32,20 @@ export const getDataloggerConfig = async (query: QueryDataloggerConfigDto) => {
     order = "desc",
     limit,
     offset,
+    asAt,
   } = query;
+  if (asAt) {
+    return await prisma.dataloggerConfig.findMany({
+      where: {
+        creatorId: accountId,
+        configSnapshotId,
+        createdAt: { lte: asAt },
+      },
+      take: 1,
+      skip: 0,
+      orderBy: { createdAt: "desc" },
+    });
+  }
   return await prisma.dataloggerConfig.findMany({
     where: {
       creatorId: accountId,

@@ -245,6 +245,7 @@ model SensorConfig {
   deactivatedAt              DateTime?                    @map("deactivated_at") @db.Timestamp(6)
   SensorLibraryConfigVersion SensorLibraryConfigVersion[]
 
+  @@index([name, createdAt])
   @@map("sensor_config")
 }
 

@@ -15,6 +15,7 @@ export type QueryDataloggerConfigDto = AccountIdDto & {
   order?: "asc" | "desc";
   limit?: number;
   offset?: number;
+  asAt?: Date;
 };
 export type CreateDataloggerDriverDto =
   & z.infer<typeof createDataloggerDriverSchema>

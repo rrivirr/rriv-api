@@ -26,6 +26,7 @@ export type QuerySensorConfigDto =
     order?: "asc" | "desc";
     limit?: number;
     offset?: number;
+    asAt?: Date;
   };
 
 export type QuerySensorDriverDto =
