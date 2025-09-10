@@ -8,12 +8,6 @@ export const registerSensorConfigSchema = () =>
       name: { type: "string" },
       config: { type: "object" },
       sensorDriverId: { type: "string", format: "uuid" },
-      sensorDriver: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-        },
-      },
       active: { type: "boolean" },
       createdAt: { type: "string", format: "date-time" },
       deactivatedAt: { type: "string", format: "date-time" },

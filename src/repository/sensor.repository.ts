@@ -94,7 +94,34 @@ export const getSensorConfig = async (query: QuerySensorConfigDto) => {
     limit,
     offset,
     order,
+    asAt,
   } = query;
+  if (asAt) {
+    const result: SensorConfig[] = await prisma.$queryRaw`
+      SELECT 
+        id, 
+        name,
+        config,
+        sensor_driver_id as "sensorDriverId",
+        creator_id as "creatorId",
+        created_at as "createdAt",
+        archived_at as "archivedAt",
+        active,
+        config_snapshot_id as "configSnapshotId",
+        deactivated_at as "deactivatedAt"
+      FROM (
+        SELECT *,
+              ROW_NUMBER() OVER (
+                PARTITION BY name
+                ORDER BY created_at DESC
+              ) as rn
+        FROM sensor_config where creator_id = ${accountId}::uuid and config_snapshot_id = ${configSnapshotId}::uuid and created_at <= ${asAt}
+      ) subquery
+      WHERE rn = 1;
+    `;
+    return result.map((r) => ({ ...r, rn: undefined }));
+  }
+
   return await prisma.sensorConfig.findMany({
     where: {
       name,
@@ -102,13 +129,6 @@ export const getSensorConfig = async (query: QuerySensorConfigDto) => {
       configSnapshotId,
       active,
       archivedAt: null,
-    },
-    include: {
-      SensorDriver: {
-        select: {
-          name: true,
-        },
-      },
     },
     take: limit,
     skip: offset,
