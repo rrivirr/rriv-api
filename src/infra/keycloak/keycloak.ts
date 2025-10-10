@@ -18,7 +18,7 @@ export const getPublicKey = async () => {
   } catch (error: any) {
     throw new HttpException(
       500,
-      JSON.stringify(error?.response.data) || error?.message,
+      JSON.stringify(error?.response) || error,
     );
   }
 };
@@ -39,7 +39,7 @@ export const getM2MToken = async () => {
   } catch (error: any) {
     throw new HttpException(
       500,
-      JSON.stringify(error?.response.data) || error?.message,
+      JSON.stringify(error?.response) || error,
     );
   }
 };
