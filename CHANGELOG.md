@@ -1,3 +1,11 @@
+## [1.5.1](https://github.com/rrivirr/rriv-api/compare/v1.5.0...v1.5.1) (2025-10-10)
+
+
+### Bug Fixes
+
+* keycloak error handling ([3f8573c](https://github.com/rrivirr/rriv-api/commit/3f8573ce62c3d640741cd272ade43919e7a88e17))
+* make phone field nullable ([2a7282b](https://github.com/rrivirr/rriv-api/commit/2a7282b66f6fc6b67c7cbdc5a2b00455c3b48aa7))
+
 # [1.5.0](https://github.com/rrivirr/rriv-api/compare/v1.4.0...v1.5.0) (2025-09-10)
 
 
