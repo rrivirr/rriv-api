@@ -39,7 +39,7 @@ jobs:
           path: rrivirr-github-actions
 
       - name: Prepare deployment
-        uses: rrivirr-github-actions/actions/prepare-deployment@v1.2.0 # make sure you point at the latest version!
+        uses: ./rrivirr-github-actions/actions/prepare-deployment@v1.2.0 # make sure you point at the latest version!
         with:
           ENV: dev
           # This line is required to pass the AWS role to the action
