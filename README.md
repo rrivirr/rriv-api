@@ -1,7 +1,7 @@
 # RRIV-API
 
 The main RRIV API, the heart of our platform.
-
+  
 # Installation
 
 ```bash
