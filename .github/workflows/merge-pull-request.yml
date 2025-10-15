@@ -23,6 +23,8 @@ jobs:
           deno-version: v2.x
 
       - run: deno task semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.CD_GITHUB_TOKEN }}
 
       - name: get-npm-version
         id: package-version
