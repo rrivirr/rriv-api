@@ -36,10 +36,10 @@ jobs:
           repository: rrivirr/github-actions
           ref: v1.1.0
           token: ${{ secrets.GH_ACTIONS_ACCESS_TOKEN }}
-          path: ./.github/actions/rrivirr-github-actions
+          path: ./rrivirr-github-actions
 
       - name: Prepare deployment
-        uses: ./.github/actions/rrivirr-github-actions/.github/actions/prepare-deployment.yaml@v1.1.0 # make sure you point at the latest version!
+        uses: ./rrivirr-github-actions/actions/prepare-deployment@v1.2.0 # make sure you point at the latest version!
         with:
           ENV: dev
           # This line is required to pass the AWS role to the action
