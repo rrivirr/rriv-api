@@ -1,3 +1,13 @@
+## [1.5.2](https://github.com/rrivirr/rriv-api/compare/v1.5.1...v1.5.2) (2025-10-15)
+
+
+### Bug Fixes
+
+* force deployment ([872601e](https://github.com/rrivirr/rriv-api/commit/872601e0b3934dd4a24f7b7ffb5e711788c18dbf))
+* Update merge-pull-request.yml ([559d9dc](https://github.com/rrivirr/rriv-api/commit/559d9dc5463ae342b84f1b5ee5af1bf4505f65b9))
+* Update merge-pull-request.yml ([293dea3](https://github.com/rrivirr/rriv-api/commit/293dea3558730b9d08c672705e4e8bd7bf43162b))
+* Update merge-pull-request.yml ([86b262f](https://github.com/rrivirr/rriv-api/commit/86b262f0c6d20d580c3a18665d04cf74efe6535c))
+
 ## [1.5.1](https://github.com/rrivirr/rriv-api/compare/v1.5.0...v1.5.1) (2025-10-10)
 
 
