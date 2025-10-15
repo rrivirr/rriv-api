@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/rrivirr/rriv-api/compare/v1.5.2...v1.5.3) (2025-10-15)
+
+
+### Bug Fixes
+
+* Update merge-pull-request.yml ([18bd3c6](https://github.com/rrivirr/rriv-api/commit/18bd3c6f2e97b0a6bb77354b3a2e0eff9acbec8b))
+
 ## [1.5.2](https://github.com/rrivirr/rriv-api/compare/v1.5.1...v1.5.2) (2025-10-15)
 
 
