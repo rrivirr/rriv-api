@@ -1,3 +1,11 @@
+## [1.5.8](https://github.com/rrivirr/rriv-api/compare/v1.5.7...v1.5.8) (2025-10-16)
+
+
+### Bug Fixes
+
+* needs ([b889871](https://github.com/rrivirr/rriv-api/commit/b889871cb4cec1cde4bbb1cbcf3a00bcdf6fb850))
+* use semantic release export to get the release version ([e51bc95](https://github.com/rrivirr/rriv-api/commit/e51bc959c179105fe55662c27fadc0b34824b694))
+
 ## [1.5.7](https://github.com/rrivirr/rriv-api/compare/v1.5.6...v1.5.7) (2025-10-16)
 
 
