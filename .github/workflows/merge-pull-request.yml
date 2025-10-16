@@ -38,7 +38,7 @@ jobs:
 
   deploy:
     name: Deploy
-    if: ${{ needs.release.outputs.new-release-published }}
+    if: ${{ needs.release.outputs.new-release-git-tag }}
     needs: release
     runs-on: ubuntu-latest
     steps:
