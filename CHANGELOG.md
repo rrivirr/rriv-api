@@ -1,3 +1,10 @@
+## [1.5.6](https://github.com/rrivirr/rriv-api/compare/v1.5.5...v1.5.6) (2025-10-16)
+
+
+### Bug Fixes
+
+* always use latest action ([456f08f](https://github.com/rrivirr/rriv-api/commit/456f08f58e7d1b8d4bc4458fc7761bb76064323b))
+
 ## [1.5.5](https://github.com/rrivirr/rriv-api/compare/v1.5.4...v1.5.5) (2025-10-16)
 
 
