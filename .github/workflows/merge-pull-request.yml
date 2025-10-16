@@ -39,7 +39,7 @@ jobs:
   deploy:
     name: Deploy
     if: ${{ needs.release.outputs.new-release-published }}
-    needs: semantic-release
+    needs: release
     runs-on: ubuntu-latest
     steps:
       - name: Check out the github actions repo
