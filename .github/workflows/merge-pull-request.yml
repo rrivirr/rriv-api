@@ -8,10 +8,18 @@ on:
 env:
   project-directory: ./
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
 jobs:
   semantic-release:
     name: Release and Build
     runs-on: ubuntu-latest
+    outputs:
+      new-version: ${{ steps.package-version.outputs.current-version }}
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +29,7 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-
+          
       - run: deno task semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.CD_GITHUB_TOKEN }}
@@ -30,6 +38,11 @@ jobs:
         id: package-version
         uses: martinbeentjes/npm-get-version-action@v1.3.1
 
+  deploy:
+    name: Deploy
+    needs: semantic-release
+    runs-on: ubuntu-latest
+    steps:    
       - name: Check out the github actions repo
         uses: actions/checkout@v4
         with:
@@ -44,6 +57,11 @@ jobs:
           ENV: dev
           # This line is required to pass the AWS role to the action
           AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', 'DEV')] }}
+      
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ needs.semantic-release.outputs.new-version }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
