@@ -66,4 +66,4 @@ jobs:
 
       - name: apply update
         run: kubectl apply --wait
-----
+
