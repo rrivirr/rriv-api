@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   release:
-    name: Release and Build
+    name: Release
     runs-on: ubuntu-latest
     outputs:
       new-release-published: ${{ steps.next-version.outputs.new-release-published }}
