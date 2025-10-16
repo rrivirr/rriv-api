@@ -1,3 +1,11 @@
+## [1.5.5](https://github.com/rrivirr/rriv-api/compare/v1.5.4...v1.5.5) (2025-10-16)
+
+
+### Bug Fixes
+
+* typo ([88c05d3](https://github.com/rrivirr/rriv-api/commit/88c05d3bd25d2dd9d02e57f7150458cf6458780c))
+* update GitHub Actions workflow to use new action version ([7b8087c](https://github.com/rrivirr/rriv-api/commit/7b8087c051c6eb754912fa3d9c285e6fd5813f3a))
+
 ## [1.5.4](https://github.com/rrivirr/rriv-api/compare/v1.5.3...v1.5.4) (2025-10-15)
 
 
