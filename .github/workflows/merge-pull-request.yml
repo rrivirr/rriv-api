@@ -34,12 +34,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: rrivirr/github-actions
-          ref: v1.2.0
+          ref: v1.3.0
           token: ${{ secrets.GH_ACTIONS_ACCESS_TOKEN }}
-          path: rrivirr-github-actions
+          path: ./.github/actions/rivirr-github-actions
 
       - name: Prepare deployment
-        uses: ./rrivirr-github-actions/actions/prepare-deployment.yaml
+        uses: ./.github/actions/rivirr-github-actions/prepare-deployment
         with:
           ENV: dev
           # This line is required to pass the AWS role to the action
@@ -66,3 +66,4 @@ jobs:
 
       - name: apply update
         run: kubectl apply --wait
+----
