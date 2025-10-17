@@ -13,6 +13,7 @@
     "npm:@types/swagger-ui-express@*": "4.1.8",
     "npm:ajv@^8.17.1": "8.17.1",
     "npm:axios@^1.11.0": "1.12.2",
+    "npm:commitlint@*": "19.8.1",
     "npm:commitlint@^19.6.1": "19.8.1",
     "npm:express@*": "5.1.0",
     "npm:express@^5.0.1": "5.1.0",
