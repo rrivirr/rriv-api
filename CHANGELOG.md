@@ -1,3 +1,10 @@
+## [1.5.18](https://github.com/rrivirr/rriv-api/compare/v1.5.17...v1.5.18) (2025-10-17)
+
+
+### Bug Fixes
+
+* Refactor deployment steps in merge workflow ([413ba26](https://github.com/rrivirr/rriv-api/commit/413ba26dce7b4a77285e63e6cfc22d96ccee2a4f))
+
 ## [1.5.17](https://github.com/rrivirr/rriv-api/compare/v1.5.16...v1.5.17) (2025-10-17)
 
 
