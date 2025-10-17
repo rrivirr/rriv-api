@@ -1,3 +1,10 @@
+## [1.5.11](https://github.com/rrivirr/rriv-api/compare/v1.5.10...v1.5.11) (2025-10-17)
+
+
+### Bug Fixes
+
+* Update checkout ref to use new release git tag ([82c891d](https://github.com/rrivirr/rriv-api/commit/82c891dea020fdb43b8d960fb6cc566d04463ae5))
+
 ## [1.5.10](https://github.com/rrivirr/rriv-api/compare/v1.5.9...v1.5.10) (2025-10-17)
 
 
