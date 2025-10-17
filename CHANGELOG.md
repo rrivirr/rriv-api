@@ -1,3 +1,10 @@
+## [1.5.21](https://github.com/rrivirr/rriv-api/compare/v1.5.20...v1.5.21) (2025-10-17)
+
+
+### Bug Fixes
+
+* Fix apply command to use kustomize build ([2aedfd7](https://github.com/rrivirr/rriv-api/commit/2aedfd7e32c51568255bc482cbd1b0df5da484b1))
+
 ## [1.5.20](https://github.com/rrivirr/rriv-api/compare/v1.5.19...v1.5.20) (2025-10-17)
 
 
