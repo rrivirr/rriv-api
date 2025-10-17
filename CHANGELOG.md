@@ -1,3 +1,10 @@
+## [1.5.16](https://github.com/rrivirr/rriv-api/compare/v1.5.15...v1.5.16) (2025-10-17)
+
+
+### Bug Fixes
+
+* Update Docker image tag to use new release tag ([aa201c3](https://github.com/rrivirr/rriv-api/commit/aa201c3452a951d98534305bc4348ea5a09e36f7))
+
 ## [1.5.15](https://github.com/rrivirr/rriv-api/compare/v1.5.14...v1.5.15) (2025-10-17)
 
 
