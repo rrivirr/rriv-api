@@ -1,3 +1,10 @@
+## [1.5.14](https://github.com/rrivirr/rriv-api/compare/v1.5.13...v1.5.14) (2025-10-17)
+
+
+### Bug Fixes
+
+* Fix access token flag in merge-pull-request.yml ([02a7556](https://github.com/rrivirr/rriv-api/commit/02a7556bb15434f9683449fd247cdf3ecba99041))
+
 ## [1.5.13](https://github.com/rrivirr/rriv-api/compare/v1.5.12...v1.5.13) (2025-10-17)
 
 

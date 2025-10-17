@@ -1,6 +1,6 @@
 {
   "name": "rriv-api",
-  "version": "1.5.13",
+  "version": "1.5.14",
   "description": "The main RRIV API, the heart of our platform",
   "main": "main.js",
   "scripts": {
