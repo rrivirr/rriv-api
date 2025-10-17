@@ -1,3 +1,11 @@
+## [1.5.13](https://github.com/rrivirr/rriv-api/compare/v1.5.12...v1.5.13) (2025-10-17)
+
+
+### Bug Fixes
+
+* Update DigitalOcean Registry login command ([194d1fe](https://github.com/rrivirr/rriv-api/commit/194d1fe39377a0fe863bd9c3c4a3f890facb5b77))
+* Use env variable for DigitalOcean token ([0f4099b](https://github.com/rrivirr/rriv-api/commit/0f4099b4cde29ebf7b0c4f010346f89fca038dff))
+
 ## [1.5.12](https://github.com/rrivirr/rriv-api/compare/v1.5.11...v1.5.12) (2025-10-17)
 
 
