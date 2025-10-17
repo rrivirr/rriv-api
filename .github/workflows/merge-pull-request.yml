@@ -36,8 +36,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.CD_GITHUB_TOKEN }}
 
-  deploy:
-    name: Deploy
+  build:
+    name: Build
     if: ${{ needs.release.outputs.new-release-git-tag }}
     needs: release
     runs-on: ubuntu-latest
@@ -78,8 +78,17 @@ jobs:
           push: true
           tags: registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }}
 
+  deploy:
+    name: Deploy
+    if: ${{ needs.release.outputs.new-release-git-tag }}
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install kustomize
+        run: curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+
       - name: Update image tag
-        run: (cd deployment/overlays/development && kubectl kustomize edit set image registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }})
+        run: (cd deployment/overlays/development && kustomize edit set image registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }})
 
       - name: apply update
         run: kubectl apply --wait
