@@ -1,3 +1,24 @@
+## [1.5.23](https://github.com/rrivirr/rriv-api/compare/v1.5.22...v1.5.23) (2025-10-17)
+
+
+### Bug Fixes
+
+* Add checkout step to merge-pull-request workflow to fix cleanup ([111e6d7](https://github.com/rrivirr/rriv-api/commit/111e6d7f0c4e1d41597f1d5fac3a7a97fc88e14a))
+
+## [1.5.22](https://github.com/rrivirr/rriv-api/compare/v1.5.21...v1.5.22) (2025-10-17)
+
+
+### Bug Fixes
+
+* Specify deployment path in kubectl apply command ([35fce58](https://github.com/rrivirr/rriv-api/commit/35fce58f9401ee210c78194785789e90d782c612))
+
+## [1.5.21](https://github.com/rrivirr/rriv-api/compare/v1.5.20...v1.5.21) (2025-10-17)
+
+
+### Bug Fixes
+
+* Fix apply command to use kustomize build ([2aedfd7](https://github.com/rrivirr/rriv-api/commit/2aedfd7e32c51568255bc482cbd1b0df5da484b1))
+
 ## [1.5.20](https://github.com/rrivirr/rriv-api/compare/v1.5.19...v1.5.20) (2025-10-17)
 
 

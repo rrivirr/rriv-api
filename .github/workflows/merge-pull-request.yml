@@ -85,4 +85,7 @@ jobs:
         run: (cd deployment/overlays/development && kustomize edit set image registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }})
 
       - name: apply update
-        run: kustomize | kubectl apply --wait -f -
+        run: kustomize build deployment/overlays/development | kubectl apply --wait -f -
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
