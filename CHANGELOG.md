@@ -1,3 +1,10 @@
+## [1.5.17](https://github.com/rrivirr/rriv-api/compare/v1.5.16...v1.5.17) (2025-10-17)
+
+
+### Bug Fixes
+
+* Rename deploy step to build and update commands ([9449b73](https://github.com/rrivirr/rriv-api/commit/9449b7342277b9b73217dcebf41ec30e7f8a04de))
+
 ## [1.5.16](https://github.com/rrivirr/rriv-api/compare/v1.5.15...v1.5.16) (2025-10-17)
 
 
