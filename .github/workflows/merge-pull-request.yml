@@ -8,40 +8,59 @@ on:
 env:
   project-directory: ./
 
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+  id-token: write
+
 jobs:
-  semantic-release:
-    name: Release and Build
+  release:
+    name: Release
     runs-on: ubuntu-latest
+    outputs:
+      new-release-published: ${{ steps.next-version.outputs.new-release-published }}
+      new-release-git-tag: ${{ steps.next-version.outputs.new-release-git-tag }}
     if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.CD_DEPLOY_KEY }}
 
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
 
       - run: deno task semantic-release
+        id: next-version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CD_GITHUB_TOKEN }}
 
-      - name: get-npm-version
-        id: package-version
-        uses: martinbeentjes/npm-get-version-action@v1.3.1
-
+  build:
+    name: Build
+    if: ${{ needs.release.outputs.new-release-git-tag }}
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
       - name: Check out the github actions repo
         uses: actions/checkout@v4
         with:
           repository: rrivirr/github-actions
-          ref: v1.1.0
+          ref: main
           token: ${{ secrets.GH_ACTIONS_ACCESS_TOKEN }}
-          path: ./.github/actions/rrivirr-github-actions
+          path: ./.github/actions/rivirr-github-actions
 
       - name: Prepare deployment
-        uses: ./.github/actions/rrivirr-github-actions/.github/actions/prepare-deployment.yaml@v1.1.0 # make sure you point at the latest version!
+        uses: ./.github/actions/rivirr-github-actions/prepare-deployment
         with:
           ENV: dev
           # This line is required to pass the AWS role to the action
           AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', 'DEV')] }}
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.release.outputs.new-release-git-tag }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -50,17 +69,20 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Login to DigitalOcean Registry
-        run: doctl registry login
+        run: doctl registry login --access-token ${{ secrets.TEMP_REGISTRY_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          tags: registry.digitalocean.com/rriv/rriv-api:${{ steps.package-version.outputs.current-version }}
+          tags: registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }}
+
+      - name: Install kustomize
+        run: curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 
       - name: Update image tag
-        run: (cd deployment/overlays/development && kubectl kustomize edit set image registry.digitalocean.com/rriv/rriv-api:${{ steps.package-version.outputs.current-version }} )
+        run: (cd deployment/overlays/development && kustomize edit set image registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }})
 
       - name: apply update
-        run: kubectl apply --wait
+        run: kustomize | kubectl apply --wait -f -

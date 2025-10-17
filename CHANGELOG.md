@@ -1,3 +1,142 @@
+## [1.5.20](https://github.com/rrivirr/rriv-api/compare/v1.5.19...v1.5.20) (2025-10-17)
+
+
+### Bug Fixes
+
+* Use kustomize to apply updates in CI workflow ([0abe55c](https://github.com/rrivirr/rriv-api/commit/0abe55cc578998f66296bac4a170acfe5414d836))
+
+## [1.5.19](https://github.com/rrivirr/rriv-api/compare/v1.5.18...v1.5.19) (2025-10-17)
+
+
+### Bug Fixes
+
+* Remove deploy job from merge-pull-request workflow ([a47bb3d](https://github.com/rrivirr/rriv-api/commit/a47bb3df2bb90ff5ee2ab9a7e2c2ac2b996d4be9))
+
+## [1.5.18](https://github.com/rrivirr/rriv-api/compare/v1.5.17...v1.5.18) (2025-10-17)
+
+
+### Bug Fixes
+
+* Refactor deployment steps in merge workflow ([413ba26](https://github.com/rrivirr/rriv-api/commit/413ba26dce7b4a77285e63e6cfc22d96ccee2a4f))
+
+## [1.5.17](https://github.com/rrivirr/rriv-api/compare/v1.5.16...v1.5.17) (2025-10-17)
+
+
+### Bug Fixes
+
+* Rename deploy step to build and update commands ([9449b73](https://github.com/rrivirr/rriv-api/commit/9449b7342277b9b73217dcebf41ec30e7f8a04de))
+
+## [1.5.16](https://github.com/rrivirr/rriv-api/compare/v1.5.15...v1.5.16) (2025-10-17)
+
+
+### Bug Fixes
+
+* Update Docker image tag to use new release tag ([aa201c3](https://github.com/rrivirr/rriv-api/commit/aa201c3452a951d98534305bc4348ea5a09e36f7))
+
+## [1.5.15](https://github.com/rrivirr/rriv-api/compare/v1.5.14...v1.5.15) (2025-10-17)
+
+
+### Bug Fixes
+
+* Update DigitalOcean Registry login token ([2ec6665](https://github.com/rrivirr/rriv-api/commit/2ec6665bd360cd2846864b38108392308055ab67))
+
+## [1.5.14](https://github.com/rrivirr/rriv-api/compare/v1.5.13...v1.5.14) (2025-10-17)
+
+
+### Bug Fixes
+
+* Fix access token flag in merge-pull-request.yml ([02a7556](https://github.com/rrivirr/rriv-api/commit/02a7556bb15434f9683449fd247cdf3ecba99041))
+
+## [1.5.13](https://github.com/rrivirr/rriv-api/compare/v1.5.12...v1.5.13) (2025-10-17)
+
+
+### Bug Fixes
+
+* Update DigitalOcean Registry login command ([194d1fe](https://github.com/rrivirr/rriv-api/commit/194d1fe39377a0fe863bd9c3c4a3f890facb5b77))
+* Use env variable for DigitalOcean token ([0f4099b](https://github.com/rrivirr/rriv-api/commit/0f4099b4cde29ebf7b0c4f010346f89fca038dff))
+
+## [1.5.12](https://github.com/rrivirr/rriv-api/compare/v1.5.11...v1.5.12) (2025-10-17)
+
+
+### Bug Fixes
+
+* correct tag name ([357a856](https://github.com/rrivirr/rriv-api/commit/357a85605e775a40520dd3157d6e65f01f70333d))
+
+## [1.5.11](https://github.com/rrivirr/rriv-api/compare/v1.5.10...v1.5.11) (2025-10-17)
+
+
+### Bug Fixes
+
+* Update checkout ref to use new release git tag ([82c891d](https://github.com/rrivirr/rriv-api/commit/82c891dea020fdb43b8d960fb6cc566d04463ae5))
+
+## [1.5.10](https://github.com/rrivirr/rriv-api/compare/v1.5.9...v1.5.10) (2025-10-17)
+
+
+### Bug Fixes
+
+* Fix reference to new-version output in workflow ([83fb49c](https://github.com/rrivirr/rriv-api/commit/83fb49cc23c5d450a5bcc8fb1b917d8c9968425e))
+
+## [1.5.9](https://github.com/rrivirr/rriv-api/compare/v1.5.8...v1.5.9) (2025-10-16)
+
+
+### Bug Fixes
+
+* force deployment ([2976b94](https://github.com/rrivirr/rriv-api/commit/2976b949f649fc7f8366a196f1887cab0d5d2a23))
+
+## [1.5.8](https://github.com/rrivirr/rriv-api/compare/v1.5.7...v1.5.8) (2025-10-16)
+
+
+### Bug Fixes
+
+* needs ([b889871](https://github.com/rrivirr/rriv-api/commit/b889871cb4cec1cde4bbb1cbcf3a00bcdf6fb850))
+* use semantic release export to get the release version ([e51bc95](https://github.com/rrivirr/rriv-api/commit/e51bc959c179105fe55662c27fadc0b34824b694))
+
+## [1.5.7](https://github.com/rrivirr/rriv-api/compare/v1.5.6...v1.5.7) (2025-10-16)
+
+
+### Bug Fixes
+
+* workflow ([536b8f1](https://github.com/rrivirr/rriv-api/commit/536b8f16bf808fd6fb301adf4371c21c9a61c9c1))
+
+## [1.5.6](https://github.com/rrivirr/rriv-api/compare/v1.5.5...v1.5.6) (2025-10-16)
+
+
+### Bug Fixes
+
+* always use latest action ([456f08f](https://github.com/rrivirr/rriv-api/commit/456f08f58e7d1b8d4bc4458fc7761bb76064323b))
+
+## [1.5.5](https://github.com/rrivirr/rriv-api/compare/v1.5.4...v1.5.5) (2025-10-16)
+
+
+### Bug Fixes
+
+* typo ([88c05d3](https://github.com/rrivirr/rriv-api/commit/88c05d3bd25d2dd9d02e57f7150458cf6458780c))
+* update GitHub Actions workflow to use new action version ([7b8087c](https://github.com/rrivirr/rriv-api/commit/7b8087c051c6eb754912fa3d9c285e6fd5813f3a))
+
+## [1.5.4](https://github.com/rrivirr/rriv-api/compare/v1.5.3...v1.5.4) (2025-10-15)
+
+
+### Bug Fixes
+
+* Update merge-pull-request.yml ([d859685](https://github.com/rrivirr/rriv-api/commit/d859685c8f4dd0dc2301d65f7df790fa6e87059e))
+
+## [1.5.3](https://github.com/rrivirr/rriv-api/compare/v1.5.2...v1.5.3) (2025-10-15)
+
+
+### Bug Fixes
+
+* Update merge-pull-request.yml ([18bd3c6](https://github.com/rrivirr/rriv-api/commit/18bd3c6f2e97b0a6bb77354b3a2e0eff9acbec8b))
+
+## [1.5.2](https://github.com/rrivirr/rriv-api/compare/v1.5.1...v1.5.2) (2025-10-15)
+
+
+### Bug Fixes
+
+* force deployment ([872601e](https://github.com/rrivirr/rriv-api/commit/872601e0b3934dd4a24f7b7ffb5e711788c18dbf))
+* Update merge-pull-request.yml ([559d9dc](https://github.com/rrivirr/rriv-api/commit/559d9dc5463ae342b84f1b5ee5af1bf4505f65b9))
+* Update merge-pull-request.yml ([293dea3](https://github.com/rrivirr/rriv-api/commit/293dea3558730b9d08c672705e4e8bd7bf43162b))
+* Update merge-pull-request.yml ([86b262f](https://github.com/rrivirr/rriv-api/commit/86b262f0c6d20d580c3a18665d04cf74efe6535c))
+
 ## [1.5.1](https://github.com/rrivirr/rriv-api/compare/v1.5.0...v1.5.1) (2025-10-10)
 
 
