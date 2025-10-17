@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/rrivirr/rriv-api/compare/v1.6.0...v1.6.1) (2025-10-17)
+
+
+### Bug Fixes
+
+* move checkout to beginning ([9fffd12](https://github.com/rrivirr/rriv-api/commit/9fffd126d8e41ec2b35c46a9007df0b15226cfac))
+
 # [1.6.0](https://github.com/rrivirr/rriv-api/compare/v1.5.23...v1.6.0) (2025-10-17)
 
 
