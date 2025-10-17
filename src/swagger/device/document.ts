@@ -1,8 +1,8 @@
 import { generateSchema } from "@anatine/zod-openapi";
 import { ParameterObject } from "npm:openapi3-ts@^4.4.0/oas31";
 import {
-  deviceBindSchema,
   deviceQuerySchema,
+  provisionDeviceSchema,
 } from "../../handler/device/schema.ts";
 import { registerDeviceSchema } from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
@@ -48,6 +48,21 @@ swaggerBuilder.addPath(basePath, {
       },
     },
   },
+  post: {
+    tags,
+    summary: `provision a new device`,
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(provisionDeviceSchema),
+        },
+      },
+    },
+    responses: {
+      201: singleDeviceResponse,
+      200: singleDeviceResponse,
+    },
+  },
 });
 
 swaggerBuilder.addPath(`${basePath}/:serialNumber/bind`, {
@@ -60,13 +75,6 @@ swaggerBuilder.addPath(`${basePath}/:serialNumber/bind`, {
       schema: generateSchema(serialNumberSchema)
         .properties!["serialNumber"],
     }],
-    requestBody: {
-      content: {
-        [mediaTypeHeader]: {
-          schema: generateSchema(deviceBindSchema),
-        },
-      },
-    },
     responses: {
       201: singleDeviceResponse,
       200: singleDeviceResponse,

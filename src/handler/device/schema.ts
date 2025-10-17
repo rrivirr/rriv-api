@@ -4,8 +4,9 @@ import {
   getPaginationSchema,
 } from "../generic/generic.schema.ts";
 
-export const deviceBindSchema = z.object({
-  uniqueName: z.string().min(3).max(25).trim().optional(),
+export const provisionDeviceSchema = z.object({
+  uid: z.string().max(30).trim(),
+  type: z.enum(["rriv_0_4_2"]),
 });
 
 export const deviceQuerySchema = z

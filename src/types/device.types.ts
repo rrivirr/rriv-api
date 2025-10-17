@@ -1,13 +1,16 @@
 import { z } from "zod";
 import { AccountIdDto } from "./generic.types.ts";
 import {
-  deviceBindSchema,
   deviceQuerySchema,
+  provisionDeviceSchema,
   serialNumberSchema,
 } from "../handler/device/schema.ts";
 
+export type ProvisionDeviceDto =
+  & z.infer<typeof provisionDeviceSchema>
+  & AccountIdDto;
+
 export type BindDeviceDto =
-  & z.infer<typeof deviceBindSchema>
   & z.infer<typeof serialNumberSchema>
   & AccountIdDto;
 
