@@ -1,3 +1,10 @@
+## [1.5.23](https://github.com/rrivirr/rriv-api/compare/v1.5.22...v1.5.23) (2025-10-17)
+
+
+### Bug Fixes
+
+* Add checkout step to merge-pull-request workflow to fix cleanup ([111e6d7](https://github.com/rrivirr/rriv-api/commit/111e6d7f0c4e1d41597f1d5fac3a7a97fc88e14a))
+
 ## [1.5.22](https://github.com/rrivirr/rriv-api/compare/v1.5.21...v1.5.22) (2025-10-17)
 
 
