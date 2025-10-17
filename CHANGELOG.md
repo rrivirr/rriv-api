@@ -1,3 +1,10 @@
+## [1.5.19](https://github.com/rrivirr/rriv-api/compare/v1.5.18...v1.5.19) (2025-10-17)
+
+
+### Bug Fixes
+
+* Remove deploy job from merge-pull-request workflow ([a47bb3d](https://github.com/rrivirr/rriv-api/commit/a47bb3df2bb90ff5ee2ab9a7e2c2ac2b996d4be9))
+
 ## [1.5.18](https://github.com/rrivirr/rriv-api/compare/v1.5.17...v1.5.18) (2025-10-17)
 
 
