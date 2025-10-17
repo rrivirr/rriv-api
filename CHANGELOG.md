@@ -1,3 +1,10 @@
+## [1.5.12](https://github.com/rrivirr/rriv-api/compare/v1.5.11...v1.5.12) (2025-10-17)
+
+
+### Bug Fixes
+
+* correct tag name ([357a856](https://github.com/rrivirr/rriv-api/commit/357a85605e775a40520dd3157d6e65f01f70333d))
+
 ## [1.5.11](https://github.com/rrivirr/rriv-api/compare/v1.5.10...v1.5.11) (2025-10-17)
 
 
