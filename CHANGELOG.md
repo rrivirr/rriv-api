@@ -1,3 +1,10 @@
+## [1.5.15](https://github.com/rrivirr/rriv-api/compare/v1.5.14...v1.5.15) (2025-10-17)
+
+
+### Bug Fixes
+
+* Update DigitalOcean Registry login token ([2ec6665](https://github.com/rrivirr/rriv-api/commit/2ec6665bd360cd2846864b38108392308055ab67))
+
 ## [1.5.14](https://github.com/rrivirr/rriv-api/compare/v1.5.13...v1.5.14) (2025-10-17)
 
 
