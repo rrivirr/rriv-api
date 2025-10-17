@@ -42,6 +42,21 @@ jobs:
     needs: release
     runs-on: ubuntu-latest
     steps:
+      - name: Check out the github actions repo
+        uses: actions/checkout@v4
+        with:
+          repository: rrivirr/github-actions
+          ref: main
+          token: ${{ secrets.GH_ACTIONS_ACCESS_TOKEN }}
+          path: ./.github/actions/rivirr-github-actions
+
+      - name: Prepare deployment
+        uses: ./.github/actions/rivirr-github-actions/prepare-deployment
+        with:
+          ENV: dev
+          # This line is required to pass the AWS role to the action
+          AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', 'DEV')] }}
+    
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
@@ -63,27 +78,6 @@ jobs:
           push: true
           tags: registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }}
 
-  deploy:
-    name: Deploy
-    if: ${{ needs.release.outputs.new-release-git-tag }}
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out the github actions repo
-        uses: actions/checkout@v4
-        with:
-          repository: rrivirr/github-actions
-          ref: main
-          token: ${{ secrets.GH_ACTIONS_ACCESS_TOKEN }}
-          path: ./.github/actions/rivirr-github-actions
-
-      - name: Prepare deployment
-        uses: ./.github/actions/rivirr-github-actions/prepare-deployment
-        with:
-          ENV: dev
-          # This line is required to pass the AWS role to the action
-          AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', 'DEV')] }}
-          
       - name: Install kustomize
         run: curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 
