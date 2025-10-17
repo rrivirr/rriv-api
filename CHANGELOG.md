@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/rrivirr/rriv-api/compare/v1.6.1...v1.6.2) (2025-10-17)
+
+
+### Bug Fixes
+
+* change order ([83862ba](https://github.com/rrivirr/rriv-api/commit/83862ba532cc75b948df9a4e757ce387a6938489))
+
 ## [1.6.1](https://github.com/rrivirr/rriv-api/compare/v1.6.0...v1.6.1) (2025-10-17)
 
 
