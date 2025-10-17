@@ -1,20 +1,31 @@
 // @deno-types="npm:@types/express@5"
 import { Request, Response } from "npm:express";
 import {
-  deviceBindSchema,
   deviceQuerySchema,
+  provisionDeviceSchema,
   serialNumberSchema,
 } from "./schema.ts";
 import * as deviceService from "../../service/device.service.ts";
 
 export const bindDevice = async (req: Request, res: Response) => {
   const accountId = req.accountId;
-  const requestBody = deviceBindSchema.parse(req.body);
   const params = serialNumberSchema.parse(req.params);
-  const { device, status } = await deviceService.bindDevice({
-    ...requestBody,
+  const device = await deviceService.bindDevice({
     ...params,
     accountId,
+  });
+  res.json(device);
+};
+
+export const provisionDevice = async (
+  req: Request,
+  res: Response,
+) => {
+  const accountId = req.accountId;
+  const requestBody = provisionDeviceSchema.parse(req.body);
+  const { device, status } = await deviceService.provisionDevice({
+    accountId,
+    ...requestBody,
   });
   res.status(status).json(device);
 };

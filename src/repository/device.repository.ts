@@ -2,7 +2,7 @@ import prisma from "../infra/prisma.ts";
 import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "../service/utils/constants.ts";
 import {
   AccountUniqueDeviceDto,
-  BindDeviceDto,
+  ProvisionDeviceDto,
   QueryDeviceDto,
   SerialNumberDeviceDto,
 } from "../types/device.types.ts";
@@ -97,17 +97,18 @@ export const getDevice = async (query: QueryDeviceDto) => {
 };
 
 export const createDevice = async (
-  body: BindDeviceDto & { uniqueName: string },
+  body: ProvisionDeviceDto & { uniqueName: string; serialNumber: string },
 ) => {
-  const { accountId, serialNumber, uniqueName } = body;
-
+  const { uniqueName, serialNumber, uid, type, accountId } = body;
   return await prisma.device.create({
     data: {
       uniqueName,
       serialNumber,
-      Bind: {
-        create: {
-          accountId,
+      uid,
+      type,
+      ProvisionedBy: {
+        connect: {
+          id: accountId,
         },
       },
     },
@@ -184,6 +185,32 @@ export const deleteDevice = async (body: SerialNumberDeviceDto) => {
   });
 };
 
-export const getDeviceByUniqueName = async (body: { uniqueName: string }) => {
-  return await prisma.device.findUnique({ where: { ...body } });
+// provides additional flexibility
+// not intended for direct client requests/results
+// use getDevice instead
+export const getAllDevices = async (
+  body: {
+    query: { uniqueName?: string; uid?: string; type?: string };
+    orderBy?: "createdAt";
+    order?: "asc" | "desc";
+    limit?: number;
+  },
+) => {
+  const { query, orderBy, order, limit } = body;
+  return await prisma.device.findMany({
+    where: query,
+    take: limit,
+    orderBy: orderBy ? { [orderBy]: order } : undefined,
+    include: {
+      Bind: {
+        select: {
+          id: true,
+        },
+        where: {
+          unboundAt: null,
+          archivedAt: null,
+        },
+      },
+    },
+  });
 };

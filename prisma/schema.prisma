@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["deno", "postgresqlExtensions", "relationJoins"]
+  previewFeatures = ["postgresqlExtensions", "relationJoins"]
   output          = "../node_modules/generated"
 }
 
@@ -36,6 +36,7 @@ model Account {
   DataloggerDriver               DataloggerDriver[]
   SensorDriver                   SensorDriver[]
   SensorConfig                   SensorConfig[]
+  Device                         Device[]
 
   @@map("account")
 }
@@ -44,6 +45,10 @@ model Device {
   id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   serialNumber  String          @unique @map("serial_number")
   uniqueName    String          @unique @map("unique_name")
+  uid           String          @unique
+  type          String
+  ProvisionedBy Account         @relation(fields: [provisionedBy], references: [id])
+  provisionedBy String          @map("provisioned_by") @db.Uuid
   createdAt     DateTime        @default(now()) @map("created_at") @db.Timestamp(6)
   archivedAt    DateTime?       @map("archived_at") @db.Timestamp(6)
   Telemeter     Telemeter[]

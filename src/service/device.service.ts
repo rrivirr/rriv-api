@@ -1,6 +1,13 @@
 import {
+  adjectives,
+  animals,
+  colors,
+  uniqueNamesGenerator,
+} from "npm:@joaomoreno/unique-names-generator";
+import {
   AccountUniqueDeviceDto,
   BindDeviceDto,
+  ProvisionDeviceDto,
   QueryDeviceDto,
   SerialNumberDeviceDto,
 } from "../types/device.types.ts";
@@ -8,6 +15,82 @@ import * as deviceRepository from "../repository/device.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
 import { IdDto } from "../types/generic.types.ts";
 import { validateDevice } from "./utils/validate-device.ts";
+import { getSeed } from "./utils/get-seed.ts";
+
+const getNewIdentifiers = async (lastSerialNumber?: string) => {
+  let newSerialNumber = 0n;
+  if (lastSerialNumber) {
+    const number = [...lastSerialNumber].reduce(
+      (acc, curr) => BigInt(parseInt(curr, 36)) + BigInt(36) * acc,
+      0n,
+    );
+
+    newSerialNumber = number + 1n;
+  }
+  const serialNumber = newSerialNumber.toString(36).padStart(5, "0");
+  const seed = getSeed(serialNumber);
+
+  const uniqueName = uniqueNamesGenerator({
+    dictionaries: [colors, adjectives, animals],
+    seed,
+  });
+
+  const devices = await deviceRepository.getAllDevices({
+    query: { uniqueName },
+  });
+
+  if (devices.length) {
+    throw new HttpException(
+      500,
+      `duplicate unique name generated\nunique name:${uniqueName}, 
+      serialNumber:${serialNumber}\ndevice:${devices[0].id},serialnumber:${
+        devices[0].serialNumber
+      }`,
+    );
+  }
+
+  return {
+    serialNumber,
+    uniqueName,
+  };
+};
+
+export const provisionDevice = async (body: ProvisionDeviceDto) => {
+  const { uid, accountId, type } = body;
+
+  const existingDevices = await deviceRepository.getAllDevices({
+    query: { uid, type },
+  });
+
+  if (existingDevices.length) {
+    const existingDevice = existingDevices[0];
+    if (existingDevice.Bind.length) {
+      throw new HttpException(409, "device already provisioned");
+    } else {
+      return { status: 200, device: existingDevice };
+    }
+  }
+
+  const [device] = await deviceRepository.getAllDevices({
+    orderBy: "createdAt",
+    order: "desc",
+    limit: 1,
+    query: {},
+  });
+
+  const { serialNumber, uniqueName } = await getNewIdentifiers(
+    device?.serialNumber,
+  );
+
+  const newDevice = await deviceRepository.createDevice({
+    serialNumber,
+    uniqueName,
+    uid,
+    accountId,
+    type,
+  });
+  return { status: 201, device: newDevice };
+};
 
 export const getDeviceBySerialNumberOrId = async (
   requestBody: SerialNumberDeviceDto | IdDto,
@@ -47,47 +130,31 @@ export const getDeviceBySerialNumberOrId = async (
   };
 };
 
-const getDeviceByUniqueName = async (body: { uniqueName: string }) => {
-  return await deviceRepository.getDeviceByUniqueName(body);
-};
-
 export const bindDevice = async (requestBody: BindDeviceDto) => {
-  const { accountId, serialNumber, uniqueName } = requestBody;
+  const { accountId, serialNumber } = requestBody;
+
   const deviceObject = await getDeviceBySerialNumberOrId({
     serialNumber,
   });
 
   if (!deviceObject) {
-    if (!uniqueName) {
-      throw new HttpException(422, "uniquename of device is required");
-    }
-
-    const existingDevice = await getDeviceByUniqueName({ uniqueName });
-    if (existingDevice) {
-      throw new HttpException(
-        422,
-        "uniquename has been assigned to another device",
-      );
-    }
-
-    const device = await deviceRepository.createDevice({
-      ...requestBody,
-      uniqueName,
-    });
-    return { device, status: 201 };
+    throw new HttpException(
+      422,
+      "invalid serial number received",
+    );
   }
   const { device, activeBind } = deviceObject;
 
   if (!activeBind) {
     await deviceRepository.bindDevice({ serialNumber, accountId });
-    return { device, status: 200 };
+    return device;
   }
 
   if (activeBind.accountId !== accountId) {
     throw new HttpException(409, "device bound to another user");
   }
 
-  return { device, status: 200 };
+  return device;
 };
 
 export const unbindDevice = async (requestBody: AccountUniqueDeviceDto) => {

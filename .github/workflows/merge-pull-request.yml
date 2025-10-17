@@ -56,7 +56,7 @@ jobs:
           ENV: dev
           # This line is required to pass the AWS role to the action
           AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', 'DEV')] }}
-    
+
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
