@@ -86,3 +86,6 @@ jobs:
 
       - name: apply update
         run: kustomize build deployment/overlays/development | kubectl apply --wait -f -
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
