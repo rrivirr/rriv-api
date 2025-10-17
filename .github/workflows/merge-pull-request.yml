@@ -60,7 +60,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: v${{ needs.semantic-release.outputs.new-version }}
+          ref: v${{ needs.release.outputs.new-version }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
