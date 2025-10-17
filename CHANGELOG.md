@@ -1,3 +1,10 @@
+## [1.5.22](https://github.com/rrivirr/rriv-api/compare/v1.5.21...v1.5.22) (2025-10-17)
+
+
+### Bug Fixes
+
+* Specify deployment path in kubectl apply command ([35fce58](https://github.com/rrivirr/rriv-api/commit/35fce58f9401ee210c78194785789e90d782c612))
+
 ## [1.5.21](https://github.com/rrivirr/rriv-api/compare/v1.5.20...v1.5.21) (2025-10-17)
 
 
