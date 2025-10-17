@@ -1,3 +1,10 @@
+## [1.5.20](https://github.com/rrivirr/rriv-api/compare/v1.5.19...v1.5.20) (2025-10-17)
+
+
+### Bug Fixes
+
+* Use kustomize to apply updates in CI workflow ([0abe55c](https://github.com/rrivirr/rriv-api/commit/0abe55cc578998f66296bac4a170acfe5414d836))
+
 ## [1.5.19](https://github.com/rrivirr/rriv-api/compare/v1.5.18...v1.5.19) (2025-10-17)
 
 
