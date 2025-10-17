@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/rrivirr/rriv-api/compare/v1.5.23...v1.6.0) (2025-10-17)
+
+
+### Features
+
+* device provisioning ([1cca845](https://github.com/rrivirr/rriv-api/commit/1cca845ad6952c79b5dda4d2c62e66aa403a7d02))
+
 ## [1.5.23](https://github.com/rrivirr/rriv-api/compare/v1.5.22...v1.5.23) (2025-10-17)
 
 
