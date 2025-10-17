@@ -1,3 +1,10 @@
+## [1.5.10](https://github.com/rrivirr/rriv-api/compare/v1.5.9...v1.5.10) (2025-10-17)
+
+
+### Bug Fixes
+
+* Fix reference to new-version output in workflow ([83fb49c](https://github.com/rrivirr/rriv-api/commit/83fb49cc23c5d450a5bcc8fb1b917d8c9968425e))
+
 ## [1.5.9](https://github.com/rrivirr/rriv-api/compare/v1.5.8...v1.5.9) (2025-10-16)
 
 
