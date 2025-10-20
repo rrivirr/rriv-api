@@ -9,6 +9,6 @@ spec:
         - name: rriv-api
           env:
             - name: KEYCLOAK_URL
-              value: https://auth-dev.rriv.org
+              value: https://auth.dev.rriv.org
             - name: KEYCLOAK_REALM
               value: rriv-beta-dev
