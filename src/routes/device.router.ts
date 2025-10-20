@@ -1,7 +1,9 @@
 import {
   bindDevice,
+  createFirmwareEntry,
   deleteDevice,
   getDevices,
+  getFirmwareHistory,
   provisionDevice,
   unbindDevice,
 } from "../handler/device/handler.ts";
@@ -16,6 +18,9 @@ router.post("/", provisionDevice);
 router.post("/:serialNumber/bind", bindDevice);
 router.post("/:serialNumber/unbind", unbindDevice);
 router.delete("/:serialNumber", deleteDevice);
+router.route("/firmware/history").get(getFirmwareHistory).post(
+  createFirmwareEntry,
+);
 
 routerWrapper.use(basePath, router);
 

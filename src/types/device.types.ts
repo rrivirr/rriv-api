@@ -1,11 +1,19 @@
 import { z } from "zod";
 import { AccountIdDto } from "./generic.types.ts";
 import {
+  createFirmwareEntrySchema,
   deviceQuerySchema,
+  firmwareHistoryQuerySchema,
   provisionDeviceSchema,
   serialNumberSchema,
 } from "../handler/device/schema.ts";
 
+export type CreateFirmwareEntryDto =
+  & z.infer<typeof createFirmwareEntrySchema>
+  & AccountIdDto;
+export type QueryFirmwareHistoryDto =
+  & z.infer<typeof firmwareHistoryQuerySchema>
+  & AccountIdDto;
 export type ProvisionDeviceDto =
   & z.infer<typeof provisionDeviceSchema>
   & AccountIdDto;

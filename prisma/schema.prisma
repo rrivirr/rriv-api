@@ -37,6 +37,7 @@ model Account {
   SensorDriver                   SensorDriver[]
   SensorConfig                   SensorConfig[]
   Device                         Device[]
+  DeviceFirmwareHistory          DeviceFirmwareHistory[]
 
   @@map("account")
 }
@@ -73,18 +74,32 @@ model Context {
 }
 
 model DeviceContext {
-  id                 String           @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  Device             Device           @relation(fields: [deviceId], references: [id])
-  deviceId           String           @map("device_id") @db.Uuid
-  Context            Context          @relation(fields: [contextId], references: [id])
-  contextId          String           @map("context_id") @db.Uuid
-  assignedDeviceName String           @map("assigned_device_name")
-  startedAt          DateTime         @default(now()) @map("started_at") @db.Timestamp(6)
-  endedAt            DateTime?        @map("ended_at") @db.Timestamp(6)
-  archivedAt         DateTime?        @map("archived_at") @db.Timestamp(6)
-  ConfigSnapshot     ConfigSnapshot[]
+  id                    String                  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  Device                Device                  @relation(fields: [deviceId], references: [id])
+  deviceId              String                  @map("device_id") @db.Uuid
+  Context               Context                 @relation(fields: [contextId], references: [id])
+  contextId             String                  @map("context_id") @db.Uuid
+  assignedDeviceName    String                  @map("assigned_device_name")
+  startedAt             DateTime                @default(now()) @map("started_at") @db.Timestamp(6)
+  endedAt               DateTime?               @map("ended_at") @db.Timestamp(6)
+  archivedAt            DateTime?               @map("archived_at") @db.Timestamp(6)
+  ConfigSnapshot        ConfigSnapshot[]
+  DeviceFirmwareHistory DeviceFirmwareHistory[]
 
   @@map("device_context")
+}
+
+model DeviceFirmwareHistory {
+  id              String        @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  version         String
+  DeviceContext   DeviceContext @relation(fields: [deviceContextId], references: [id])
+  deviceContextId String        @map("device_context_id") @db.Uuid
+  Creator         Account       @relation(fields: [creatorId], references: [id])
+  creatorId       String        @map("creator_id") @db.Uuid
+  installedAt     DateTime
+  createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@map("device_firmware_history")
 }
 
 model Telemeter {

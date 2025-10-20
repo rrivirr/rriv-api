@@ -4,6 +4,7 @@ import {
   AccountUniqueDeviceDto,
   ProvisionDeviceDto,
   QueryDeviceDto,
+  QueryFirmwareHistoryDto,
   SerialNumberDeviceDto,
 } from "../types/device.types.ts";
 import { IdDto } from "../types/generic.types.ts";
@@ -182,6 +183,42 @@ export const deleteDevice = async (body: SerialNumberDeviceDto) => {
         },
       },
     });
+  });
+};
+
+export const createFirmwareEntry = async (
+  body: {
+    version: string;
+    installedAt: Date;
+    accountId: string;
+    deviceContextId: string;
+  },
+) => {
+  const { version, installedAt, accountId, deviceContextId } = body;
+  return await prisma.deviceFirmwareHistory.create({
+    data: {
+      creatorId: accountId,
+      version,
+      installedAt,
+      deviceContextId,
+    },
+  });
+};
+
+export const getFirmwareHistory = async (
+  query: QueryFirmwareHistoryDto,
+) => {
+  const { limit, offset, order, orderBy, accountId } = query;
+  return await prisma.deviceFirmwareHistory.findMany({
+    where: {
+      creatorId: accountId,
+      ...("deviceId" in query
+        ? { DeviceContext: { deviceId: query.deviceId } }
+        : { DeviceContext: { Device: { serialNumber: query.serialNumber } } }),
+    },
+    orderBy: orderBy ? { [orderBy]: order } : undefined,
+    take: limit,
+    skip: offset,
   });
 };
 

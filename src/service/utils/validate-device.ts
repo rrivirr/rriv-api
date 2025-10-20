@@ -1,6 +1,7 @@
 import { SerialNumberDeviceDto } from "../../types/device.types.ts";
 import { IdDto } from "../../types/generic.types.ts";
 import { isId } from "../../utils/helper-functions.ts";
+import { HttpException } from "../../utils/http-exception.ts";
 import { getDeviceBySerialNumberOrId } from "../device.service.ts";
 
 export const validateDevice = async (
@@ -13,12 +14,12 @@ export const validateDevice = async (
   });
 
   if (!deviceObject) {
-    return false;
+    throw new HttpException(404, "device not found");
   }
   const { activeBind } = deviceObject;
 
   if (!activeBind || activeBind.accountId !== accountId) {
-    return false;
+    throw new HttpException(404, "device not found");
   }
 
   return { ...deviceObject, activeBind };

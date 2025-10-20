@@ -1,27 +1,34 @@
 import { generateSchema } from "@anatine/zod-openapi";
 import { ParameterObject } from "npm:openapi3-ts@^4.4.0/oas31";
 import {
+  createFirmwareEntrySchema,
   deviceQuerySchema,
+  firmwareHistoryQuerySchema,
   provisionDeviceSchema,
 } from "../../handler/device/schema.ts";
-import { registerDeviceSchema } from "./schema.ts";
+import {
+  registerDeviceFirmwareItemSchema,
+  registerDeviceSchema,
+} from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
 import { serialNumberSchema } from "../../handler/device/schema.ts";
 
 export const basePath = "/device";
 const tags = ["device"];
-const contextRef = "#/components/schemas/Device";
+const deviceRef = "#/components/schemas/Device";
 const mediaTypeHeader = "application/json";
 const singleDeviceResponse = {
   content: {
     [mediaTypeHeader]: {
-      schema: { $ref: contextRef },
+      schema: { $ref: deviceRef },
     },
   },
 };
 registerDeviceSchema();
+registerDeviceFirmwareItemSchema();
 const DeviceQuerySchema = generateSchema(deviceQuerySchema);
 const DeviceQuerySchemaProperties = DeviceQuerySchema.properties;
+const FirmwareHistoryQuerySchema = generateSchema(firmwareHistoryQuerySchema);
 
 swaggerBuilder.addPath(basePath, {
   get: {
@@ -42,7 +49,7 @@ swaggerBuilder.addPath(basePath, {
       200: {
         content: {
           [mediaTypeHeader]: {
-            schema: { type: "array", items: { $ref: contextRef } },
+            schema: { type: "array", items: { $ref: deviceRef } },
           },
         },
       },
@@ -109,6 +116,45 @@ swaggerBuilder.addPath(`${basePath}/:serialNumber`, {
     }],
     responses: {
       200: singleDeviceResponse,
+    },
+  },
+});
+
+swaggerBuilder.addPath(`${basePath}/firmware/history`, {
+  get: {
+    tags,
+    parameters: [{
+      name: "query",
+      in: "query",
+      schema: {
+        type: "object",
+        ...FirmwareHistoryQuerySchema, // OneOf does not integrate well with query param
+      },
+    }],
+    responses: {
+      200: {
+        content: {
+          [mediaTypeHeader]: {
+            schema: {
+              type: "array",
+              items: { $ref: "#/components/schemas/DeviceFirmwareItem" },
+            },
+          },
+        },
+      },
+    },
+  },
+  post: {
+    tags,
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(createFirmwareEntrySchema),
+        },
+      },
+    },
+    responses: {
+      200: {},
     },
   },
 });
