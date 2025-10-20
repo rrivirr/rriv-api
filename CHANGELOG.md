@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/rrivirr/rriv-api/compare/v1.7.0...v1.7.1) (2025-10-20)
+
+
+### Bug Fixes
+
+* update keycloak url ([7fb0de8](https://github.com/rrivirr/rriv-api/commit/7fb0de83a4823265c4a6199b8bbdb9ad31d2cc97))
+
 # [1.7.0](https://github.com/rrivirr/rriv-api/compare/v1.6.2...v1.7.0) (2025-10-20)
 
 
