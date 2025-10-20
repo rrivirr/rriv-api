@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/rrivirr/rriv-api/compare/v1.6.2...v1.7.0) (2025-10-20)
+
+
+### Features
+
+* log firmware install events ([36dbd98](https://github.com/rrivirr/rriv-api/commit/36dbd98ae456d2ce8e506c54da0b203bd55e810b))
+
 ## [1.6.2](https://github.com/rrivirr/rriv-api/compare/v1.6.1...v1.6.2) (2025-10-17)
 
 
