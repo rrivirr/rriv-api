@@ -7,8 +7,10 @@ import {
 import {
   AccountUniqueDeviceDto,
   BindDeviceDto,
+  CreateFirmwareEntryDto,
   ProvisionDeviceDto,
   QueryDeviceDto,
+  QueryFirmwareHistoryDto,
   SerialNumberDeviceDto,
 } from "../types/device.types.ts";
 import * as deviceRepository from "../repository/device.repository.ts";
@@ -16,6 +18,7 @@ import { HttpException } from "../utils/http-exception.ts";
 import { IdDto } from "../types/generic.types.ts";
 import { validateDevice } from "./utils/validate-device.ts";
 import { getSeed } from "./utils/get-seed.ts";
+import { validateDeviceContext } from "./utils/validate-device-context.ts";
 
 const getNewIdentifiers = async (lastSerialNumber?: string) => {
   let newSerialNumber = 0n;
@@ -159,9 +162,6 @@ export const bindDevice = async (requestBody: BindDeviceDto) => {
 
 export const unbindDevice = async (requestBody: AccountUniqueDeviceDto) => {
   const deviceObject = await validateDevice(requestBody);
-  if (!deviceObject) {
-    throw new HttpException(404, "device not found");
-  }
   const { device, activeBind } = deviceObject;
   await deviceRepository.unbindDevice({ bindId: activeBind.id });
   return device;
@@ -173,12 +173,41 @@ export const getDevices = async (query: QueryDeviceDto) => {
 
 export const deleteDevice = async (requestBody: AccountUniqueDeviceDto) => {
   const deviceObject = await validateDevice(requestBody);
-  if (!deviceObject) {
-    throw new HttpException(404, "device not found");
-  }
 
   await deviceRepository.deleteDevice({
     serialNumber: requestBody.serialNumber,
   });
   return deviceObject.device;
+};
+
+export const createFirmwareEntry = async (
+  requestBody: CreateFirmwareEntryDto,
+) => {
+  const { deviceId, contextId, accountId, version, installedAt } = requestBody;
+  const deviceContext = await validateDeviceContext({
+    deviceId,
+    contextId,
+    accountId,
+  });
+  await deviceRepository.createFirmwareEntry({
+    deviceContextId: deviceContext.id,
+    accountId,
+    version,
+    installedAt,
+  });
+};
+
+export const getFirmwareHistory = async (query: QueryFirmwareHistoryDto) => {
+  const { accountId } = query;
+  if ("deviceId" in query) {
+    await validateDevice({ id: query.deviceId, accountId });
+  } else {
+    await validateDevice({ serialNumber: query.serialNumber, accountId });
+  }
+  const firmwareHistory = await deviceRepository.getFirmwareHistory(query);
+  return firmwareHistory.map(({ version, installedAt, createdAt }) => ({
+    version,
+    installedAt,
+    createdAt,
+  }));
 };

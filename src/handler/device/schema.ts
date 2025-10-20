@@ -29,3 +29,16 @@ export const serialNumberSchema = z.object({
   serialNumber: z.string().min(3).max(25).trim(),
 })
   .strict();
+
+const paginationObject = getPaginationSchema(["createdAt"], "createdAt");
+
+export const firmwareHistoryQuerySchema = paginationObject.extend({
+  deviceId: z.string().uuid(),
+}).or(paginationObject.extend({ serialNumber: z.string() }));
+
+export const createFirmwareEntrySchema = z.object({
+  version: z.string(),
+  installedAt: z.coerce.date(),
+  deviceId: z.string().uuid(),
+  contextId: z.string().uuid(),
+}).strict();

@@ -1,7 +1,9 @@
 // @deno-types="npm:@types/express@5"
 import { Request, Response } from "npm:express";
 import {
+  createFirmwareEntrySchema,
   deviceQuerySchema,
+  firmwareHistoryQuerySchema,
   provisionDeviceSchema,
   serialNumberSchema,
 } from "./schema.ts";
@@ -54,4 +56,26 @@ export const deleteDevice = async (req: Request, res: Response) => {
     serialNumber: params.serialNumber,
   });
   res.json(device);
+};
+
+export const createFirmwareEntry = async (
+  req: Request,
+  res: Response,
+) => {
+  const accountId = req.accountId;
+  const requestBody = createFirmwareEntrySchema.parse(req.body);
+
+  await deviceService.createFirmwareEntry({ ...requestBody, accountId });
+  res.json();
+};
+
+export const getFirmwareHistory = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
+  const query = firmwareHistoryQuerySchema.parse(req.query);
+
+  const deviceFirmwareHistory = await deviceService.getFirmwareHistory({
+    ...query,
+    accountId,
+  });
+  res.json(deviceFirmwareHistory);
 };

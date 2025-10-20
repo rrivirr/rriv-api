@@ -25,3 +25,13 @@ export const registerDeviceSchema = () =>
       },
     },
   });
+
+export const registerDeviceFirmwareItemSchema = () =>
+  swaggerBuilder.addSchema("DeviceFirmwareItem", {
+    type: "object",
+    properties: {
+      version: { type: "string" },
+      installedAt: { type: "string", format: "date-time" },
+      createdAt: { type: "string", format: "date-time" },
+    },
+  });

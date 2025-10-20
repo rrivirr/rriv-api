@@ -9,6 +9,44 @@ import * as deviceContextRepository from "../repository/device-context.repositor
 import * as configSnapshotRepository from "../repository/config-snapshot.repository.ts";
 import { validateContext } from "./utils/validate-context.ts";
 import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "./utils/constants.ts";
+import { validateDeviceContext } from "./utils/validate-device-context.ts";
+
+export const createDeviceContext = async (
+  requestBody: CreateDeviceContextDto,
+) => {
+  const { contextId, deviceId, accountId, assignedDeviceName } = requestBody;
+
+  await validateContext({ contextId, accountId });
+
+  const deviceContext = await deviceContextRepository.getDeviceContext({
+    contextId,
+    assignedDeviceName,
+  });
+  if (deviceContext.length) {
+    throw new HttpException(
+      422,
+      `${assignedDeviceName} already exists in this context`,
+    );
+  }
+
+  const deviceObject = await validateDevice({ id: deviceId, accountId });
+  const { activeDeviceContext } = deviceObject;
+
+  if (activeDeviceContext) {
+    throw new HttpException(
+      422,
+      `device already in ${activeDeviceContext.Context.name} context`,
+    );
+  }
+
+  // add device to context
+  await deviceContextRepository.createDeviceContext({
+    deviceId,
+    contextId,
+    assignedDeviceName,
+    accountId,
+  });
+};
 
 export const getDeviceContext = async (query: DeviceContextDto) => {
   const { contextId, deviceId, accountId } = query;
@@ -16,9 +54,6 @@ export const getDeviceContext = async (query: DeviceContextDto) => {
   await validateContext({ contextId, accountId });
 
   const deviceObject = await validateDevice({ id: deviceId, accountId });
-  if (!deviceObject) {
-    throw new HttpException(404, "device not found");
-  }
   const { activeDeviceContext } = deviceObject;
 
   if (!activeDeviceContext || activeDeviceContext.contextId !== contextId) {
@@ -46,63 +81,10 @@ export const getDeviceContext = async (query: DeviceContextDto) => {
   };
 };
 
-export const createDeviceContext = async (
-  requestBody: CreateDeviceContextDto,
-) => {
-  const { contextId, deviceId, accountId, assignedDeviceName } = requestBody;
-
-  await validateContext({ contextId, accountId });
-
-  const deviceContext = await deviceContextRepository.getDeviceContext({
-    contextId,
-    assignedDeviceName,
-  });
-  if (deviceContext.length) {
-    throw new HttpException(
-      422,
-      `${assignedDeviceName} already exists in this context`,
-    );
-  }
-
-  const deviceObject = await validateDevice({ id: deviceId, accountId });
-
-  if (!deviceObject) {
-    throw new HttpException(404, "device not found");
-  }
-
-  const { activeDeviceContext } = deviceObject;
-
-  if (activeDeviceContext) {
-    throw new HttpException(
-      422,
-      `device already in ${activeDeviceContext.Context.name} context`,
-    );
-  }
-
-  // add device to context
-  await deviceContextRepository.createDeviceContext({
-    deviceId,
-    contextId,
-    assignedDeviceName,
-    accountId,
-  });
-};
-
 export const updateDeviceContext = async (body: UpdateDeviceContextDto) => {
   const { contextId, deviceId, accountId, assignedDeviceName } = body;
 
-  await validateContext({ contextId, accountId });
-
-  const deviceObject = await validateDevice({ id: deviceId, accountId });
-  if (!deviceObject) {
-    throw new HttpException(404, "device not found");
-  }
-
-  const { activeDeviceContext } = deviceObject;
-
-  if (!activeDeviceContext || activeDeviceContext.contextId !== contextId) {
-    throw new HttpException(422, "device not found in context");
-  }
+  await validateDeviceContext({ deviceId, contextId, accountId });
 
   if (assignedDeviceName) {
     // assignedDeviceName should be unique in a context
@@ -122,20 +104,7 @@ export const updateDeviceContext = async (body: UpdateDeviceContextDto) => {
 };
 
 export const deleteDeviceContext = async (body: DeviceContextDto) => {
-  const { contextId, deviceId, accountId } = body;
-
-  await validateContext({ contextId, accountId });
-
-  const deviceObject = await validateDevice({ id: deviceId, accountId });
-  if (!deviceObject) {
-    throw new HttpException(404, "device not found");
-  }
-
-  const { activeDeviceContext } = deviceObject;
-
-  if (!activeDeviceContext || activeDeviceContext.contextId !== contextId) {
-    throw new HttpException(422, "device not found in context");
-  }
-
+  const { contextId, deviceId } = body;
+  await validateDeviceContext(body);
   await deviceContextRepository.deleteDeviceContext({ contextId, deviceId });
 };
