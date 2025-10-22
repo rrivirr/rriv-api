@@ -62,12 +62,6 @@ jobs:
           # This line is required to pass the AWS role to the action
           AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', 'DEV')] }}
 
-      - name: Checkout repository to fix cleanup
-        uses: actions/checkout@v4
-        with:
-          repository: rrivirr/rriv-api
-          ref: ${{ needs.release.outputs.new-release-git-tag }}
-
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
@@ -92,3 +86,9 @@ jobs:
 
       - name: apply update
         run: kustomize build deployment/overlays/development | kubectl apply --wait -f -
+
+      - name: Checkout repository to fix cleanup
+        uses: actions/checkout@v4
+        with:
+          repository: rrivirr/rriv-api
+          ref: ${{ needs.release.outputs.new-release-git-tag }}
