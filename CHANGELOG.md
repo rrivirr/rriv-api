@@ -1,3 +1,13 @@
+## [1.7.2](https://github.com/rrivirr/rriv-api/compare/v1.7.1...v1.7.2) (2025-10-22)
+
+
+### Bug Fixes
+
+* change swagger path ([a727a68](https://github.com/rrivirr/rriv-api/commit/a727a68972c985fb5d0d7200043eceb2efd93632))
+* job cleanup issue ([b2fc870](https://github.com/rrivirr/rriv-api/commit/b2fc870c881229e1024927e1fca4cad0b3de404b))
+* return contextName for get firmware history request ([71d0509](https://github.com/rrivirr/rriv-api/commit/71d05095e9dfe1ee9da8ae6e5527233618020c68))
+* use dash separator for unique names ([617a069](https://github.com/rrivirr/rriv-api/commit/617a069fed9f083827a88867b2a0f40094eea8e9))
+
 ## [1.7.1](https://github.com/rrivirr/rriv-api/compare/v1.7.0...v1.7.1) (2025-10-20)
 
 
