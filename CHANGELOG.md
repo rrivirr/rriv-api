@@ -1,3 +1,10 @@
+## [1.7.3](https://github.com/rrivirr/rriv-api/compare/v1.7.2...v1.7.3) (2025-10-22)
+
+
+### Bug Fixes
+
+* move fix cleanup step to end of action ([472caef](https://github.com/rrivirr/rriv-api/commit/472caef18f5d8408cb356a94ee5eedddf53cb797))
+
 ## [1.7.2](https://github.com/rrivirr/rriv-api/compare/v1.7.1...v1.7.2) (2025-10-22)
 
 
