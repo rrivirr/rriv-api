@@ -86,8 +86,3 @@ jobs:
 
       - name: apply update
         run: kustomize build deployment/overlays/development | kubectl apply --wait -f -
-
-      - name: Checkout repository to fix cleanup
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.release.outputs.new-release-git-tag }}
