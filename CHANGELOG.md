@@ -1,3 +1,10 @@
+## [1.7.6](https://github.com/rrivirr/rriv-api/compare/v1.7.5...v1.7.6) (2025-10-22)
+
+
+### Bug Fixes
+
+* force deployment to test CD ([eb525d9](https://github.com/rrivirr/rriv-api/commit/eb525d9474317f6a39ff9659b601c2b7e7adb349))
+
 ## [1.7.5](https://github.com/rrivirr/rriv-api/compare/v1.7.4...v1.7.5) (2025-10-22)
 
 
