@@ -36,6 +36,7 @@ const getNewIdentifiers = async (lastSerialNumber?: string) => {
   const uniqueName = uniqueNamesGenerator({
     dictionaries: [colors, adjectives, animals],
     seed,
+    separator: "-",
   });
 
   const devices = await deviceRepository.getAllDevices({
