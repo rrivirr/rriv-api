@@ -216,6 +216,9 @@ export const getFirmwareHistory = async (
         ? { DeviceContext: { deviceId: query.deviceId } }
         : { DeviceContext: { Device: { serialNumber: query.serialNumber } } }),
     },
+    include: {
+      DeviceContext: { select: { Context: { select: { name: true } } } },
+    },
     orderBy: orderBy ? { [orderBy]: order } : undefined,
     take: limit,
     skip: offset,

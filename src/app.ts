@@ -11,7 +11,7 @@ import { jwtMiddleware } from "./utils/middleware/jwt.middleware.ts";
 const app = express();
 
 app.use(
-  "/documentation",
+  "/docs",
   swaggerUi.serve,
   swaggerUi.setup(swaggerBuilder.getSpec()),
 );
