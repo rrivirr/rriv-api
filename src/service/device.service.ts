@@ -206,9 +206,12 @@ export const getFirmwareHistory = async (query: QueryFirmwareHistoryDto) => {
     await validateDevice({ serialNumber: query.serialNumber, accountId });
   }
   const firmwareHistory = await deviceRepository.getFirmwareHistory(query);
-  return firmwareHistory.map(({ version, installedAt, createdAt }) => ({
+  return firmwareHistory.map((
+    { version, installedAt, createdAt, DeviceContext: { Context: { name } } },
+  ) => ({
     version,
     installedAt,
     createdAt,
+    contextName: name,
   }));
 };

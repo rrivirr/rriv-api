@@ -31,6 +31,7 @@ export const registerDeviceFirmwareItemSchema = () =>
     type: "object",
     properties: {
       version: { type: "string" },
+      contextName: { type: "string" },
       installedAt: { type: "string", format: "date-time" },
       createdAt: { type: "string", format: "date-time" },
     },
