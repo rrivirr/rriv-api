@@ -65,6 +65,7 @@ jobs:
       - name: Checkout repository to fix cleanup
         uses: actions/checkout@v4
         with:
+          repository: rrivirr/rriv-api
           ref: ${{ needs.release.outputs.new-release-git-tag }}
 
       - name: Set up QEMU
