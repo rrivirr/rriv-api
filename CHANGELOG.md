@@ -1,3 +1,10 @@
+## [1.7.5](https://github.com/rrivirr/rriv-api/compare/v1.7.4...v1.7.5) (2025-10-22)
+
+
+### Bug Fixes
+
+* remove second checkout ([a19e485](https://github.com/rrivirr/rriv-api/commit/a19e4858a2e8e2e6acf0309492cab4498542b832))
+
 ## [1.7.4](https://github.com/rrivirr/rriv-api/compare/v1.7.3...v1.7.4) (2025-10-22)
 
 
