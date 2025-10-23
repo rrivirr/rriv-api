@@ -1,3 +1,11 @@
+## [1.7.7](https://github.com/rrivirr/rriv-api/compare/v1.7.6...v1.7.7) (2025-10-23)
+
+
+### Bug Fixes
+
+* update get device output ([83f6a19](https://github.com/rrivirr/rriv-api/commit/83f6a1976f7caf48c53f3a5709aacb5cca5ddea3))
+* update swagger schema ([43d0695](https://github.com/rrivirr/rriv-api/commit/43d0695ae9eaa5eb6e85b1a9ccb9936f3da31aa0))
+
 ## [1.7.6](https://github.com/rrivirr/rriv-api/compare/v1.7.5...v1.7.6) (2025-10-22)
 
 
