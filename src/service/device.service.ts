@@ -169,7 +169,7 @@ export const unbindDevice = async (requestBody: AccountUniqueDeviceDto) => {
 };
 
 export const getDevices = async (query: QueryDeviceDto) => {
-  return await deviceRepository.getDevice(query);
+  return await deviceRepository.getDevices(query);
 };
 
 export const deleteDevice = async (requestBody: AccountUniqueDeviceDto) => {

@@ -42,7 +42,7 @@ export const getDeviceBySerialNumberOrId = async (
   });
 };
 
-export const getDevice = async (query: QueryDeviceDto) => {
+export const getDevices = async (query: QueryDeviceDto) => {
   const {
     search,
     limit,
@@ -87,7 +87,7 @@ export const getDevice = async (query: QueryDeviceDto) => {
         },
         select: {
           assignedDeviceName: true,
-          Context: { select: { name: true } },
+          Context: { select: { name: true, id: true } },
         },
       },
     },
@@ -227,7 +227,7 @@ export const getFirmwareHistory = async (
 
 // provides additional flexibility
 // not intended for direct client requests/results
-// use getDevice instead
+// use getDevices instead
 export const getAllDevices = async (
   body: {
     query: { uniqueName?: string; uid?: string; type?: string };

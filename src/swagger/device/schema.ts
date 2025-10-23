@@ -17,6 +17,7 @@ export const registerDeviceSchema = () =>
               type: "object",
               properties: {
                 name: { type: "string" },
+                id: { type: "string" },
               },
             },
             assignedDeviceName: { type: "string" },
