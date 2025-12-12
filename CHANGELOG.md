@@ -1,3 +1,10 @@
+## [1.7.8](https://github.com/rrivirr/rriv-api/compare/v1.7.7...v1.7.8) (2025-12-12)
+
+
+### Bug Fixes
+
+* add blanket error log ([4838dd4](https://github.com/rrivirr/rriv-api/commit/4838dd4f044313ce80101561355fd0c329a89686))
+
 ## [1.7.7](https://github.com/rrivirr/rriv-api/compare/v1.7.6...v1.7.7) (2025-10-23)
 
 
