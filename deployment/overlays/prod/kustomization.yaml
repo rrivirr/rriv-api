@@ -6,4 +6,4 @@ patches:
   - path: deployment.yaml
 images:
   - name: registry.digitalocean.com/rriv/rriv-api
-    newTag: 1.0.10
+    newTag: v1.7.8
