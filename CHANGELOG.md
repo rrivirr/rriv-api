@@ -1,3 +1,15 @@
+# [1.8.0](https://github.com/rrivirr/rriv-api/compare/v1.7.8...v1.8.0) (2025-12-19)
+
+
+### Bug Fixes
+
+* change ([f416ce3](https://github.com/rrivirr/rriv-api/commit/f416ce38a8a4d0077aba93d09216424b9cdad33b))
+
+
+### Features
+
+* support history command ([325e632](https://github.com/rrivirr/rriv-api/commit/325e6320a463fcf494d1d255aa3d8ed8c1f512b5))
+
 ## [1.7.8](https://github.com/rrivirr/rriv-api/compare/v1.7.7...v1.7.8) (2025-12-12)
 
 
