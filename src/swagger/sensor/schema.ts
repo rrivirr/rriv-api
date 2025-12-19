@@ -14,6 +14,43 @@ export const registerSensorConfigSchema = () =>
     },
   });
 
+export const registerSensorConfigHistorySchema = () =>
+  swaggerBuilder.addSchema("SensorConfigHistory", {
+    type: "object",
+    properties: {
+      id: { type: "string", format: "uuid" },
+      name: { type: "string" },
+      config: { type: "object" },
+      sensorDriverId: { type: "string", format: "uuid" },
+      sensorDriver: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+        },
+      },
+      active: { type: "boolean" },
+      createdAt: { type: "string", format: "date-time" },
+      deactivatedAt: { type: "string", format: "date-time" },
+      changesMade: { type: "object" },
+      ConfigSnapshot: {
+        type: "object",
+        properties: {
+          DeviceContext: {
+            type: "object",
+            properties: {
+              Context: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
 export const registerSensorDriverSchema = () =>
   swaggerBuilder.addSchema("SensorDriver", {
     type: "object",

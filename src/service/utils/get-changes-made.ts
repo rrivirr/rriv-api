@@ -18,7 +18,7 @@ export const getConfigChangesMade = (
     } else {
       if (previousConfigValue !== currentConfigValue) {
         changeMade[previousConfigKey] =
-          `from ${previousConfigValue} to ${currentConfigValue}`;
+          `${previousConfigValue} changed to ${currentConfigValue}`;
       }
     }
   }

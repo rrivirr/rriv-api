@@ -5,7 +5,6 @@ import {
   CreateDataloggerDriverDto,
   CreateDataloggerLibraryConfigDto,
   CreateDataloggerLibraryConfigVersionDto,
-  QueryDataloggerConfigDto,
   QueryDataloggerDriverDto,
   QueryDataloggerLibraryConfigDto,
 } from "../types/datalogger.types.ts";
@@ -13,15 +12,12 @@ import * as dataloggerRepository from "../repository/datalogger.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
 import { AccountIdDto, IdDto } from "../types/generic.types.ts";
 import { getDeviceContext } from "./device-context.service.ts";
+import { QueryConfigHistoryDto } from "../types/config-snapshot.types.ts";
+import { getDataloggerConfigChanges } from "./utils/get-datalogger-config-changes.ts";
+import { validateDevice } from "./utils/validate-device.ts";
 
 export const getDataloggerDriver = async (query: QueryDataloggerDriverDto) => {
   return await dataloggerRepository.getDataloggerDriver(query);
-};
-
-export const getDataloggerConfig = async (
-  query: QueryDataloggerConfigDto,
-) => {
-  return await dataloggerRepository.getDataloggerConfig(query);
 };
 
 export const getDataloggerLibraryConfig = async (
@@ -291,4 +287,25 @@ export const deleteDataloggerLibraryConfig = async (
   }
 
   return await dataloggerRepository.deleteDataloggerLibraryConfig({ id });
+};
+
+export const getDataloggerConfigHistory = async (
+  query: QueryConfigHistoryDto,
+) => {
+  const { deviceId, accountId, asAt } = query;
+  await validateDevice({ id: deviceId, accountId });
+
+  const dataloggerConfigs = await dataloggerRepository.getDataloggerConfig(
+    query,
+  );
+
+  if (asAt) {
+    return dataloggerConfigs;
+  }
+
+  const dataloggerConfigWithDifference = getDataloggerConfigChanges(
+    dataloggerConfigs,
+  );
+
+  return dataloggerConfigWithDifference;
 };

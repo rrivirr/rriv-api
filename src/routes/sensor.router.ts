@@ -6,6 +6,7 @@ import {
   deleteSensorConfig,
   deleteSensorDriver,
   deleteSensorLibraryConfig,
+  getSensorConfigHistory,
   getSensorDriver,
   getSensorLibraryConfig,
   getSensorLibraryConfigById,
@@ -22,6 +23,7 @@ router.route("/driver").post(createSensorDriver).get(getSensorDriver);
 router.route("/driver/:id").delete(deleteSensorDriver);
 router.route("/config").post(createSensorConfig);
 router.route("/config/:id").delete(deleteSensorConfig);
+router.route("/history").get(getSensorConfigHistory);
 router.route("/libraryConfig").post(createSensorLibraryConfig).get(
   getSensorLibraryConfig,
 );

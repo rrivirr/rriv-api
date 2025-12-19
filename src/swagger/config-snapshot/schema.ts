@@ -73,6 +73,22 @@ export const registerConfigSnapshotHistorySchema = () =>
             active: { type: "boolean" },
             createdAt: { type: "string", format: "date-time" },
             deactivatedAt: { type: "string", format: "date-time" },
+            ConfigSnapshot: {
+              type: "object",
+              properties: {
+                DeviceContext: {
+                  type: "object",
+                  properties: {
+                    Context: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },
@@ -95,6 +111,22 @@ export const registerConfigSnapshotHistorySchema = () =>
             createdAt: { type: "string", format: "date-time" },
             deactivatedAt: { type: "string", format: "date-time" },
             changesMade: { type: "object" },
+            ConfigSnapshot: {
+              type: "object",
+              properties: {
+                DeviceContext: {
+                  type: "object",
+                  properties: {
+                    Context: {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
         },
       },

@@ -11,6 +11,7 @@ import {
 import * as sensorService from "../../service/sensor.service.ts";
 import { idSchema } from "../generic/generic.schema.ts";
 import { HttpException } from "../../utils/http-exception.ts";
+import { configHistoryQuerySchema } from "../config-snapshot/schema.ts";
 
 export const createSensorDriver = async (req: Request, res: Response) => {
   const accountId = req.accountId;
@@ -133,4 +134,20 @@ export const deleteSensorLibraryConfig = async (
   });
 
   res.json(sensorLibraryConfig);
+};
+
+export const getSensorConfigHistory = async (
+  req: Request,
+  res: Response,
+) => {
+  const accountId = req.accountId;
+  const query = configHistoryQuerySchema.parse(req.query);
+
+  const configSnapshotHistory = await sensorService
+    .getSensorConfigHistory({
+      ...query,
+      accountId,
+    });
+
+  res.json(configSnapshotHistory);
 };

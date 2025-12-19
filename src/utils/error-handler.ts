@@ -17,7 +17,6 @@ export default (
   res: Response,
   _next: NextFunction,
 ) => {
-  console.log(err);
   const errorLogger = logger.child({ source: "errorHandler" });
   if (err instanceof HttpException) {
     if (err.code === 500) {
