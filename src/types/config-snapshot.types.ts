@@ -2,7 +2,7 @@ import { z } from "zod";
 import { AccountIdDto, IdDto } from "./generic.types.ts";
 import {
   activeConfigQuerySchema,
-  configSnapshotHistoryQuerySchema,
+  configHistoryQuerySchema,
   configSnapshotLibraryConfigQuerySchema,
   configSnapshotQuerySchema,
   createConfigSnapshotLibraryConfigSchema,
@@ -33,9 +33,9 @@ export type QueryActiveConfigDto =
   >
   & AccountIdDto;
 
-export type QueryConfigSnapshotHistoryDto =
+export type QueryConfigHistoryDto =
   & z.input<
-    typeof configSnapshotHistoryQuerySchema
+    typeof configHistoryQuerySchema
   >
   & AccountIdDto;
 

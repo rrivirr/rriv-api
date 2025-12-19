@@ -11,7 +11,7 @@ spec:
           {{ with secret "secret/data/staging-rriv-api-creds" }}
           export DATABASE_URL="{{ .Data.data.database_url }}"
           export KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
-          {{ end }} 
+          {{ end }}
     spec:
       containers:
         - name: rriv-api

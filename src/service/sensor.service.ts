@@ -13,6 +13,9 @@ import { HttpException } from "../utils/http-exception.ts";
 import { AccountIdDto, IdDto } from "../types/generic.types.ts";
 import { getDeviceContext } from "./device-context.service.ts";
 import { isDeepStrictEqual } from "node:util";
+import { QueryConfigHistoryDto } from "../types/config-snapshot.types.ts";
+import { getSensorConfigChanges } from "./utils/get-sensor-config-changes.ts";
+import { validateDevice } from "./utils/validate-device.ts";
 
 export const getSensorDriver = async (query: QuerySensorDriverDto) => {
   return await sensorRepository.getSensorDriver(query);
@@ -28,7 +31,9 @@ export const getSensorLibraryConfigById = async (query: IdDto) => {
   return await sensorRepository.getSensorLibraryConfigById(query);
 };
 
-const getSensorConfig = async (query: QuerySensorConfigDto) => {
+const getSensorConfig = async (
+  query: QuerySensorConfigDto | QueryConfigHistoryDto,
+) => {
   return await sensorRepository.getSensorConfig(query);
 };
 
@@ -265,4 +270,18 @@ export const deleteSensorLibraryConfig = async (
   }
 
   return await sensorRepository.deleteSensorLibraryConfig({ id });
+};
+
+export const getSensorConfigHistory = async (query: QueryConfigHistoryDto) => {
+  const { asAt, accountId, deviceId } = query;
+  await validateDevice({ id: deviceId, accountId });
+  const sensorConfigs = await getSensorConfig(query);
+
+  if (asAt) {
+    return sensorConfigs;
+  }
+
+  const sensorConfigWithDifference = getSensorConfigChanges(sensorConfigs);
+
+  return sensorConfigWithDifference;
 };

@@ -6,6 +6,7 @@ import {
   deleteDataloggerConfig,
   deleteDataloggerDriver,
   deleteDataloggerLibraryConfig,
+  getDataloggerConfigHistory,
   getDataloggerDriver,
   getDataloggerLibraryConfig,
   getDataloggerLibraryConfigById,
@@ -22,6 +23,7 @@ router.route("/driver").post(createDataloggerDriver).get(getDataloggerDriver);
 router.route("/driver/:id").delete(deleteDataloggerDriver);
 router.route("/config").post(createDataloggerConfig);
 router.route("/config/:id").delete(deleteDataloggerConfig);
+router.route("/history").get(getDataloggerConfigHistory);
 router.route("/libraryConfig").post(createDataloggerLibraryConfig).get(
   getDataloggerLibraryConfig,
 );

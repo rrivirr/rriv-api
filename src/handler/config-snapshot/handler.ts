@@ -2,7 +2,7 @@
 import { Request, Response } from "npm:express";
 import {
   activeConfigQuerySchema,
-  configSnapshotHistoryQuerySchema,
+  configHistoryQuerySchema,
   configSnapshotLibraryConfigQuerySchema,
   configSnapshotQuerySchema,
   createConfigSnapshotLibraryConfigSchema,
@@ -49,7 +49,7 @@ export const getConfigSnapshotHistory = async (
   res: Response,
 ) => {
   const accountId = req.accountId;
-  const query = configSnapshotHistoryQuerySchema.parse(req.query);
+  const query = configHistoryQuerySchema.parse(req.query);
 
   const configSnapshotHistory = await configSnapshotService
     .getConfigSnapshotHistory({

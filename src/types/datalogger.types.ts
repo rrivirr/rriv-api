@@ -9,14 +9,6 @@ import {
   dataloggerLibraryConfigQuerySchema,
 } from "../handler/datalogger/schema.ts";
 
-export type QueryDataloggerConfigDto = AccountIdDto & {
-  configSnapshotId: string;
-  active?: boolean;
-  order?: "asc" | "desc";
-  limit?: number;
-  offset?: number;
-  asAt?: Date;
-};
 export type CreateDataloggerDriverDto =
   & z.infer<typeof createDataloggerDriverSchema>
   & AccountIdDto;

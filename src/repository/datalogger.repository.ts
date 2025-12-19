@@ -5,10 +5,10 @@ import { IdDto } from "../types/generic.types.ts";
 import {
   CreateDataloggerConfigDto,
   CreateDataloggerDriverDto,
-  QueryDataloggerConfigDto,
   QueryDataloggerDriverDto,
   QueryDataloggerLibraryConfigDto,
 } from "../types/datalogger.types.ts";
+import { QueryConfigHistoryDto } from "../types/config-snapshot.types.ts";
 
 export const getActiveDataloggerConfig = async (
   query: { configSnapshotId: string; accountId: string },
@@ -24,22 +24,19 @@ export const getActiveDataloggerConfig = async (
   });
 };
 
-export const getDataloggerConfig = async (query: QueryDataloggerConfigDto) => {
-  const {
-    accountId,
-    configSnapshotId,
-    active,
-    order = "desc",
-    limit,
-    offset,
-    asAt,
-  } = query;
+export const getDataloggerConfig = async (
+  query: QueryConfigHistoryDto,
+) => {
+  const { asAt, accountId, limit, offset, order, deviceId } = query;
   if (asAt) {
     return await prisma.dataloggerConfig.findMany({
       where: {
         creatorId: accountId,
-        configSnapshotId,
+        ConfigSnapshot: {
+          DeviceContext: { deviceId },
+        },
         createdAt: { lte: asAt },
+        archivedAt: null,
       },
       take: 1,
       skip: 0,
@@ -49,13 +46,25 @@ export const getDataloggerConfig = async (query: QueryDataloggerConfigDto) => {
   return await prisma.dataloggerConfig.findMany({
     where: {
       creatorId: accountId,
-      configSnapshotId,
-      active,
+      ConfigSnapshot: {
+        DeviceContext: { deviceId },
+      },
       archivedAt: null,
     },
     take: limit,
     skip: offset,
     orderBy: { createdAt: order },
+    include: {
+      ConfigSnapshot: {
+        select: {
+          DeviceContext: {
+            select: {
+              Context: { select: { name: true } },
+            },
+          },
+        },
+      },
+    },
   });
 };
 

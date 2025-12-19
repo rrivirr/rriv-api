@@ -8,7 +8,7 @@ import {
 import { swaggerBuilder } from "../index.ts";
 import {
   activeConfigQuerySchema,
-  configSnapshotHistoryQuerySchema,
+  configHistoryQuerySchema,
   configSnapshotQuerySchema,
   overwriteActiveConfigSnapshotSchema,
   saveConfigSnapshotSchema,
@@ -33,11 +33,10 @@ const ActiveConfigQuerySchema = generateSchema(
 );
 const ActiveConfigQuerySchemaProperties = ActiveConfigQuerySchema.properties;
 
-const ConfigSnapshotHistoryQuerySchema = generateSchema(
-  configSnapshotHistoryQuerySchema,
+const ConfigHistoryQuerySchema = generateSchema(
+  configHistoryQuerySchema,
 );
-const ConfigSnapshotHistoryQuerySchemaProperties =
-  ConfigSnapshotHistoryQuerySchema.properties;
+const ConfigHistoryQuerySchemaProperties = ConfigHistoryQuerySchema.properties;
 
 swaggerBuilder.addPath(basePath, {
   get: {
@@ -76,13 +75,13 @@ swaggerBuilder.addPath(`${basePath}/history`, {
     tags,
     summary: `Get history of applied configurations`,
     parameters: [
-      ...Object.keys(ConfigSnapshotHistoryQuerySchemaProperties as object).map((
+      ...Object.keys(ConfigHistoryQuerySchemaProperties as object).map((
         q: string,
       ) =>
         ({
           name: q,
           in: "query",
-          schema: { ...ConfigSnapshotHistoryQuerySchemaProperties![q] },
+          schema: { ...ConfigHistoryQuerySchemaProperties![q] },
         }) as ParameterObject
       ),
     ],

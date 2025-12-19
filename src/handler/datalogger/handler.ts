@@ -10,6 +10,7 @@ import {
 } from "./schema.ts";
 import * as dataloggerService from "../../service/datalogger.service.ts";
 import { idSchema } from "../generic/generic.schema.ts";
+import { configHistoryQuerySchema } from "../config-snapshot/schema.ts";
 import { HttpException } from "../../utils/http-exception.ts";
 
 export const createDataloggerDriver = async (req: Request, res: Response) => {
@@ -147,4 +148,20 @@ export const deleteDataloggerLibraryConfig = async (
     );
 
   res.json(dataloggerLibraryConfig);
+};
+
+export const getDataloggerConfigHistory = async (
+  req: Request,
+  res: Response,
+) => {
+  const accountId = req.accountId;
+  const query = configHistoryQuerySchema.parse(req.query);
+
+  const configSnapshotHistory = await dataloggerService
+    .getDataloggerConfigHistory({
+      ...query,
+      accountId,
+    });
+
+  res.json(configSnapshotHistory);
 };

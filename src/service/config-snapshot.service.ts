@@ -4,8 +4,8 @@ import {
   CreateConfigSnapshotLibraryConfigVersionDto,
   OverwriteActiveConfigSnapshotDto,
   QueryActiveConfigDto,
+  QueryConfigHistoryDto,
   QueryConfigSnapshotDto,
-  QueryConfigSnapshotHistoryDto,
   QueryConfigSnapshotLibraryConfigDto,
   SaveConfigSnapshotDto,
 } from "../types/config-snapshot.types.ts";
@@ -13,10 +13,8 @@ import { IdDto } from "../types/generic.types.ts";
 import * as configSnapshotRepository from "../repository/config-snapshot.repository.ts";
 import { getDeviceContext } from "./device-context.service.ts";
 import { HttpException } from "../utils/http-exception.ts";
-import { getDataloggerConfig } from "./datalogger.service.ts";
-import { getSensorConfig } from "../repository/sensor.repository.ts";
-import { getDataloggerConfigChanges } from "./utils/get-datalogger-config-changes.ts";
-import { getSensorConfigChanges } from "./utils/get-sensor-config-changes.ts";
+import { getDataloggerConfigHistory } from "./datalogger.service.ts";
+import { getSensorConfigHistory } from "./sensor.service.ts";
 
 const getConfigSnapshotById = async (query: IdDto) => {
   return await configSnapshotRepository.getConfigSnapshotById(query);
@@ -70,47 +68,14 @@ export const getActiveConfig = async (
 };
 
 export const getConfigSnapshotHistory = async (
-  query: QueryConfigSnapshotHistoryDto,
+  query: QueryConfigHistoryDto,
 ) => {
-  const { contextId, deviceId, limit, offset, order, accountId, asAt } = query;
-  const configSnapshotId = await getActiveConfigSnapshotId({
-    accountId,
-    deviceId,
-    contextId,
-  });
-
-  const dataloggerConfigs = await getDataloggerConfig({
-    configSnapshotId,
-    accountId,
-    limit,
-    offset,
-    order,
-    asAt,
-  });
-  const sensorConfigs = await getSensorConfig({
-    accountId,
-    configSnapshotId,
-    limit,
-    offset,
-    order,
-    asAt,
-  });
-
-  if (asAt) {
-    return {
-      dataloggerConfigs,
-      sensorConfigs,
-    };
-  }
-
-  const dataloggerConfigWithDifference = getDataloggerConfigChanges(
-    dataloggerConfigs,
-  );
-  const sensorConfigWithDifference = getSensorConfigChanges(sensorConfigs);
+  const dataloggerConfigs = await getDataloggerConfigHistory(query);
+  const sensorConfigs = await getSensorConfigHistory(query);
 
   return {
-    dataloggerConfigs: dataloggerConfigWithDifference,
-    sensorConfigs: sensorConfigWithDifference,
+    dataloggerConfigs,
+    sensorConfigs,
   };
 };
 
