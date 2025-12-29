@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/rrivirr/rriv-api/compare/v1.8.0...v1.9.0) (2025-12-29)
+
+
+### Features
+
+* support library command ([8ac70c4](https://github.com/rrivirr/rriv-api/commit/8ac70c4dc8b2dbd8880dd4161b8397b2841ab689))
+
 # [1.8.0](https://github.com/rrivirr/rriv-api/compare/v1.7.8...v1.8.0) (2025-12-19)
 
 
