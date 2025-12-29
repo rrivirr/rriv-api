@@ -162,6 +162,7 @@ model DataloggerConfig {
 model DataloggerLibraryConfig {
   id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name        String
+  isPublic    Boolean   @default(false)
   description String?
   Creator     Account   @relation(fields: [creatorId], references: [id])
   creatorId   String    @map("creator_id") @db.Uuid
@@ -210,6 +211,7 @@ model ConfigSnapshot {
 model SystemLibraryConfig {
   id                         String                       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                       String
+  isPublic                   Boolean                      @default(false)
   description                String?
   Creator                    Account                      @relation(fields: [creatorId], references: [id])
   creatorId                  String                       @map("creator_id") @db.Uuid
@@ -273,6 +275,7 @@ model SensorLibraryConfig {
   id                         String                       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                       String
   description                String?
+  isPublic                   Boolean                      @default(false)
   Creator                    Account                      @relation(fields: [creatorId], references: [id])
   creatorId                  String                       @map("creator_id") @db.Uuid
   createdAt                  DateTime                     @default(now()) @map("created_at") @db.Timestamp(6)

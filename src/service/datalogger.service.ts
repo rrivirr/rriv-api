@@ -12,7 +12,10 @@ import * as dataloggerRepository from "../repository/datalogger.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
 import { AccountIdDto, IdDto } from "../types/generic.types.ts";
 import { getDeviceContext } from "./device-context.service.ts";
-import { QueryConfigHistoryDto } from "../types/config-snapshot.types.ts";
+import {
+  QueryConfigHistoryDto,
+  UpdateLibraryConfigDto,
+} from "../types/config-snapshot.types.ts";
 import { getDataloggerConfigChanges } from "./utils/get-datalogger-config-changes.ts";
 import { validateDevice } from "./utils/validate-device.ts";
 
@@ -26,8 +29,29 @@ export const getDataloggerLibraryConfig = async (
   return await dataloggerRepository.getDataloggerLibraryConfig(query);
 };
 
-export const getDataloggerLibraryConfigById = async (query: IdDto) => {
-  return await dataloggerRepository.getDataloggerLibraryConfigById(query);
+export const getDataloggerLibraryConfigById = async (
+  query: IdDto & AccountIdDto & { write?: boolean },
+) => {
+  const { accountId, id, write } = query;
+  const dataloggerLibraryConfig = await dataloggerRepository
+    .getDataloggerLibraryConfigById({ id });
+  if (write) {
+    if (
+      !dataloggerLibraryConfig ||
+      dataloggerLibraryConfig.creatorId !== accountId
+    ) {
+      throw new HttpException(404, "library config not found");
+    }
+  } else {
+    if (
+      !dataloggerLibraryConfig ||
+      (dataloggerLibraryConfig.creatorId !== accountId &&
+        !dataloggerLibraryConfig.isPublic)
+    ) {
+      throw new HttpException(404, "library config not found");
+    }
+  }
+  return dataloggerLibraryConfig;
 };
 
 const getDataloggerDriverById = async (query: IdDto) => {
@@ -150,7 +174,8 @@ export const createDataloggerConfig = async (
 export const createDataloggerLibraryConfig = async (
   requestBody: CreateDataloggerLibraryConfigDto,
 ) => {
-  const { name, accountId, deviceId, contextId, description } = requestBody;
+  const { name, accountId, config, description } = requestBody;
+  const defaultDataloggerDriver = await getDataloggerDriver({ limit: 1 });
 
   const existingDataloggerLibraryConfig = await getDataloggerLibraryConfig({
     name,
@@ -159,20 +184,10 @@ export const createDataloggerLibraryConfig = async (
     throw new HttpException(409, `${name} already exists`);
   }
 
-  const { dataloggerConfig } = await getActiveDataloggerConfig({
-    deviceId,
-    contextId,
-    accountId,
-  });
-
-  if (!dataloggerConfig) {
-    throw new HttpException(404, "datalogger config not found");
-  }
-
   return await dataloggerRepository.createDataloggerLibraryConfig({
     name,
     accountId,
-    dataloggerConfig,
+    dataloggerConfig: { driverId: defaultDataloggerDriver[0].id, config },
     description,
   });
 };
@@ -180,24 +195,15 @@ export const createDataloggerLibraryConfig = async (
 export const createNewDataloggerLibraryConfigVersion = async (
   requestBody: CreateDataloggerLibraryConfigVersionDto,
 ) => {
-  const { id, deviceId, contextId, accountId, description } = requestBody;
+  const { id, config, accountId, description } = requestBody;
 
-  const dataloggerLibraryConfig = await getDataloggerLibraryConfigById({ id });
-  if (
-    !dataloggerLibraryConfig || dataloggerLibraryConfig.creatorId !== accountId
-  ) {
-    throw new HttpException(404, "datalogger library config not found");
-  }
-
-  const { dataloggerConfig } = await getActiveDataloggerConfig({
-    deviceId,
-    contextId,
+  const dataloggerLibraryConfig = await getDataloggerLibraryConfigById({
+    id,
     accountId,
+    write: true,
   });
-
-  if (!dataloggerConfig) {
-    throw new HttpException(404, "datalogger config not found");
-  }
+  const defaultDataloggerDriver = await getDataloggerDriver({ limit: 1 });
+  const dataloggerConfig = { config, driverId: defaultDataloggerDriver[0].id };
 
   const dataloggerLibraryConfigVersions =
     dataloggerLibraryConfig.DataloggerLibraryConfigVersion;
@@ -279,12 +285,11 @@ export const deleteDataloggerLibraryConfig = async (
 ) => {
   const { id, accountId } = requestBody;
 
-  const dataloggerLibraryConfig = await getDataloggerLibraryConfigById({ id });
-  if (
-    !dataloggerLibraryConfig || dataloggerLibraryConfig.creatorId !== accountId
-  ) {
-    throw new HttpException(404, "datalogger library config not found");
-  }
+  await getDataloggerLibraryConfigById({
+    id,
+    write: true,
+    accountId,
+  });
 
   return await dataloggerRepository.deleteDataloggerLibraryConfig({ id });
 };
@@ -308,4 +313,17 @@ export const getDataloggerConfigHistory = async (
   );
 
   return dataloggerConfigWithDifference;
+};
+
+export const updateDataloggerLibraryConfig = async (
+  body: UpdateLibraryConfigDto,
+) => {
+  const { id, accountId } = body;
+  await getDataloggerLibraryConfigById({
+    id,
+    accountId,
+    write: true,
+  });
+
+  await dataloggerRepository.updateDataloggerLibraryConfig(body);
 };

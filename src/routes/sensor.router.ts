@@ -10,6 +10,7 @@ import {
   getSensorDriver,
   getSensorLibraryConfig,
   getSensorLibraryConfigById,
+  updateSensorLibraryConfig,
 } from "../handler/sensor/handler.ts";
 import { getExpressRouter } from "../utils/helper-functions.ts";
 import "../swagger/sensor/sensor-config.document.ts";
@@ -32,7 +33,7 @@ router.route("/libraryConfig/:id/version").post(
 );
 router.route("/libraryConfig/:id").get(getSensorLibraryConfigById).delete(
   deleteSensorLibraryConfig,
-);
+).patch(updateSensorLibraryConfig);
 
 routerWrapper.use("/sensor", router);
 

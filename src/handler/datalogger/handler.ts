@@ -10,8 +10,10 @@ import {
 } from "./schema.ts";
 import * as dataloggerService from "../../service/datalogger.service.ts";
 import { idSchema } from "../generic/generic.schema.ts";
-import { configHistoryQuerySchema } from "../config-snapshot/schema.ts";
-import { HttpException } from "../../utils/http-exception.ts";
+import {
+  configHistoryQuerySchema,
+  updateLibraryConfigSchema,
+} from "../config-snapshot/schema.ts";
 
 export const createDataloggerDriver = async (req: Request, res: Response) => {
   const accountId = req.accountId;
@@ -100,15 +102,12 @@ export const getDataloggerLibraryConfigById = async (
   req: Request,
   res: Response,
 ) => {
+  const accountId = req.accountId;
   const params = idSchema.parse(req.params);
   const dataloggerLibraryConfig = await dataloggerService
     .getDataloggerLibraryConfigById(
-      params,
+      { ...params, accountId },
     );
-
-  if (!dataloggerLibraryConfig) {
-    throw new HttpException(404, "datalogger library config not found");
-  }
 
   res.json({ ...dataloggerLibraryConfig, creatorId: undefined });
 };
@@ -164,4 +163,20 @@ export const getDataloggerConfigHistory = async (
     });
 
   res.json(configSnapshotHistory);
+};
+
+export const updateDataloggerLibraryConfig = async (
+  req: Request,
+  res: Response,
+) => {
+  const accountId = req.accountId;
+  const params = idSchema.parse(req.params);
+  const body = updateLibraryConfigSchema.parse(req.body);
+
+  await dataloggerService
+    .updateDataloggerLibraryConfig(
+      { ...body, accountId, ...params },
+    );
+
+  res.json();
 };

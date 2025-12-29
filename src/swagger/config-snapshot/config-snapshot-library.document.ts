@@ -9,6 +9,7 @@ import {
   configSnapshotLibraryConfigQuerySchema,
   createConfigSnapshotLibraryConfigSchema,
   createNewConfigSnapshotLibraryConfigVersionSchema,
+  updateLibraryConfigSchema,
 } from "../../handler/config-snapshot/schema.ts";
 import { idSchema } from "../../handler/generic/generic.schema.ts";
 
@@ -95,6 +96,22 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
           },
         },
       },
+    },
+  },
+  patch: {
+    tags,
+    summary: "update a config snapshot library config",
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(
+            updateLibraryConfigSchema,
+          ),
+        },
+      },
+    },
+    responses: {
+      200: {},
     },
   },
 });

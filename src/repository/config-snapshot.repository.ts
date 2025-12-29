@@ -5,6 +5,7 @@ import {
   ConfigSnapshotDto,
   QueryConfigSnapshotDto,
   QueryConfigSnapshotLibraryConfigDto,
+  UpdateLibraryConfigDto,
 } from "../types/config-snapshot.types.ts";
 import { IdDto } from "../types/generic.types.ts";
 import { InputJsonValue } from "generated/runtime/library.d.ts";
@@ -79,14 +80,29 @@ export const getConfigSnapshots = async (
 export const getConfigSnapshotLibraryConfig = async (
   query: QueryConfigSnapshotLibraryConfigDto,
 ) => {
-  const { search, limit, offset, order, orderBy, isPublic, accountId, name } =
-    query;
+  const {
+    search,
+    limit,
+    offset,
+    order,
+    orderBy,
+    isPublic,
+    accountId,
+    name,
+    author,
+  } = query;
   return await prisma.systemLibraryConfig.findMany({
     where: {
       name: name || { contains: search },
       archivedAt: null,
-      ...(typeof isPublic === "boolean" &&
-        { creatorId: isPublic ? undefined : accountId }),
+      ...(author
+        ? {
+          Creator: {
+            OR: [{ firstName: author }, { lastName: author }],
+          },
+          isPublic: true,
+        }
+        : { creatorId: isPublic === true ? undefined : accountId, isPublic }),
     },
     take: limit,
     skip: offset,
@@ -383,5 +399,13 @@ export const overwriteActiveConfigSnapshot = async (
         })),
       });
     }
+  });
+};
+
+export const updateLibraryConfig = async (body: UpdateLibraryConfigDto) => {
+  const { isPublic, id } = body;
+  await prisma.systemLibraryConfig.update({
+    where: { id },
+    data: { isPublic },
   });
 };

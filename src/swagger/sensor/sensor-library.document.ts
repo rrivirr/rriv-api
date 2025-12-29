@@ -11,6 +11,7 @@ import {
   sensorLibraryConfigQuerySchema,
 } from "../../handler/sensor/schema.ts";
 import { idSchema } from "../../handler/generic/generic.schema.ts";
+import { updateLibraryConfigSchema } from "../../handler/config-snapshot/schema.ts";
 
 const basePath = "/sensor/libraryConfig";
 const tags = ["sensor"];
@@ -95,6 +96,22 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
           },
         },
       },
+    },
+  },
+  patch: {
+    tags,
+    summary: "update a sensor library config",
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(
+            updateLibraryConfigSchema,
+          ),
+        },
+      },
+    },
+    responses: {
+      200: {},
     },
   },
 });

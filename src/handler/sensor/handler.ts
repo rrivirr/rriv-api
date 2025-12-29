@@ -10,8 +10,10 @@ import {
 } from "./schema.ts";
 import * as sensorService from "../../service/sensor.service.ts";
 import { idSchema } from "../generic/generic.schema.ts";
-import { HttpException } from "../../utils/http-exception.ts";
-import { configHistoryQuerySchema } from "../config-snapshot/schema.ts";
+import {
+  configHistoryQuerySchema,
+  updateLibraryConfigSchema,
+} from "../config-snapshot/schema.ts";
 
 export const createSensorDriver = async (req: Request, res: Response) => {
   const accountId = req.accountId;
@@ -91,14 +93,11 @@ export const getSensorLibraryConfigById = async (
   req: Request,
   res: Response,
 ) => {
+  const accountId = req.accountId;
   const params = idSchema.parse(req.params);
   const sensorLibraryConfig = await sensorService.getSensorLibraryConfigById(
-    params,
+    { ...params, accountId },
   );
-
-  if (!sensorLibraryConfig) {
-    throw new HttpException(404, "sensor library config not found");
-  }
 
   res.json({ ...sensorLibraryConfig, creatorId: undefined });
 };
@@ -150,4 +149,20 @@ export const getSensorConfigHistory = async (
     });
 
   res.json(configSnapshotHistory);
+};
+
+export const updateSensorLibraryConfig = async (
+  req: Request,
+  res: Response,
+) => {
+  const accountId = req.accountId;
+  const params = idSchema.parse(req.params);
+  const body = updateLibraryConfigSchema.parse(req.body);
+
+  await sensorService
+    .updateSensorLibraryConfig(
+      { ...body, accountId, ...params },
+    );
+
+  res.json();
 };

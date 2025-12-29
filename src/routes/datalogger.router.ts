@@ -10,6 +10,7 @@ import {
   getDataloggerDriver,
   getDataloggerLibraryConfig,
   getDataloggerLibraryConfigById,
+  updateDataloggerLibraryConfig,
 } from "../handler/datalogger/handler.ts";
 import { getExpressRouter } from "../utils/helper-functions.ts";
 import "../swagger/datalogger/datalogger-config.document.ts";
@@ -32,7 +33,7 @@ router.route("/libraryConfig/:id/version").post(
 );
 router.route("/libraryConfig/:id").get(getDataloggerLibraryConfigById).delete(
   deleteDataloggerLibraryConfig,
-);
+).patch(updateDataloggerLibraryConfig);
 
 routerWrapper.use("/datalogger", router);
 

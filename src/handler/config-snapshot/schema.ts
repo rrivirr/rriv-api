@@ -48,32 +48,24 @@ export const configSnapshotLibraryConfigQuerySchema = z.object({
   search: getNameSchema().optional(),
   name: getNameSchema().optional(),
   isPublic: booleanQuerySchema,
+  author: getNameSchema().optional(),
 }).merge(
   getPaginationSchema(["createdAt", "name"], "createdAt"),
 ).strict();
 
-const baseLibraryConfigSchema = z.object({
+export const updateLibraryConfigSchema = z.object({
+  isPublic: z.boolean(),
+}).strict();
+
+export const createConfigSnapshotLibraryConfigSchema = z.object({
   name: getNameSchema(),
   description: getNameSchema().optional(),
+  datalogger: z.object({}).passthrough(),
+  sensors: z.object({ name: z.string() }).passthrough().array(),
 });
 
-export const createConfigSnapshotLibraryConfigSchema = baseLibraryConfigSchema
-  .extend(
-    { deviceId: z.string().uuid(), contextId: z.string().uuid() },
-  ).or(
-    baseLibraryConfigSchema.extend({ configSnapshotId: z.string().uuid() }),
-  );
-
-const baseLibraryConfigVersionSchema = z.object({
+export const createNewConfigSnapshotLibraryConfigVersionSchema = z.object({
   description: getNameSchema().optional(),
+  datalogger: z.object({}).passthrough(),
+  sensors: z.object({ name: z.string() }).passthrough().array(),
 });
-
-export const createNewConfigSnapshotLibraryConfigVersionSchema =
-  baseLibraryConfigVersionSchema
-    .extend(
-      { deviceId: z.string().uuid(), contextId: z.string().uuid() },
-    ).or(
-      baseLibraryConfigVersionSchema.extend({
-        configSnapshotId: z.string().uuid(),
-      }),
-    );

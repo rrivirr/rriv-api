@@ -1,5 +1,5 @@
 // @ts-types="generated/index.d.ts"
-import { DataloggerConfig, Prisma } from "generated/index.js";
+import { Prisma } from "generated/index.js";
 import prisma from "../infra/prisma.ts";
 import { IdDto } from "../types/generic.types.ts";
 import {
@@ -8,7 +8,10 @@ import {
   QueryDataloggerDriverDto,
   QueryDataloggerLibraryConfigDto,
 } from "../types/datalogger.types.ts";
-import { QueryConfigHistoryDto } from "../types/config-snapshot.types.ts";
+import {
+  QueryConfigHistoryDto,
+  UpdateLibraryConfigDto,
+} from "../types/config-snapshot.types.ts";
 
 export const getActiveDataloggerConfig = async (
   query: { configSnapshotId: string; accountId: string },
@@ -167,14 +170,29 @@ export const getDataloggerDriver = async (query: QueryDataloggerDriverDto) => {
 export const getDataloggerLibraryConfig = async (
   query: QueryDataloggerLibraryConfigDto,
 ) => {
-  const { search, limit, offset, order, orderBy, name, isPublic, accountId } =
-    query;
+  const {
+    search,
+    limit,
+    offset,
+    order,
+    orderBy,
+    name,
+    isPublic,
+    accountId,
+    author,
+  } = query;
   return await prisma.dataloggerLibraryConfig.findMany({
     where: {
       name: name || { contains: search },
       archivedAt: null,
-      ...(typeof isPublic === "boolean" &&
-        { creatorId: isPublic ? undefined : accountId }),
+      ...(author
+        ? {
+          Creator: {
+            OR: [{ firstName: author }, { lastName: author }],
+          },
+          isPublic: true,
+        }
+        : { creatorId: isPublic === true ? undefined : accountId, isPublic }),
     },
     take: limit,
     skip: offset,
@@ -246,7 +264,7 @@ export const createDataloggerConfig = async (
 export const createDataloggerLibraryConfig = async (
   body: {
     name: string;
-    dataloggerConfig: DataloggerConfig;
+    dataloggerConfig: { config: object; driverId: string };
     accountId: string;
     description?: string;
   },
@@ -267,7 +285,7 @@ export const createDataloggerLibraryConfig = async (
               config: dataloggerConfig.config as Prisma.InputJsonObject,
               active: false,
               DataloggerDriver: {
-                connect: { id: dataloggerConfig.dataloggerDriverId },
+                connect: { id: dataloggerConfig.driverId },
               },
               Creator: { connect: { id: accountId } },
             },
@@ -283,7 +301,7 @@ export const createNewDataloggerLibraryConfigVersion = async (
     accountId: string;
     version: number;
     dataloggerLibraryConfigId: string;
-    dataloggerConfig: DataloggerConfig;
+    dataloggerConfig: { config: object; driverId: string };
     description?: string;
   },
 ) => {
@@ -302,11 +320,11 @@ export const createNewDataloggerLibraryConfigVersion = async (
       DataloggerLibraryConfig: { connect: { id: dataloggerLibraryConfigId } },
       DataloggerConfig: {
         create: {
-          name: dataloggerConfig.name,
+          name: "datalogger",
           config: dataloggerConfig.config as Prisma.InputJsonObject,
           active: false,
           DataloggerDriver: {
-            connect: { id: dataloggerConfig.dataloggerDriverId },
+            connect: { id: dataloggerConfig.driverId },
           },
           Creator: { connect: { id: accountId } },
         },
@@ -353,5 +371,15 @@ export const deleteDataloggerLibraryConfig = async (body: IdDto) => {
       where: { id },
       data: { archivedAt: new Date() },
     });
+  });
+};
+
+export const updateDataloggerLibraryConfig = async (
+  body: UpdateLibraryConfigDto,
+) => {
+  const { isPublic, id } = body;
+  await prisma.dataloggerLibraryConfig.update({
+    where: { id },
+    data: { isPublic },
   });
 };
