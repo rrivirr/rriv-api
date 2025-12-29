@@ -8,6 +8,7 @@ import {
   getConfigSnapshots,
   overwriteActiveConfigSnapshot,
   saveConfigSnapshot,
+  updateLibraryConfig,
 } from "../handler/config-snapshot/handler.ts";
 import { getExpressRouter } from "../utils/helper-functions.ts";
 import "../swagger/config-snapshot/config-snapshot-library.document.ts";
@@ -26,7 +27,8 @@ router.route("/libraryConfig").post(createConfigSnapshotLibraryConfig).get(
 router.route("/libraryConfig/:id/version").post(
   createNewConfigSnapshotLibraryConfigVersion,
 );
-router.route("/libraryConfig/:id").get(getConfigSnapshotLibraryConfigById);
+router.route("/libraryConfig/:id").get(getConfigSnapshotLibraryConfigById)
+  .patch(updateLibraryConfig);
 
 routerWrapper.use("/configSnapshot", router);
 

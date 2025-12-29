@@ -22,4 +22,4 @@ export const getNameSchema = (min: number = 3, max: number = 20) =>
 export const booleanQuerySchema = z.preprocess(
   (val) => val === "true" ? true : val === "false" ? false : undefined,
   z.boolean().optional(),
-);
+) as z.ZodEffects<z.ZodOptional<z.ZodBoolean>>;

@@ -26,7 +26,7 @@ export const createDataloggerDriverSchema = z.object({
 
 export const createDataloggerConfigSchema = z.object({
   name: getNameSchema(),
-  config: z.record(z.union([z.string(), z.number(), z.boolean()])),
+  config: z.object({}).passthrough(),
   dataloggerDriverId: z.string().uuid(),
   deviceId: z.string().uuid(),
   contextId: z.string().uuid(),
@@ -45,22 +45,21 @@ export const dataloggerDriverQuerySchema = z
 export const createDataloggerLibraryConfigSchema = z.object({
   name: getNameSchema(),
   description: getNameSchema().optional(),
-  deviceId: z.string().uuid(),
-  contextId: z.string().uuid(),
+  config: z.object({}).passthrough(),
 }).strict();
 
 export const dataloggerLibraryConfigQuerySchema = z.object({
   search: getNameSchema().optional(),
   name: getNameSchema().optional(),
   isPublic: booleanQuerySchema,
+  author: getNameSchema().optional(),
 }).merge(
   getPaginationSchema(["createdAt", "name"], "createdAt"),
 ).strict();
 
 export const createNewDataloggerLibraryConfigVersionSchema = z.object(
   {
-    deviceId: z.string().uuid(),
-    contextId: z.string().uuid(),
+    config: z.object({}).passthrough(),
     description: getNameSchema().optional(),
   },
 ).strict();

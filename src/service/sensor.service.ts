@@ -13,7 +13,10 @@ import { HttpException } from "../utils/http-exception.ts";
 import { AccountIdDto, IdDto } from "../types/generic.types.ts";
 import { getDeviceContext } from "./device-context.service.ts";
 import { isDeepStrictEqual } from "node:util";
-import { QueryConfigHistoryDto } from "../types/config-snapshot.types.ts";
+import {
+  QueryConfigHistoryDto,
+  UpdateLibraryConfigDto,
+} from "../types/config-snapshot.types.ts";
 import { getSensorConfigChanges } from "./utils/get-sensor-config-changes.ts";
 import { validateDevice } from "./utils/validate-device.ts";
 
@@ -27,8 +30,29 @@ export const getSensorLibraryConfig = async (
   return await sensorRepository.getSensorLibraryConfig(query);
 };
 
-export const getSensorLibraryConfigById = async (query: IdDto) => {
-  return await sensorRepository.getSensorLibraryConfigById(query);
+export const getSensorLibraryConfigById = async (
+  query: IdDto & AccountIdDto & { write?: boolean },
+) => {
+  const { accountId, id, write } = query;
+  const sensorLibraryConfig = await sensorRepository
+    .getSensorLibraryConfigById({ id });
+  if (write) {
+    if (
+      !sensorLibraryConfig ||
+      sensorLibraryConfig.creatorId !== accountId
+    ) {
+      throw new HttpException(404, "library config not found");
+    }
+  } else {
+    if (
+      !sensorLibraryConfig ||
+      (sensorLibraryConfig.creatorId !== accountId &&
+        !sensorLibraryConfig.isPublic)
+    ) {
+      throw new HttpException(404, "library config not found");
+    }
+  }
+  return sensorLibraryConfig;
 };
 
 const getSensorConfig = async (
@@ -140,12 +164,9 @@ export const createSensorConfig = async (
 export const createSensorLibraryConfig = async (
   requestBody: CreateSensorLibraryConfigDto,
 ) => {
-  const { name, accountId, sensorConfigId, description } = requestBody;
+  const { name, accountId, config, description } = requestBody;
 
-  const sensorConfig = await getSensorConfigById({ id: sensorConfigId });
-  if (!sensorConfig || sensorConfig.creatorId !== accountId) {
-    throw new HttpException(404, "sensor config not found");
-  }
+  const defaultSensorDriver = await getSensorDriver({ limit: 1 });
 
   const existingSensorLibraryConfig = await getSensorLibraryConfig({ name });
   if (existingSensorLibraryConfig.length) {
@@ -155,7 +176,7 @@ export const createSensorLibraryConfig = async (
   return await sensorRepository.createSensorLibraryConfig({
     name,
     accountId,
-    sensorConfig,
+    sensorConfig: { config, name, driverId: defaultSensorDriver[0].id },
     description,
   });
 };
@@ -163,17 +184,20 @@ export const createSensorLibraryConfig = async (
 export const createNewSensorLibraryConfigVersion = async (
   requestBody: CreateSensorLibraryConfigVersionDto,
 ) => {
-  const { id, sensorConfigId, accountId, description } = requestBody;
+  const { id, config, sensorName, accountId, description } = requestBody;
 
-  const sensorLibraryConfig = await getSensorLibraryConfigById({ id });
-  if (!sensorLibraryConfig || sensorLibraryConfig.creatorId !== accountId) {
-    throw new HttpException(404, "sensor library config not found");
-  }
+  const sensorLibraryConfig = await getSensorLibraryConfigById({
+    id,
+    accountId,
+    write: true,
+  });
 
-  const sensorConfig = await getSensorConfigById({ id: sensorConfigId });
-  if (!sensorConfig || sensorConfig.creatorId !== accountId) {
-    throw new HttpException(404, "sensor config not found");
-  }
+  const defaultSensorDriver = await getSensorDriver({ limit: 1 });
+  const sensorConfig = {
+    name: sensorName,
+    config,
+    driverId: defaultSensorDriver[0].id,
+  };
 
   const sensorLibraryConfigVersions =
     sensorLibraryConfig.SensorLibraryConfigVersion;
@@ -264,10 +288,10 @@ export const deleteSensorLibraryConfig = async (
 ) => {
   const { id, accountId } = requestBody;
 
-  const sensorLibraryConfig = await getSensorLibraryConfigById({ id });
-  if (!sensorLibraryConfig || sensorLibraryConfig.creatorId !== accountId) {
-    throw new HttpException(404, "sensor library config not found");
-  }
+  await getSensorLibraryConfigById({
+    id,
+    accountId,
+  });
 
   return await sensorRepository.deleteSensorLibraryConfig({ id });
 };
@@ -284,4 +308,17 @@ export const getSensorConfigHistory = async (query: QueryConfigHistoryDto) => {
   const sensorConfigWithDifference = getSensorConfigChanges(sensorConfigs);
 
   return sensorConfigWithDifference;
+};
+
+export const updateSensorLibraryConfig = async (
+  body: UpdateLibraryConfigDto,
+) => {
+  const { id, accountId } = body;
+  await getSensorLibraryConfigById({
+    id,
+    accountId,
+    write: true,
+  });
+
+  await sensorRepository.updateSensorLibraryConfig(body);
 };

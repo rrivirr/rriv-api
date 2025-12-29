@@ -9,10 +9,10 @@ import {
   createNewConfigSnapshotLibraryConfigVersionSchema,
   overwriteActiveConfigSnapshotSchema,
   saveConfigSnapshotSchema,
+  updateLibraryConfigSchema,
 } from "./schema.ts";
 import { idSchema } from "../generic/generic.schema.ts";
 import * as configSnapshotService from "../../service/config-snapshot.service.ts";
-import { HttpException } from "../../utils/http-exception.ts";
 
 export const getConfigSnapshots = async (req: Request, res: Response) => {
   const accountId = req.accountId;
@@ -108,18 +108,31 @@ export const getConfigSnapshotLibraryConfigById = async (
   req: Request,
   res: Response,
 ) => {
+  const accountId = req.accountId;
   const params = idSchema.parse(req.params);
 
   const configSnapshotLibraryConfig = await configSnapshotService
     .getConfigSnapshotLibraryConfigById(
-      params,
+      { ...params, accountId },
     );
 
-  if (!configSnapshotLibraryConfig) {
-    throw new HttpException(404, "config snapshot library config not found");
-  }
-
   res.json({ ...configSnapshotLibraryConfig, creatorId: undefined });
+};
+
+export const updateLibraryConfig = async (
+  req: Request,
+  res: Response,
+) => {
+  const accountId = req.accountId;
+  const params = idSchema.parse(req.params);
+  const body = updateLibraryConfigSchema.parse(req.body);
+
+  await configSnapshotService
+    .updateLibraryConfig(
+      { ...body, accountId, ...params },
+    );
+
+  res.json();
 };
 
 export const createConfigSnapshotLibraryConfig = async (

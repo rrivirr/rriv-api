@@ -11,6 +11,7 @@ import {
   dataloggerLibraryConfigQuerySchema,
 } from "../../handler/datalogger/schema.ts";
 import { idSchema } from "../../handler/generic/generic.schema.ts";
+import { updateLibraryConfigSchema } from "../../handler/config-snapshot/schema.ts";
 
 const basePath = "/datalogger/libraryConfig";
 const tags = ["datalogger"];
@@ -101,6 +102,22 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
           },
         },
       },
+    },
+  },
+  patch: {
+    tags,
+    summary: "update a datalogger library config",
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(
+            updateLibraryConfigSchema,
+          ),
+        },
+      },
+    },
+    responses: {
+      200: {},
     },
   },
 });

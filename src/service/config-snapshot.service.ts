@@ -1,5 +1,6 @@
 import { isDeepStrictEqual } from "node:util";
 import {
+  ConfigSnapshotDto,
   CreateConfigSnapshotLibraryConfigDto,
   CreateConfigSnapshotLibraryConfigVersionDto,
   OverwriteActiveConfigSnapshotDto,
@@ -8,13 +9,17 @@ import {
   QueryConfigSnapshotDto,
   QueryConfigSnapshotLibraryConfigDto,
   SaveConfigSnapshotDto,
+  UpdateLibraryConfigDto,
 } from "../types/config-snapshot.types.ts";
-import { IdDto } from "../types/generic.types.ts";
+import { AccountIdDto, IdDto } from "../types/generic.types.ts";
 import * as configSnapshotRepository from "../repository/config-snapshot.repository.ts";
 import { getDeviceContext } from "./device-context.service.ts";
 import { HttpException } from "../utils/http-exception.ts";
-import { getDataloggerConfigHistory } from "./datalogger.service.ts";
-import { getSensorConfigHistory } from "./sensor.service.ts";
+import {
+  getDataloggerConfigHistory,
+  getDataloggerDriver,
+} from "./datalogger.service.ts";
+import { getSensorConfigHistory, getSensorDriver } from "./sensor.service.ts";
 
 const getConfigSnapshotById = async (query: IdDto) => {
   return await configSnapshotRepository.getConfigSnapshotById(query);
@@ -85,10 +90,29 @@ export const getConfigSnapshotLibraryConfig = async (
   return await configSnapshotRepository.getConfigSnapshotLibraryConfig(query);
 };
 
-export const getConfigSnapshotLibraryConfigById = async (query: IdDto) => {
-  return await configSnapshotRepository.getConfigSnapshotLibraryConfigById(
-    query,
-  );
+export const getConfigSnapshotLibraryConfigById = async (
+  query: IdDto & AccountIdDto & { write?: boolean },
+) => {
+  const { accountId, id, write } = query;
+  const configSnapshotLibraryConfig = await configSnapshotRepository
+    .getConfigSnapshotLibraryConfigById({ id });
+  if (write) {
+    if (
+      !configSnapshotLibraryConfig ||
+      configSnapshotLibraryConfig.creatorId !== accountId
+    ) {
+      throw new HttpException(404, "library config not found");
+    }
+  } else {
+    if (
+      !configSnapshotLibraryConfig ||
+      (configSnapshotLibraryConfig.creatorId !== accountId &&
+        !configSnapshotLibraryConfig.isPublic)
+    ) {
+      throw new HttpException(404, "library config not found");
+    }
+  }
+  return configSnapshotLibraryConfig;
 };
 
 export const overwriteActiveConfigSnapshot = async (
@@ -164,38 +188,28 @@ export const createConfigSnapshotLibraryConfig = async (
     throw new HttpException(409, `${name} already exists`);
   }
 
-  if ("configSnapshotId" in body) {
-    const { configSnapshotId } = body;
-    const configSnapshot = await getConfigSnapshotById({
-      id: configSnapshotId,
-    });
+  const { datalogger, sensors } = body;
 
-    if (!configSnapshot) {
-      throw new HttpException(404, "config snapshot not found");
-    }
+  const defaultSensorDriver = await getSensorDriver({ limit: 1 });
+  const defaultDataloggerDriver = await getDataloggerDriver({ limit: 1 });
 
-    return await configSnapshotRepository.createConfigSnapshotLibraryConfig({
-      name,
-      description,
-      accountId,
-      configSnapshot,
-    });
-  } else {
-    const { deviceId, contextId, accountId } = body;
-
-    const configSnapshot = await getActiveConfigSnapshot({
-      deviceId,
-      contextId,
-      accountId,
-    });
-
-    return await configSnapshotRepository.createConfigSnapshotLibraryConfig({
-      name,
-      description,
-      configSnapshot,
-      accountId,
-    });
-  }
+  return await configSnapshotRepository.createConfigSnapshotLibraryConfig({
+    name,
+    description,
+    accountId,
+    configSnapshot: {
+      DataloggerConfig: [{
+        name: "datalogger",
+        config: datalogger,
+        "dataloggerDriverId": defaultDataloggerDriver[0].id,
+      }],
+      SensorConfig: sensors.map(({ name, ...config }) => ({
+        name,
+        config,
+        sensorDriverId: defaultSensorDriver[0].id,
+      })),
+    } as ConfigSnapshotDto,
+  });
 };
 
 export const createNewConfigSnapshotLibraryConfigVersion = async (
@@ -205,35 +219,27 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (
 
   const configSnapshotLibraryConfig = await getConfigSnapshotLibraryConfigById({
     id,
+    accountId,
+    write: true,
   });
-  if (
-    !configSnapshotLibraryConfig ||
-    configSnapshotLibraryConfig.creatorId !== accountId
-  ) {
-    throw new HttpException(404, "datalogger library config not found");
-  }
 
-  let configSnapshot;
+  const { datalogger, sensors } = body;
 
-  if ("configSnapshotId" in body) {
-    const { configSnapshotId } = body;
+  const defaultSensorDriver = await getSensorDriver({ limit: 1 });
+  const defaultDataloggerDriver = await getDataloggerDriver({ limit: 1 });
 
-    configSnapshot = await getConfigSnapshotById({
-      id: configSnapshotId,
-    });
-
-    if (!configSnapshot) {
-      throw new HttpException(404, "config snapshot not found");
-    }
-  } else {
-    const { deviceId, contextId } = body;
-
-    configSnapshot = await getActiveConfigSnapshot({
-      deviceId,
-      contextId,
-      accountId,
-    });
-  }
+  const configSnapshot = {
+    DataloggerConfig: [{
+      name: "datalogger",
+      config: datalogger,
+      "dataloggerDriverId": defaultDataloggerDriver[0].id,
+    }],
+    SensorConfig: sensors.map(({ name, ...config }) => ({
+      name,
+      config,
+      sensorDriverId: defaultSensorDriver[0].id,
+    })),
+  } as ConfigSnapshotDto;
 
   const configSnapshotLibraryConfigVersions =
     configSnapshotLibraryConfig.SystemLibraryConfigVersion;
@@ -287,4 +293,15 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (
         configSnapshotLibraryConfigId: id,
       });
   }
+};
+
+export const updateLibraryConfig = async (body: UpdateLibraryConfigDto) => {
+  const { id, accountId } = body;
+  await getConfigSnapshotLibraryConfigById({
+    id,
+    accountId,
+    write: true,
+  });
+
+  await configSnapshotRepository.updateLibraryConfig(body);
 };
