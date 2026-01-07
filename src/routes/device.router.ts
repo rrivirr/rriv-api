@@ -5,6 +5,7 @@ import {
   getDevices,
   getFirmwareHistory,
   provisionDevice,
+  registerEui,
   unbindDevice,
 } from "../handler/device/handler.ts";
 import { basePath } from "../swagger/device/document.ts";
@@ -16,6 +17,7 @@ const routerWrapper = getExpressRouter();
 router.get("/", getDevices);
 router.post("/", provisionDevice);
 router.post("/:serialNumber/bind", bindDevice);
+router.post("/registerEui", registerEui);
 router.post("/:serialNumber/unbind", unbindDevice);
 router.delete("/:serialNumber", deleteDevice);
 router.route("/firmware/history").get(getFirmwareHistory).post(

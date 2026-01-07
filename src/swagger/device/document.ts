@@ -5,6 +5,7 @@ import {
   deviceQuerySchema,
   firmwareHistoryQuerySchema,
   provisionDeviceSchema,
+  registerEuiSchema,
 } from "../../handler/device/schema.ts";
 import {
   registerDeviceFirmwareItemSchema,
@@ -101,6 +102,23 @@ swaggerBuilder.addPath(`${basePath}/:serialNumber/unbind`, {
     }],
     responses: {
       200: singleDeviceResponse,
+    },
+  },
+});
+
+swaggerBuilder.addPath(`${basePath}/registerEui`, {
+  post: {
+    tags,
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(registerEuiSchema),
+        },
+      },
+    },
+    responses: {
+      200: {},
+      201: {},
     },
   },
 });

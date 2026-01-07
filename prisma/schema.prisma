@@ -38,6 +38,7 @@ model Account {
   SensorConfig                   SensorConfig[]
   Device                         Device[]
   DeviceFirmwareHistory          DeviceFirmwareHistory[]
+  deviceEuis                     DeviceEui[]
 
   @@map("account")
 }
@@ -56,6 +57,7 @@ model Device {
   Bind          Bind[]
   Installation  Installation[]
   DeviceContext DeviceContext[]
+  DeviceEuis    DeviceEui[]
 
   @@map("device")
 }
@@ -100,6 +102,19 @@ model DeviceFirmwareHistory {
   createdAt       DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
 
   @@map("device_firmware_history")
+}
+
+model DeviceEui {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  eui       String
+  Device    Device   @relation(fields: [deviceId], references: [id])
+  deviceId  String   @map("device_id") @db.Uuid
+  Creator   Account  @relation(fields: [creatorId], references: [id])
+  creatorId String   @map("creator_id") @db.Uuid
+  active    Boolean
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@map("device_eui")
 }
 
 model Telemeter {
