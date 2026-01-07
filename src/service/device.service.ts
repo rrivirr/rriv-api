@@ -11,6 +11,7 @@ import {
   ProvisionDeviceDto,
   QueryDeviceDto,
   QueryFirmwareHistoryDto,
+  RegisterEuiDto,
   SerialNumberDeviceDto,
 } from "../types/device.types.ts";
 import * as deviceRepository from "../repository/device.repository.ts";
@@ -214,4 +215,16 @@ export const getFirmwareHistory = async (query: QueryFirmwareHistoryDto) => {
     createdAt,
     contextName: name,
   }));
+};
+
+export const registerEui = async (body: RegisterEuiDto) => {
+  const { deviceId, accountId, eui } = body;
+  await validateDevice({ id: deviceId, accountId });
+
+  const activeEui = await deviceRepository.getActiveEui({ deviceId });
+  if (activeEui && activeEui.eui === eui) {
+    return 200;
+  }
+  await deviceRepository.registerEui(body);
+  return 201;
 };

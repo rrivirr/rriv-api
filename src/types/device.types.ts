@@ -5,9 +5,13 @@ import {
   deviceQuerySchema,
   firmwareHistoryQuerySchema,
   provisionDeviceSchema,
+  registerEuiSchema,
   serialNumberSchema,
 } from "../handler/device/schema.ts";
 
+export type RegisterEuiDto =
+  & z.infer<typeof registerEuiSchema>
+  & AccountIdDto;
 export type CreateFirmwareEntryDto =
   & z.infer<typeof createFirmwareEntrySchema>
   & AccountIdDto;

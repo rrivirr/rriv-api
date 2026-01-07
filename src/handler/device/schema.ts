@@ -42,3 +42,8 @@ export const createFirmwareEntrySchema = z.object({
   deviceId: z.string().uuid(),
   contextId: z.string().uuid(),
 }).strict();
+
+export const registerEuiSchema = z.object({
+  deviceId: z.string().uuid(),
+  eui: z.string(),
+});

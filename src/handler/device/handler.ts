@@ -5,6 +5,7 @@ import {
   deviceQuerySchema,
   firmwareHistoryQuerySchema,
   provisionDeviceSchema,
+  registerEuiSchema,
   serialNumberSchema,
 } from "./schema.ts";
 import * as deviceService from "../../service/device.service.ts";
@@ -78,4 +79,15 @@ export const getFirmwareHistory = async (req: Request, res: Response) => {
     accountId,
   });
   res.json(deviceFirmwareHistory);
+};
+
+export const registerEui = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
+  const body = registerEuiSchema.parse(req.body);
+
+  const status = await deviceService.registerEui({
+    ...body,
+    accountId,
+  });
+  res.status(status).json();
 };

@@ -5,10 +5,37 @@ import {
   ProvisionDeviceDto,
   QueryDeviceDto,
   QueryFirmwareHistoryDto,
+  RegisterEuiDto,
   SerialNumberDeviceDto,
 } from "../types/device.types.ts";
 import { IdDto } from "../types/generic.types.ts";
 import { isId } from "../utils/helper-functions.ts";
+
+export const registerEui = async (body: RegisterEuiDto) => {
+  const { deviceId, eui, accountId } = body;
+
+  return await prisma.$transaction(async (trx) => {
+    await trx.deviceEui.updateMany({
+      where: { active: true },
+      data: { active: false },
+    });
+
+    await trx.deviceEui.create({
+      data: {
+        eui,
+        active: true,
+        creatorId: accountId,
+        deviceId,
+      },
+    });
+  });
+};
+
+export const getActiveEui = async (body: { deviceId: string }) => {
+  return await prisma.deviceEui.findFirst({
+    where: { deviceId: body.deviceId, active: true },
+  });
+};
 
 export const getDeviceBySerialNumberOrId = async (
   body: SerialNumberDeviceDto | IdDto,
