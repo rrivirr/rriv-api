@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/rrivirr/rriv-api/compare/v1.9.0...v1.10.0) (2026-01-07)
+
+
+### Features
+
+* register eui ([0b6da87](https://github.com/rrivirr/rriv-api/commit/0b6da8703f95a52dc18597e250188189a1435cd9))
+
 # [1.9.0](https://github.com/rrivirr/rriv-api/compare/v1.8.0...v1.9.0) (2025-12-29)
 
 
