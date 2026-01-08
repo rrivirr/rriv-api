@@ -9,6 +9,7 @@ import {
   serialNumberSchema,
 } from "./schema.ts";
 import * as deviceService from "../../service/device.service.ts";
+import { idSchema } from "../generic/generic.schema.ts";
 
 export const bindDevice = async (req: Request, res: Response) => {
   const accountId = req.accountId;
@@ -44,8 +45,17 @@ export const unbindDevice = async (req: Request, res: Response) => {
 export const getDevices = async (req: Request, res: Response) => {
   const accountId = req.accountId;
   const query = deviceQuerySchema.parse(req.query);
+  const payload = { ...query, accountId };
 
-  const devices = await deviceService.getDevices({ ...query, accountId });
+  if (query.identifier) {
+    const { success, data } = idSchema.safeParse({ id: query.identifier });
+    if (success) {
+      payload["id"] = data.id;
+      delete payload.identifier;
+    }
+  }
+
+  const devices = await deviceService.getDevices(payload);
   res.json(devices);
 };
 

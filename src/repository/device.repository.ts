@@ -81,13 +81,33 @@ export const getDevices = async (query: QueryDeviceDto) => {
     id,
     serialNumber,
     uniqueName,
+    identifier,
   } = query;
 
   return await prisma.device.findMany({
     where: {
-      id,
-      uniqueName: uniqueName || { contains: search, mode: "insensitive" },
-      serialNumber: serialNumber || { contains: search, mode: "insensitive" },
+      ...(identifier
+        ? {
+          OR: [
+            { uniqueName: identifier },
+            { serialNumber: identifier },
+          ],
+        }
+        : {
+          id,
+          uniqueName: uniqueName || { contains: search, mode: "insensitive" },
+          serialNumber: serialNumber ||
+            { contains: search, mode: "insensitive" },
+          ...(contextId && {
+            DeviceContext: {
+              some: {
+                endedAt: null,
+                archivedAt: null,
+                contextId,
+              },
+            },
+          }),
+        }),
       archivedAt: null,
       Bind: {
         some: {
@@ -96,15 +116,6 @@ export const getDevices = async (query: QueryDeviceDto) => {
           archivedAt: null,
         },
       },
-      ...(contextId && {
-        DeviceContext: {
-          some: {
-            endedAt: null,
-            archivedAt: null,
-            contextId,
-          },
-        },
-      }),
     },
     include: {
       DeviceContext: {
@@ -116,6 +127,10 @@ export const getDevices = async (query: QueryDeviceDto) => {
           assignedDeviceName: true,
           Context: { select: { name: true, id: true } },
         },
+      },
+      DeviceEuis: {
+        where: { active: true },
+        select: { eui: true },
       },
     },
     take: limit,
