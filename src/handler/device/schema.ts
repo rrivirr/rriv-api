@@ -15,6 +15,7 @@ export const deviceQuerySchema = z
     serialNumber: z.string().min(3).max(25).trim().optional(),
     uniqueName: z.string().min(3).max(25).trim().optional(),
     id: z.string().uuid().optional(),
+    identifier: z.string().optional(),
     contextId: z.string().uuid().optional(),
   })
   .merge(
