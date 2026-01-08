@@ -1,3 +1,15 @@
+# [1.11.0](https://github.com/rrivirr/rriv-api/compare/v1.10.0...v1.11.0) (2026-01-08)
+
+
+### Bug Fixes
+
+* query ([6cb8f42](https://github.com/rrivirr/rriv-api/commit/6cb8f42abf7abb72cd2e279a080abd1e865a4c61))
+
+
+### Features
+
+* query device by identifier ([da15d84](https://github.com/rrivirr/rriv-api/commit/da15d845dd455f6a5cf2020b2b576baa1cb1ae5a))
+
 # [1.10.0](https://github.com/rrivirr/rriv-api/compare/v1.9.0...v1.10.0) (2026-01-07)
 
 
