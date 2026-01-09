@@ -6,6 +6,7 @@ import {
   getFirmwareHistory,
   provisionDevice,
   registerEui,
+  sendCommand,
   unbindDevice,
 } from "../handler/device/handler.ts";
 import { basePath } from "../swagger/device/document.ts";
@@ -18,6 +19,7 @@ router.get("/", getDevices);
 router.post("/", provisionDevice);
 router.post("/:serialNumber/bind", bindDevice);
 router.post("/registerEui", registerEui);
+router.post("/sendCommand", sendCommand);
 router.post("/:serialNumber/unbind", unbindDevice);
 router.delete("/:serialNumber", deleteDevice);
 router.route("/firmware/history").get(getFirmwareHistory).post(
