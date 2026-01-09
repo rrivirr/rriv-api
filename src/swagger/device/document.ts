@@ -6,6 +6,7 @@ import {
   firmwareHistoryQuerySchema,
   provisionDeviceSchema,
   registerEuiSchema,
+  sendCommandSchema,
 } from "../../handler/device/schema.ts";
 import {
   registerDeviceFirmwareItemSchema,
@@ -119,6 +120,33 @@ swaggerBuilder.addPath(`${basePath}/registerEui`, {
     responses: {
       200: {},
       201: {},
+    },
+  },
+});
+
+swaggerBuilder.addPath(`${basePath}/sendCommand`, {
+  post: {
+    tags,
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(sendCommandSchema),
+        },
+      },
+    },
+    responses: {
+      200: {
+        content: {
+          [mediaTypeHeader]: {
+            schema: {
+              type: "object",
+              properties: {
+                responseId: { type: "string" },
+              },
+            },
+          },
+        },
+      },
     },
   },
 });

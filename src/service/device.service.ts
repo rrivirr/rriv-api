@@ -4,6 +4,9 @@ import {
   colors,
   uniqueNamesGenerator,
 } from "npm:@joaomoreno/unique-names-generator";
+import grpc from "npm:@grpc/grpc-js";
+import deviceGrpc from "@chirpstack/chirpstack-api/api/device_grpc_pb.js";
+import devicePb from "@chirpstack/chirpstack-api/api/device_pb.js";
 import {
   AccountUniqueDeviceDto,
   BindDeviceDto,
@@ -12,6 +15,7 @@ import {
   QueryDeviceDto,
   QueryFirmwareHistoryDto,
   RegisterEuiDto,
+  SendCommandDto,
   SerialNumberDeviceDto,
 } from "../types/device.types.ts";
 import * as deviceRepository from "../repository/device.repository.ts";
@@ -20,6 +24,7 @@ import { IdDto } from "../types/generic.types.ts";
 import { validateDevice } from "./utils/validate-device.ts";
 import { getSeed } from "./utils/get-seed.ts";
 import { validateDeviceContext } from "./utils/validate-device-context.ts";
+import { idSchema } from "../handler/generic/generic.schema.ts";
 
 const getNewIdentifiers = async (lastSerialNumber?: string) => {
   let newSerialNumber = 0n;
@@ -170,7 +175,16 @@ export const unbindDevice = async (requestBody: AccountUniqueDeviceDto) => {
 };
 
 export const getDevices = async (query: QueryDeviceDto) => {
-  return await deviceRepository.getDevices(query);
+  const payload = { ...query };
+  if (query.identifier) {
+    const { success, data } = idSchema.safeParse({ id: query.identifier });
+    if (success) {
+      payload["id"] = data.id;
+      delete payload.identifier;
+    }
+  }
+
+  return await deviceRepository.getDevices(payload);
 };
 
 export const deleteDevice = async (requestBody: AccountUniqueDeviceDto) => {
@@ -227,4 +241,55 @@ export const registerEui = async (body: RegisterEuiDto) => {
   }
   await deviceRepository.registerEui(body);
   return 201;
+};
+
+export const sendCommand = async (body: SendCommandDto) => {
+  const { accountId, identifier, command } = body;
+  const devices = await getDevices({ accountId, identifier });
+  const device = devices[0];
+  if (!device) {
+    throw new HttpException(404, "no device found with specified identifier");
+  }
+
+  const eui = device.DeviceEuis[0].eui;
+  if (!eui) {
+    throw new HttpException(422, "no active eui registered for device");
+  }
+
+  const server = Deno.env.get("CHIRPSTACK_API_URL")!;
+  const apiToken = Deno.env.get("CHIRPSTACK_API_KEY")!;
+
+  const deviceService = new deviceGrpc.DeviceServiceClient(
+    server,
+    grpc.credentials.createInsecure(),
+  );
+
+  // Create the Metadata object.
+  const metadata = new grpc.Metadata();
+  metadata.set("authorization", "Bearer " + apiToken);
+
+  // Enqueue downlink.
+  const item = new devicePb.DeviceQueueItem();
+  item.setDevEui(eui);
+  item.setFPort(10);
+  item.setConfirmed(false);
+  item.setData(command);
+
+  const enqueueReq = new devicePb.EnqueueDeviceQueueItemRequest();
+  enqueueReq.setQueueItem(item);
+
+  const enqueue = () =>
+    new Promise((resolve, reject) => {
+      deviceService.enqueue(enqueueReq, metadata, (err, resp) => {
+        if (err) {
+          reject(err);
+        }
+
+        resolve(resp?.getId());
+      });
+    });
+
+  const responseId = await enqueue();
+
+  return { responseId };
 };

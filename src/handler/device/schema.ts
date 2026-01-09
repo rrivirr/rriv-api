@@ -48,3 +48,8 @@ export const registerEuiSchema = z.object({
   deviceId: z.string().uuid(),
   eui: z.string().toLowerCase(),
 });
+
+export const sendCommandSchema = z.object({
+  identifier: z.string(),
+  command: z.string(),
+});
