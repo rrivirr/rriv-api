@@ -22,6 +22,7 @@ spec:
           {{ with secret "secret/data/rriv-api-creds" }}
           export DATABASE_URL="{{ .Data.data.database_url }}"
           export KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
+          export CHIRPSTACK_API_KEY="{{ .Data.data.chirpstack_downlink_key }}"
           {{ end }}
     spec:
       serviceAccountName: internal-app
