@@ -19,6 +19,7 @@ import {
 } from "../types/config-snapshot.types.ts";
 import { getSensorConfigChanges } from "./utils/get-sensor-config-changes.ts";
 import { validateDevice } from "./utils/validate-device.ts";
+import { JsonObject } from "generated/runtime/library.d.ts";
 
 export const getSensorDriver = async (query: QuerySensorDriverDto) => {
   return await sensorRepository.getSensorDriver(query);
@@ -219,12 +220,12 @@ export const createNewSensorLibraryConfigVersion = async (
       sensorConfig.config,
     );
 
-    const sensorConfigName = sensorConfig.name;
+    const sensorConfigType = sensorConfig.config?.type;
 
-    const librarySensorConfigName =
-      latestLibraryConfigVersion.SensorConfig.name;
+    const librarySensorConfigType = (latestLibraryConfigVersion.SensorConfig
+      .config as JsonObject).type;
 
-    if (sensorConfigName !== librarySensorConfigName) {
+    if (sensorConfigType !== librarySensorConfigType) {
       throw new HttpException(
         409,
         `sensors in the same library must be of the same type`,
