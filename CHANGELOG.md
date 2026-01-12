@@ -1,3 +1,15 @@
+# [1.12.0](https://github.com/rrivirr/rriv-api/compare/v1.11.1...v1.12.0) (2026-01-12)
+
+
+### Bug Fixes
+
+* change chirpstack/grpc versions ([6cf13e5](https://github.com/rrivirr/rriv-api/commit/6cf13e58a02e0e2942d27c95fb551d14323bbf9e))
+
+
+### Features
+
+* integrate chirpstack ([5fc7d32](https://github.com/rrivirr/rriv-api/commit/5fc7d326f6e7ed6d02b625100695f60735477433))
+
 ## [1.11.1](https://github.com/rrivirr/rriv-api/compare/v1.11.0...v1.11.1) (2026-01-09)
 
 
