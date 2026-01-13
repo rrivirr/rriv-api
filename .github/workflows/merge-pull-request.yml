@@ -23,7 +23,7 @@ jobs:
       new-release-git-tag: ${{ steps.next-version.outputs.new-release-git-tag }}
     if: github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ssh-key: ${{ secrets.CD_DEPLOY_KEY }}
 
