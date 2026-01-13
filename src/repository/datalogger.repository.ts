@@ -1,5 +1,4 @@
-// @ts-types="generated/index.d.ts"
-import { Prisma } from "generated/index.js";
+import { Prisma } from "generated/client.ts";
 import prisma from "../infra/prisma.ts";
 import { IdDto } from "../types/generic.types.ts";
 import {

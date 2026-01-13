@@ -1,5 +1,4 @@
-// @ts-types="generated/index.d.ts"
-import { SensorConfig } from "generated/index.js";
+import { SensorConfig } from "generated/client.ts";
 import { getConfigChangesMade } from "./get-changes-made.ts";
 
 // could be optimized, maybe ??

@@ -11,9 +11,8 @@ import {
   saveConfigSnapshotSchema,
   updateLibraryConfigSchema,
 } from "../handler/config-snapshot/schema.ts";
-// @ts-types="generated/index.d.ts"
-import { ConfigSnapshot } from "generated/index.js";
-import { JsonValue } from "generated/runtime/library.d.ts";
+import { ConfigSnapshot } from "generated/client.ts";
+import { JsonValue } from "generated/internal/prismaNamespace.ts";
 
 export type UpdateLibraryConfigDto =
   & z.infer<typeof updateLibraryConfigSchema>

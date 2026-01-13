@@ -8,8 +8,8 @@ COPY . /app
 
 RUN apt-get update -y && apt-get install -y openssl
 
-RUN deno install --entrypoint src/server.ts
-
 RUN deno task prisma generate 
+
+RUN deno install --entrypoint src/server.ts
 
 CMD "deno", "task", "start"]

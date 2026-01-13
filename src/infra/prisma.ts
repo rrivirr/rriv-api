@@ -1,7 +1,12 @@
-// @ts-types="generated/index.d.ts"
-import { PrismaClient } from "generated/index.js";
+import { PrismaClient } from "generated/client.ts";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+const adapter = new PrismaPg({
+  connectionString: Deno.env.get("DATABASE_URL"),
+});
 
 export default new PrismaClient({
+  adapter,
   omit: {
     context: {
       archivedAt: true,
