@@ -21,3 +21,5 @@ spec:
               value: https://auth.rriv.org
             - name: KEYCLOAK_REALM
               value: rriv-beta-prod
+            - name: CHIRPSTACK_API_URL
+              value: http://134.199.180.18
