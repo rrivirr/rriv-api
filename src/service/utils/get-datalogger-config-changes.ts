@@ -1,5 +1,4 @@
-// @ts-types="generated/index.d.ts"
-import { DataloggerConfig } from "generated/index.js";
+import { DataloggerConfig } from "generated/client.ts";
 import { getConfigChangesMade } from "./get-changes-made.ts";
 
 export const getDataloggerConfigChanges = (

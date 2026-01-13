@@ -1,13 +1,12 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider        = "prisma-client"
   previewFeatures = ["postgresqlExtensions", "relationJoins"]
-  output          = "../node_modules/generated"
+  output          = "./generated"
 }
 
 datasource db {
   provider   = "postgresql"
   extensions = [uuidOssp(map: "uuid-ossp"), postgis]
-  url        = env("DATABASE_URL")
 }
 
 model Account {

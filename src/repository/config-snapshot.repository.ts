@@ -1,5 +1,4 @@
-// @ts-types="generated/index.d.ts"
-import { Prisma } from "generated/index.js";
+import { Prisma } from "generated/client.ts";
 import prisma from "../infra/prisma.ts";
 import {
   ConfigSnapshotDto,
@@ -8,7 +7,7 @@ import {
   UpdateLibraryConfigDto,
 } from "../types/config-snapshot.types.ts";
 import { IdDto } from "../types/generic.types.ts";
-import { InputJsonValue } from "generated/runtime/library.d.ts";
+import { InputJsonValue } from "generated/internal/prismaNamespace.ts";
 import { HttpException } from "../utils/http-exception.ts";
 
 export const createConfigSnapshot = async (

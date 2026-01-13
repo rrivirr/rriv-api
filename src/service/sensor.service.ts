@@ -19,7 +19,7 @@ import {
 } from "../types/config-snapshot.types.ts";
 import { getSensorConfigChanges } from "./utils/get-sensor-config-changes.ts";
 import { validateDevice } from "./utils/validate-device.ts";
-import { JsonObject } from "generated/runtime/library.d.ts";
+import { JsonObject } from "generated/internal/prismaNamespace.ts";
 
 export const getSensorDriver = async (query: QuerySensorDriverDto) => {
   return await sensorRepository.getSensorDriver(query);
