@@ -1,3 +1,12 @@
+## [1.12.3](https://github.com/rrivirr/rriv-api/compare/v1.12.2...v1.12.3) (2026-01-15)
+
+
+### Bug Fixes
+
+* revert ([2bfbad4](https://github.com/rrivirr/rriv-api/commit/2bfbad4374ba9ea819bb7ba383b95befe41b6d73))
+* revert workflow file ([ba5fcb1](https://github.com/rrivirr/rriv-api/commit/ba5fcb15402a25ce6b4273714b62133a75ecc333))
+* semantic release ([9942036](https://github.com/rrivirr/rriv-api/commit/994203631c780bba4a85c261d04cace20275f055))
+
 ## [1.12.2](https://github.com/rrivirr/rriv-api/compare/v1.12.1...v1.12.2) (2026-01-15)
 
 
