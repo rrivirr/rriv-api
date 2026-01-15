@@ -21,7 +21,7 @@ jobs:
     outputs:
       new-release-published: ${{ steps.next-version.outputs.new-release-published }}
       new-release-git-tag: ${{ steps.next-version.outputs.new-release-git-tag }}
-    if: github.event_name == 'push'
+
     steps:
       - uses: actions/checkout@v5
         with:
