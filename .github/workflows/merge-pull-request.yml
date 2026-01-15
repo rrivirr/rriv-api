@@ -21,19 +21,17 @@ jobs:
     outputs:
       new-release-published: ${{ steps.next-version.outputs.new-release-published }}
       new-release-git-tag: ${{ steps.next-version.outputs.new-release-git-tag }}
-
+    if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v5
         with:
           ssh-key: ${{ secrets.CD_DEPLOY_KEY }}
 
-      - uses: actions/setup-node@v5
+      - uses: denoland/setup-deno@v2
         with:
-          node-version: lts/*
+          deno-version: v2.x
 
-      - run: npm i semantic-release-export-data
-      - run: npm i -g semantic-release @semantic-release/{git,changelog}
-      - run: semantic-release
+      - run: deno task semantic-release
         id: next-version
         env:
           GITHUB_TOKEN: ${{ secrets.CD_GITHUB_TOKEN }}
@@ -45,12 +43,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           ref: ${{ needs.release.outputs.new-release-git-tag }}
 
       - name: Check out the github actions repo
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
         with:
           repository: rrivirr/github-actions
           ref: main
