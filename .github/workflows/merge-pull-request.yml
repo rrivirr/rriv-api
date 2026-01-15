@@ -27,11 +27,13 @@ jobs:
         with:
           ssh-key: ${{ secrets.CD_DEPLOY_KEY }}
 
-      - uses: denoland/setup-deno@v2
+      - uses: actions/setup-node@v5
         with:
-          deno-version: v2.x
+          node-version: lts/*
 
-      - run: deno task semantic-release
+      - run: npm i semantic-release-export-data
+      - run: npm i -g semantic-release @semantic-release/{git,changelog}
+      - run: semantic-release
         id: next-version
         env:
           GITHUB_TOKEN: ${{ secrets.CD_GITHUB_TOKEN }}
@@ -43,12 +45,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.release.outputs.new-release-git-tag }}
 
       - name: Check out the github actions repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: rrivirr/github-actions
           ref: main
