@@ -31,10 +31,6 @@ jobs:
         with:
           node-version: lts/*
 
-      - uses: denoland/setup-deno@v2
-        with:
-          deno-version: v2.x
-
       - run: npm i semantic-release-export-data
       - run: npm i -g semantic-release @semantic-release/{git,changelog}
       - run: semantic-release
@@ -49,12 +45,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: ${{ needs.release.outputs.new-release-git-tag }}
 
       - name: Check out the github actions repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           repository: rrivirr/github-actions
           ref: main
