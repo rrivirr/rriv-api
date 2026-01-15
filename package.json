@@ -1,6 +1,6 @@
 {
   "name": "rriv-api",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "description": "The main RRIV API, the heart of our platform",
   "main": "main.js",
   "scripts": {
@@ -28,6 +28,7 @@
     "jsonwebtoken": "^9.0.2",
     "openapi3-ts": "^4.4.0",
     "pg": "^8.16.3",
+    "semantic-release-export-data": "^1.2.0",
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.17.0",
     "zod": "^3.24.1"

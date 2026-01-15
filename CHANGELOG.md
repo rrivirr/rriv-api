@@ -1,3 +1,14 @@
+## [1.12.1](https://github.com/rrivirr/rriv-api/compare/v1.12.0...v1.12.1) (2026-01-15)
+
+
+### Bug Fixes
+
+* deno.lock ([d41b6eb](https://github.com/rrivirr/rriv-api/commit/d41b6eb9c7c71d4aa9469b4eb497b623b5aa7cff))
+* minor fix ([74fa8b2](https://github.com/rrivirr/rriv-api/commit/74fa8b26700906b7a69dcc43aafdf58ff4113bec))
+* minor fixes ([ddea77c](https://github.com/rrivirr/rriv-api/commit/ddea77ca93cf42bb6137202abf951c4a288f88dd))
+* minor fixes ([418f987](https://github.com/rrivirr/rriv-api/commit/418f9879ed94fbeb5d858c36fa2259320591e52d))
+* switch to prisma7 ([6476de0](https://github.com/rrivirr/rriv-api/commit/6476de0e9a37547522a0b37cedf74b93afbdb7ea))
+
 # [1.12.0](https://github.com/rrivirr/rriv-api/compare/v1.11.1...v1.12.0) (2026-01-12)
 
 
