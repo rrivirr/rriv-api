@@ -1,3 +1,10 @@
+## [1.12.2](https://github.com/rrivirr/rriv-api/compare/v1.12.1...v1.12.2) (2026-01-15)
+
+
+### Bug Fixes
+
+* workflow file ([172efdc](https://github.com/rrivirr/rriv-api/commit/172efdc2a514871b123336ff6471025f8493abf2))
+
 ## [1.12.1](https://github.com/rrivirr/rriv-api/compare/v1.12.0...v1.12.1) (2026-01-15)
 
 
