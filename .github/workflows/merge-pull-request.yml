@@ -27,14 +27,20 @@ jobs:
         with:
           ssh-key: ${{ secrets.CD_DEPLOY_KEY }}
 
+      - uses: actions/setup-node@v5
+        with:
+          node-version: lts/*
+
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
 
-      - run: deno task semantic-release
+      - run: npm i semantic-release-export-data
+      - run: npm i -g semantic-release @semantic-release/{git,changelog}
+      - run: semantic-release
         id: next-version
         env:
-          GITHUB_TOKEN: ${{ secrets.CD_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build:
     name: Build

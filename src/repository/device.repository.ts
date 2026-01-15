@@ -16,7 +16,7 @@ export const registerEui = async (body: RegisterEuiDto) => {
 
   return await prisma.$transaction(async (trx) => {
     await trx.deviceEui.updateMany({
-      where: { active: true },
+      where: { active: true, deviceId },
       data: { active: false },
     });
 

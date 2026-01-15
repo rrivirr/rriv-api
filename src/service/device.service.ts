@@ -251,7 +251,7 @@ export const sendCommand = async (body: SendCommandDto) => {
     throw new HttpException(404, "no device found with specified identifier");
   }
 
-  const eui = device.DeviceEuis[0].eui;
+  const eui = device.DeviceEuis[0]?.eui;
   if (!eui) {
     throw new HttpException(422, "no active eui registered for device");
   }
