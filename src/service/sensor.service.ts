@@ -10,7 +10,7 @@ import {
 } from "../types/sensor.types.ts";
 import * as sensorRepository from "../repository/sensor.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
-import { AccountIdDto, IdDto } from "../types/generic.types.ts";
+import { AccountIdDto, IdDto, IdorNameDto } from "../types/generic.types.ts";
 import { getDeviceContext } from "./device-context.service.ts";
 import { isDeepStrictEqual } from "node:util";
 import {
@@ -285,16 +285,31 @@ export const deleteSensorConfig = async (requestBody: IdDto & AccountIdDto) => {
 };
 
 export const deleteSensorLibraryConfig = async (
-  requestBody: IdDto & AccountIdDto,
+  requestBody: IdorNameDto & AccountIdDto,
 ) => {
-  const { id, accountId } = requestBody;
+  const { accountId } = requestBody;
+  let libraryId;
 
-  await getSensorLibraryConfigById({
-    id,
-    accountId,
-  });
+  if ("id" in requestBody) {
+    await getSensorLibraryConfigById({
+      id: requestBody.id,
+      write: true,
+      accountId,
+    });
+    libraryId = requestBody.id;
+  } else {
+    const config = await getSensorLibraryConfig({
+      name: requestBody.name,
+      accountId,
+    });
 
-  return await sensorRepository.deleteSensorLibraryConfig({ id });
+    if (!config.length) {
+      throw new HttpException(404, "library config not found");
+    }
+    libraryId = config[0].id;
+  }
+
+  return await sensorRepository.deleteSensorLibraryConfig({ id: libraryId });
 };
 
 export const getSensorConfigHistory = async (query: QueryConfigHistoryDto) => {

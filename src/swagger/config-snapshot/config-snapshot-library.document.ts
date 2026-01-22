@@ -98,6 +98,12 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
       },
     },
   },
+  delete: {
+    tags,
+    responses: {
+      200: singleConfigSnapshotLibraryConfigResponse,
+    },
+  },
   patch: {
     tags,
     summary: "update a config snapshot library config",

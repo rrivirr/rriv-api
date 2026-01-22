@@ -11,7 +11,7 @@ import {
   saveConfigSnapshotSchema,
   updateLibraryConfigSchema,
 } from "./schema.ts";
-import { idSchema } from "../generic/generic.schema.ts";
+import { idOrNameSchema, idSchema } from "../generic/generic.schema.ts";
 import * as configSnapshotService from "../../service/config-snapshot.service.ts";
 
 export const getConfigSnapshots = async (req: Request, res: Response) => {
@@ -169,4 +169,27 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (
     });
 
   res.status(201).json();
+};
+
+export const deleteConfigSnapshotLibraryConfig = async (
+  req: Request,
+  res: Response,
+) => {
+  const accountId = req.accountId;
+  const params = idOrNameSchema.parse(req.params);
+  const { success } = idSchema.safeParse({ id: params.id });
+  let identifier;
+  if (success) {
+    identifier = { id: params.id };
+  } else {
+    identifier = { name: params.id };
+  }
+
+  const sensorLibraryConfig = await configSnapshotService
+    .deleteConfigSnapshotLibraryConfig({
+      ...identifier,
+      accountId,
+    });
+
+  res.json(sensorLibraryConfig);
 };

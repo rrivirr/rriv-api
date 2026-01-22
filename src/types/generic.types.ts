@@ -6,3 +6,4 @@ export type AccountIdDto = {
 };
 
 export type IdDto = z.infer<typeof idSchema>;
+export type IdorNameDto = { name: string } | { id: string };

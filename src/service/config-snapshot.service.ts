@@ -11,7 +11,7 @@ import {
   SaveConfigSnapshotDto,
   UpdateLibraryConfigDto,
 } from "../types/config-snapshot.types.ts";
-import { AccountIdDto, IdDto } from "../types/generic.types.ts";
+import { AccountIdDto, IdDto, IdorNameDto } from "../types/generic.types.ts";
 import * as configSnapshotRepository from "../repository/config-snapshot.repository.ts";
 import { getDeviceContext } from "./device-context.service.ts";
 import { HttpException } from "../utils/http-exception.ts";
@@ -304,4 +304,33 @@ export const updateLibraryConfig = async (body: UpdateLibraryConfigDto) => {
   });
 
   await configSnapshotRepository.updateLibraryConfig(body);
+};
+
+export const deleteConfigSnapshotLibraryConfig = async (
+  requestBody: IdorNameDto & AccountIdDto,
+) => {
+  const { accountId } = requestBody;
+  let libraryId;
+
+  if ("id" in requestBody) {
+    await getConfigSnapshotLibraryConfigById({
+      id: requestBody.id,
+      accountId,
+    });
+    libraryId = requestBody.id;
+  } else {
+    const config = await getConfigSnapshotLibraryConfig({
+      name: requestBody.name,
+      accountId,
+    });
+
+    if (!config.length) {
+      throw new HttpException(404, "library config not found");
+    }
+    libraryId = config[0].id;
+  }
+
+  return await configSnapshotRepository.deleteConfigSnapshotLibraryConfig({
+    id: libraryId,
+  });
 };
