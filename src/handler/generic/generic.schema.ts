@@ -16,6 +16,11 @@ export const getPaginationSchema = (
 
 export const idSchema = z.object({ id: z.string().uuid() }).strict();
 
+export const idOrNameSchema = z.union([
+  z.object({ id: z.string().uuid() }).strict(),
+  z.object({ id: z.string() }).strict(),
+]);
+
 export const getNameSchema = (min: number = 3, max: number = 20) =>
   z.string().min(min).max(max).trim().toLowerCase();
 

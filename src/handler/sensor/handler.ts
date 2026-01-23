@@ -9,7 +9,7 @@ import {
   sensorLibraryConfigQuerySchema,
 } from "./schema.ts";
 import * as sensorService from "../../service/sensor.service.ts";
-import { idSchema } from "../generic/generic.schema.ts";
+import { idOrNameSchema, idSchema } from "../generic/generic.schema.ts";
 import {
   configHistoryQuerySchema,
   updateLibraryConfigSchema,
@@ -125,10 +125,17 @@ export const deleteSensorLibraryConfig = async (
   res: Response,
 ) => {
   const accountId = req.accountId;
-  const params = idSchema.parse(req.params);
+  const params = idOrNameSchema.parse(req.params);
+  const { success } = idSchema.safeParse({ id: params.id });
+  let identifier;
+  if (success) {
+    identifier = { id: params.id };
+  } else {
+    identifier = { name: params.id };
+  }
 
   const sensorLibraryConfig = await sensorService.deleteSensorLibraryConfig({
-    ...params,
+    ...identifier,
     accountId,
   });
 

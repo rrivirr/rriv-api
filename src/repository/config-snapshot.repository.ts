@@ -408,3 +408,46 @@ export const updateLibraryConfig = async (body: UpdateLibraryConfigDto) => {
     data: { isPublic },
   });
 };
+
+export const deleteConfigSnapshotLibraryConfig = async (body: IdDto) => {
+  const { id } = body;
+
+  return await prisma.$transaction(async (trx) => {
+    const libraryConfigVersions = await trx.systemLibraryConfigVersion
+      .updateManyAndReturn({
+        where: { systemLibraryConfigId: id },
+        data: { archivedAt: new Date() },
+        select: { configSnapshotId: true },
+      });
+
+    await trx.configSnapshot.updateMany({
+      where: {
+        id: { in: libraryConfigVersions.map((l) => l.configSnapshotId) },
+      },
+      data: { archivedAt: new Date() },
+    });
+
+    await trx.dataloggerConfig.updateMany({
+      where: {
+        configSnapshotId: {
+          in: libraryConfigVersions.map((l) => l.configSnapshotId),
+        },
+      },
+      data: { archivedAt: new Date() },
+    });
+
+    await trx.sensorConfig.updateMany({
+      where: {
+        configSnapshotId: {
+          in: libraryConfigVersions.map((l) => l.configSnapshotId),
+        },
+      },
+      data: { archivedAt: new Date() },
+    });
+
+    return await trx.systemLibraryConfig.update({
+      where: { id },
+      data: { archivedAt: new Date() },
+    });
+  });
+};

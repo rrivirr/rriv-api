@@ -1,6 +1,7 @@
 import {
   createConfigSnapshotLibraryConfig,
   createNewConfigSnapshotLibraryConfigVersion,
+  deleteConfigSnapshotLibraryConfig,
   getActiveConfig,
   getConfigSnapshotHistory,
   getConfigSnapshotLibraryConfig,
@@ -28,7 +29,7 @@ router.route("/libraryConfig/:id/version").post(
   createNewConfigSnapshotLibraryConfigVersion,
 );
 router.route("/libraryConfig/:id").get(getConfigSnapshotLibraryConfigById)
-  .patch(updateLibraryConfig);
+  .patch(updateLibraryConfig).delete(deleteConfigSnapshotLibraryConfig);
 
 routerWrapper.use("/configSnapshot", router);
 

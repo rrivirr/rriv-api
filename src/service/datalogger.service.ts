@@ -10,7 +10,7 @@ import {
 } from "../types/datalogger.types.ts";
 import * as dataloggerRepository from "../repository/datalogger.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
-import { AccountIdDto, IdDto } from "../types/generic.types.ts";
+import { AccountIdDto, IdDto, IdorNameDto } from "../types/generic.types.ts";
 import { getDeviceContext } from "./device-context.service.ts";
 import {
   QueryConfigHistoryDto,
@@ -281,17 +281,33 @@ export const deleteDataloggerConfig = async (
 };
 
 export const deleteDataloggerLibraryConfig = async (
-  requestBody: IdDto & AccountIdDto,
+  requestBody: IdorNameDto & AccountIdDto,
 ) => {
-  const { id, accountId } = requestBody;
+  const { accountId } = requestBody;
+  let libraryId;
 
-  await getDataloggerLibraryConfigById({
-    id,
-    write: true,
-    accountId,
+  if ("id" in requestBody) {
+    await getDataloggerLibraryConfigById({
+      id: requestBody.id,
+      write: true,
+      accountId,
+    });
+    libraryId = requestBody.id;
+  } else {
+    const config = await getDataloggerLibraryConfig({
+      name: requestBody.name,
+      accountId,
+    });
+
+    if (!config.length) {
+      throw new HttpException(404, "library config not found");
+    }
+    libraryId = config[0].id;
+  }
+
+  return await dataloggerRepository.deleteDataloggerLibraryConfig({
+    id: libraryId,
   });
-
-  return await dataloggerRepository.deleteDataloggerLibraryConfig({ id });
 };
 
 export const getDataloggerConfigHistory = async (

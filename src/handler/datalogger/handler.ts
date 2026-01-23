@@ -9,7 +9,7 @@ import {
   dataloggerLibraryConfigQuerySchema,
 } from "./schema.ts";
 import * as dataloggerService from "../../service/datalogger.service.ts";
-import { idSchema } from "../generic/generic.schema.ts";
+import { idOrNameSchema, idSchema } from "../generic/generic.schema.ts";
 import {
   configHistoryQuerySchema,
   updateLibraryConfigSchema,
@@ -136,14 +136,18 @@ export const deleteDataloggerLibraryConfig = async (
   res: Response,
 ) => {
   const accountId = req.accountId;
-  const params = idSchema.parse(req.params);
+  const params = idOrNameSchema.parse(req.params);
+  const { success } = idSchema.safeParse({ id: params.id });
+  let identifier;
+  if (success) {
+    identifier = { id: params.id };
+  } else {
+    identifier = { name: params.id };
+  }
 
   const dataloggerLibraryConfig = await dataloggerService
     .deleteDataloggerLibraryConfig(
-      {
-        ...params,
-        accountId,
-      },
+      { ...identifier, accountId },
     );
 
   res.json(dataloggerLibraryConfig);
