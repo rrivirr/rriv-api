@@ -420,7 +420,7 @@ export const deleteConfigSnapshotLibraryConfig = async (body: IdDto) => {
         select: { configSnapshotId: true },
       });
 
-    await trx.configSnapshot.updateManyAndReturn({
+    await trx.configSnapshot.updateMany({
       where: {
         id: { in: libraryConfigVersions.map((l) => l.configSnapshotId) },
       },
