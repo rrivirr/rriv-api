@@ -1,3 +1,11 @@
+## [1.12.4](https://github.com/rrivirr/rriv-api/compare/v1.12.3...v1.12.4) (2026-01-23)
+
+
+### Bug Fixes
+
+* extend library delete commands ([8cdc228](https://github.com/rrivirr/rriv-api/commit/8cdc228f97b99246fa16b788addf9ce1041f0e69))
+* use right update function ([0e5d94f](https://github.com/rrivirr/rriv-api/commit/0e5d94fcdae862bbd4a0c4299eb98fcb26e29b0b))
+
 ## [1.12.3](https://github.com/rrivirr/rriv-api/compare/v1.12.2...v1.12.3) (2026-01-15)
 
 
