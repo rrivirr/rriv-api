@@ -5,7 +5,7 @@ import {
 } from "../generic/generic.schema.ts";
 
 export const provisionDeviceSchema = z.object({
-  uid: z.string().max(30).trim(),
+  uid: z.string().regex(/^[0-9A-Fa-f]{24}$/g).trim().toUpperCase(),
   type: z.enum(["rriv_0_4_2"]),
 });
 
