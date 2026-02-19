@@ -1,3 +1,10 @@
+## [1.12.5](https://github.com/rrivirr/rriv-api/compare/v1.12.4...v1.12.5) (2026-02-19)
+
+
+### Bug Fixes
+
+* add uid validation ([#85](https://github.com/rrivirr/rriv-api/issues/85)) ([06a1682](https://github.com/rrivirr/rriv-api/commit/06a16821ebae31087bfa37ddaa8db7d0afba69dd))
+
 ## [1.12.4](https://github.com/rrivirr/rriv-api/compare/v1.12.3...v1.12.4) (2026-01-23)
 
 
