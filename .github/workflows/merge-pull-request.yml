@@ -79,6 +79,8 @@ jobs:
           context: .
           push: true
           tags: registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }}
+        env:
+          DATABASE_URL: postgres
 
       - name: Install kustomize
         run: curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
