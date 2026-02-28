@@ -74,11 +74,7 @@ export const provisionDevice = async (body: ProvisionDeviceDto) => {
 
   if (existingDevices.length) {
     const existingDevice = existingDevices[0];
-    if (existingDevice.Bind.length) {
-      throw new HttpException(409, "device already provisioned");
-    } else {
-      return { status: 200, device: existingDevice };
-    }
+    return { status: 200, device: { ...existingDevice, Bind: undefined } };
   }
 
   const [device] = await deviceRepository.getAllDevices({
