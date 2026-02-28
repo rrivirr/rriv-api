@@ -1,6 +1,8 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@std/assert@1": "1.0.16",
+    "jsr:@std/internal@^1.0.12": "1.0.12",
     "npm:@anatine/zod-openapi@^2.2.6": "2.2.8_openapi3-ts@4.5.0_zod@3.25.76",
     "npm:@chirpstack/chirpstack-api@4.12.0": "4.12.0",
     "npm:@commitlint/config-conventional@^19.6.0": "19.8.1",
@@ -17,7 +19,6 @@
     "npm:axios@^1.11.0": "1.13.2",
     "npm:commitlint@*": "19.8.1",
     "npm:commitlint@^19.6.1": "19.8.1",
-    "npm:dotenv@^17.2.3": "17.2.3",
     "npm:express@*": "5.2.1",
     "npm:express@^5.0.1": "5.2.1",
     "npm:jsonwebtoken@*": "9.0.3",
@@ -32,6 +33,17 @@
     "npm:winston@*": "3.19.0",
     "npm:winston@^3.17.0": "3.19.0",
     "npm:zod@^3.24.1": "3.25.76"
+  },
+  "jsr": {
+    "@std/assert@1.0.16": {
+      "integrity": "6a7272ed1eaa77defe76e5ff63ca705d9c495077e2d5fd0126d2b53fc5bd6532",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/internal@1.0.12": {
+      "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
+    }
   },
   "npm": {
     "@actions/core@2.0.2": {
@@ -974,7 +986,7 @@
         "chokidar",
         "confbox",
         "defu",
-        "dotenv@16.6.1",
+        "dotenv",
         "exsolve",
         "giget",
         "jiti",
@@ -1339,9 +1351,6 @@
     },
     "dotenv@16.6.1": {
       "integrity": "sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow=="
-    },
-    "dotenv@17.2.3": {
-      "integrity": "sha512-JVUnt+DUIzu87TABbhPmNfVdBDt18BLOWjMUFJMSi/Qqg7NTYtabbvSNJGOJ7afbRuv9D/lngizHtP7QyLQ+9w=="
     },
     "dunder-proto@1.0.1": {
       "integrity": "sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==",
@@ -3570,7 +3579,6 @@
         "npm:ajv@^8.17.1",
         "npm:axios@^1.11.0",
         "npm:commitlint@^19.6.1",
-        "npm:dotenv@^17.2.3",
         "npm:express@^5.0.1",
         "npm:jsonwebtoken@^9.0.2",
         "npm:openapi3-ts@^4.4.0",
