@@ -1,3 +1,10 @@
+## [1.12.7](https://github.com/rrivirr/rriv-api/compare/v1.12.6...v1.12.7) (2026-02-28)
+
+
+### Bug Fixes
+
+* release ([b07e988](https://github.com/rrivirr/rriv-api/commit/b07e9883d629f6fc6b015ddfd980cf64fc6e28a7))
+
 ## [1.12.6](https://github.com/rrivirr/rriv-api/compare/v1.12.5...v1.12.6) (2026-02-28)
 
 
