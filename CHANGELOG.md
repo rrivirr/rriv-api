@@ -1,3 +1,10 @@
+## [1.12.6](https://github.com/rrivirr/rriv-api/compare/v1.12.5...v1.12.6) (2026-02-28)
+
+
+### Bug Fixes
+
+* return already bound, provisioned device ([747dc1d](https://github.com/rrivirr/rriv-api/commit/747dc1da0ba5bed5273fecd02e46b1080a97853a))
+
 ## [1.12.5](https://github.com/rrivirr/rriv-api/compare/v1.12.4...v1.12.5) (2026-02-19)
 
 
