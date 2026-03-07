@@ -1,3 +1,10 @@
+## [1.12.10](https://github.com/rrivirr/rriv-api/compare/v1.12.9...v1.12.10) (2026-03-07)
+
+
+### Bug Fixes
+
+* db ca ([cfda503](https://github.com/rrivirr/rriv-api/commit/cfda5032d3b850287e949469e3c914aaf8a5a98c))
+
 ## [1.12.9](https://github.com/rrivirr/rriv-api/compare/v1.12.8...v1.12.9) (2026-03-02)
 
 
