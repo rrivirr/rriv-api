@@ -19,6 +19,7 @@
     "npm:axios@^1.11.0": "1.13.2",
     "npm:commitlint@*": "19.8.1",
     "npm:commitlint@^19.6.1": "19.8.1",
+    "npm:dotenv@^17.3.1": "17.3.1",
     "npm:express@*": "5.2.1",
     "npm:express@^5.0.1": "5.2.1",
     "npm:jsonwebtoken@*": "9.0.3",
@@ -986,7 +987,7 @@
         "chokidar",
         "confbox",
         "defu",
-        "dotenv",
+        "dotenv@16.6.1",
         "exsolve",
         "giget",
         "jiti",
@@ -1351,6 +1352,9 @@
     },
     "dotenv@16.6.1": {
       "integrity": "sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow=="
+    },
+    "dotenv@17.3.1": {
+      "integrity": "sha512-IO8C/dzEb6O3F9/twg6ZLXz164a2fhTnEWb95H23Dm4OuN+92NmEAlTrupP9VW6Jm3sO26tQlqyvyi4CsnY9GA=="
     },
     "dunder-proto@1.0.1": {
       "integrity": "sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==",
@@ -3581,6 +3585,7 @@
         "npm:ajv@^8.17.1",
         "npm:axios@^1.11.0",
         "npm:commitlint@^19.6.1",
+        "npm:dotenv@^17.3.1",
         "npm:express@^5.0.1",
         "npm:jsonwebtoken@^9.0.2",
         "npm:openapi3-ts@^4.4.0",
