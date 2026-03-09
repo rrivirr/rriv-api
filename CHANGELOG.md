@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/rrivirr/rriv-api/compare/v1.12.10...v1.13.0) (2026-03-09)
+
+
+### Features
+
+* add device logs ([dccc07f](https://github.com/rrivirr/rriv-api/commit/dccc07f720b21b24b13b69681a4877362d8856f1))
+
 ## [1.12.10](https://github.com/rrivirr/rriv-api/compare/v1.12.9...v1.12.10) (2026-03-07)
 
 
