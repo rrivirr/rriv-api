@@ -1759,6 +1759,7 @@
         "meow@12.1.1",
         "split2@4.2.0"
       ],
+      "deprecated": true,
       "bin": true
     },
     "glob@7.2.3": {
@@ -3250,7 +3251,8 @@
         "minizlib",
         "mkdirp",
         "yallist"
-      ]
+      ],
+      "deprecated": true
     },
     "temp-dir@3.0.0": {
       "integrity": "sha512-nHc6S/bwIilKHNRgK/3jlhDoIHcp45YgyiwcAk46Tr0LfEqGBVpmiAyuiuxeVE44m3mXnEeVhaipLOEWmH+Njw=="

@@ -5,11 +5,58 @@ import {
   ProvisionDeviceDto,
   QueryDeviceDto,
   QueryFirmwareHistoryDto,
+  QueryLogsDto,
   RegisterEuiDto,
   SerialNumberDeviceDto,
 } from "../types/device.types.ts";
 import { IdDto } from "../types/generic.types.ts";
 import { isId } from "../utils/helper-functions.ts";
+
+export const getLogs = async (
+  query: Omit<Omit<QueryLogsDto, "identifier">, "accountId"> & {
+    deviceId: string;
+  },
+) => {
+  const {
+    limit,
+    offset,
+    order,
+    orderBy,
+    deviceId,
+  } = query;
+
+  return await prisma.deviceLog.findMany({
+    where: {
+      deviceId,
+    },
+    select: {
+      log: true,
+      createdAt: true,
+      Creator: {
+        select: {
+          firstName: true,
+          lastName: true,
+        },
+      },
+    },
+    take: limit,
+    skip: offset,
+    orderBy: orderBy ? { [orderBy]: order } : undefined,
+  });
+};
+
+export const createLog = async (
+  body: { deviceId: string; accountId: string; log: string },
+) => {
+  const { deviceId, accountId, log } = body;
+  await prisma.deviceLog.create({
+    data: {
+      deviceId,
+      creatorId: accountId,
+      log,
+    },
+  });
+};
 
 export const registerEui = async (body: RegisterEuiDto) => {
   const { deviceId, eui, accountId } = body;

@@ -1,9 +1,11 @@
 import {
   bindDevice,
   createFirmwareEntry,
+  createLog,
   deleteDevice,
   getDevices,
   getFirmwareHistory,
+  getLogs,
   provisionDevice,
   registerEui,
   sendCommand,
@@ -25,6 +27,7 @@ router.delete("/:serialNumber", deleteDevice);
 router.route("/firmware/history").get(getFirmwareHistory).post(
   createFirmwareEntry,
 );
+router.route("/log").get(getLogs).post(createLog);
 
 routerWrapper.use(basePath, router);
 

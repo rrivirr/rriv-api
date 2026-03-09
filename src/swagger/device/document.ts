@@ -2,14 +2,17 @@ import { generateSchema } from "@anatine/zod-openapi";
 import { ParameterObject } from "npm:openapi3-ts@^4.4.0/oas31";
 import {
   createFirmwareEntrySchema,
+  createLogSchema,
   deviceQuerySchema,
   firmwareHistoryQuerySchema,
+  logsQuerySchema,
   provisionDeviceSchema,
   registerEuiSchema,
   sendCommandSchema,
 } from "../../handler/device/schema.ts";
 import {
   registerDeviceFirmwareItemSchema,
+  registerDeviceLogSchema,
   registerDeviceSchema,
 } from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
@@ -18,6 +21,7 @@ import { serialNumberSchema } from "../../handler/device/schema.ts";
 export const basePath = "/device";
 const tags = ["device"];
 const deviceRef = "#/components/schemas/Device";
+const deviceLogRef = "#/components/schemas/DeviceLog";
 const mediaTypeHeader = "application/json";
 const singleDeviceResponse = {
   content: {
@@ -28,8 +32,11 @@ const singleDeviceResponse = {
 };
 registerDeviceSchema();
 registerDeviceFirmwareItemSchema();
+registerDeviceLogSchema();
 const DeviceQuerySchema = generateSchema(deviceQuerySchema);
 const DeviceQuerySchemaProperties = DeviceQuerySchema.properties;
+const LogsQuerySchema = generateSchema(logsQuerySchema);
+const LogsQuerySchemaProperties = LogsQuerySchema.properties;
 const FirmwareHistoryQuerySchema = generateSchema(firmwareHistoryQuerySchema);
 
 swaggerBuilder.addPath(basePath, {
@@ -196,6 +203,45 @@ swaggerBuilder.addPath(`${basePath}/firmware/history`, {
       content: {
         [mediaTypeHeader]: {
           schema: generateSchema(createFirmwareEntrySchema),
+        },
+      },
+    },
+    responses: {
+      200: {},
+    },
+  },
+});
+
+swaggerBuilder.addPath(`${basePath}/log`, {
+  get: {
+    tags,
+    parameters: [
+      ...Object.keys(LogsQuerySchemaProperties as object).map((
+        q: string,
+      ) =>
+        ({
+          name: q,
+          in: "query",
+          schema: { ...LogsQuerySchemaProperties![q] },
+        }) as ParameterObject
+      ),
+    ],
+    responses: {
+      200: {
+        content: {
+          [mediaTypeHeader]: {
+            schema: { type: "array", items: { $ref: deviceLogRef } },
+          },
+        },
+      },
+    },
+  },
+  post: {
+    tags,
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(createLogSchema),
         },
       },
     },
