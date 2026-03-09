@@ -37,3 +37,19 @@ export const registerDeviceFirmwareItemSchema = () =>
       createdAt: { type: "string", format: "date-time" },
     },
   });
+
+export const registerDeviceLogSchema = () =>
+  swaggerBuilder.addSchema("DeviceLog", {
+    type: "object",
+    properties: {
+      log: { type: "string" },
+      createdAt: { type: "string", format: "date-time" },
+      Creator: {
+        type: "object",
+        properties: {
+          firstName: { type: "string" },
+          lastName: { type: "string" },
+        },
+      },
+    },
+  });

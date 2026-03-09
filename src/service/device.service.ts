@@ -11,9 +11,11 @@ import {
   AccountUniqueDeviceDto,
   BindDeviceDto,
   CreateFirmwareEntryDto,
+  CreateLogDto,
   ProvisionDeviceDto,
   QueryDeviceDto,
   QueryFirmwareHistoryDto,
+  QueryLogsDto,
   RegisterEuiDto,
   SendCommandDto,
   SerialNumberDeviceDto,
@@ -288,4 +290,25 @@ export const sendCommand = async (body: SendCommandDto) => {
   const responseId = await enqueue();
 
   return { responseId };
+};
+
+export const getLogs = async (query: QueryLogsDto) => {
+  const { identifier, accountId, ...sortingParam } = query;
+  const devices = await getDevices({ identifier, accountId });
+  if (!devices.length) {
+    throw new HttpException(404, "device not found");
+  }
+  return await deviceRepository.getLogs({
+    ...sortingParam,
+    deviceId: devices[0].id,
+  });
+};
+
+export const createLog = async (body: CreateLogDto) => {
+  const { identifier, accountId, log } = body;
+  const devices = await getDevices({ identifier, accountId });
+  if (!devices.length) {
+    throw new HttpException(404, "device not found");
+  }
+  await deviceRepository.createLog({ accountId, log, deviceId: devices[0].id });
 };

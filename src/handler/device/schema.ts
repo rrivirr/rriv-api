@@ -9,6 +9,18 @@ export const provisionDeviceSchema = z.object({
   type: z.enum(["rriv_0_4_2"]),
 });
 
+export const logsQuerySchema = z.object({ identifier: z.string() }).merge(
+  getPaginationSchema(
+    ["createdAt"],
+    "createdAt",
+  ),
+).strict();
+
+export const createLogSchema = z.object({
+  log: z.string().max(100),
+  identifier: z.string(),
+}).strict();
+
 export const deviceQuerySchema = z
   .object({
     search: getNameSchema().optional(),

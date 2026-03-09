@@ -2,8 +2,10 @@
 import { Request, Response } from "npm:express";
 import {
   createFirmwareEntrySchema,
+  createLogSchema,
   deviceQuerySchema,
   firmwareHistoryQuerySchema,
+  logsQuerySchema,
   provisionDeviceSchema,
   registerEuiSchema,
   sendCommandSchema,
@@ -102,4 +104,26 @@ export const sendCommand = async (req: Request, res: Response) => {
     accountId,
   });
   res.json(result);
+};
+
+export const getLogs = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
+  const body = logsQuerySchema.parse(req.query);
+
+  const result = await deviceService.getLogs({
+    ...body,
+    accountId,
+  });
+  res.json(result);
+};
+
+export const createLog = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
+  const body = createLogSchema.parse(req.body);
+
+  await deviceService.createLog({
+    ...body,
+    accountId,
+  });
+  res.status(201).json();
 };
