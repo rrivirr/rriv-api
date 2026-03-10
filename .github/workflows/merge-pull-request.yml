@@ -73,12 +73,6 @@ jobs:
       - name: Login to DigitalOcean Registry
         run: doctl registry login --access-token ${{ secrets.TEMP_REGISTRY_TOKEN }}
 
-      - name: Get db cluster id
-        run: CLUSTER_ID=$(doctl databases list -o json | jq -r '.[] | select(.name == "rriv-dev") | .id')
-
-      - name: create db ca certificate file
-        run: doctl database get-ca $CLUSTER_ID > ca-certificate.crt
-
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
