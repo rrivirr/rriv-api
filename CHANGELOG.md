@@ -1,3 +1,10 @@
+## [1.13.1](https://github.com/rrivirr/rriv-api/compare/v1.13.0...v1.13.1) (2026-03-10)
+
+
+### Bug Fixes
+
+* get ca cert from vault ([3a41904](https://github.com/rrivirr/rriv-api/commit/3a4190404b830c1935c9552b94564e3127a97106))
+
 # [1.13.0](https://github.com/rrivirr/rriv-api/compare/v1.12.10...v1.13.0) (2026-03-09)
 
 
