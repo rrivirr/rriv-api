@@ -1,3 +1,10 @@
+## [1.13.2](https://github.com/rrivirr/rriv-api/compare/v1.13.1...v1.13.2) (2026-03-10)
+
+
+### Bug Fixes
+
+* remove cert from docker file ([25fcca1](https://github.com/rrivirr/rriv-api/commit/25fcca1d0849299cad808387ba210c15db09d33f))
+
 ## [1.13.1](https://github.com/rrivirr/rriv-api/compare/v1.13.0...v1.13.1) (2026-03-10)
 
 
