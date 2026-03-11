@@ -23,7 +23,7 @@ spec:
           export DATABASE_URL="{{ .Data.data.database_url }}"
           export KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
           export CHIRPSTACK_API_KEY="{{ .Data.data.chirpstack_downlink_key }}"
-          export DATABASE_CRT="{{ .Data.data.database_ca_cert }}"
+          export DATABASE_CA_CRT="{{ .Data.data.database_ca_cert }}"
           {{ end }}
     spec:
       serviceAccountName: internal-app
@@ -47,7 +47,7 @@ spec:
                 done
                 echo "Vault secrets injected"
                 . /vault/secrets/credentials
-                echo $DATABASE_CRT > ca-certificate.crt
+                echo $DATABASE_CA_CRT > ca-certificate.crt
                 echo "starting service"
                 #while :; do echo 'Hit CTRL+C'; sleep 1; done # go forever
                 exec deno run --allow-read --allow-net --allow-env --allow-sys --allow-ffi src/server.ts
