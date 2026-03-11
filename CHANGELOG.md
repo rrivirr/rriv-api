@@ -1,3 +1,12 @@
+## [1.13.3](https://github.com/rrivirr/rriv-api/compare/v1.13.2...v1.13.3) (2026-03-11)
+
+
+### Bug Fixes
+
+* add db cert file ([4515ffe](https://github.com/rrivirr/rriv-api/commit/4515ffefc618c35c68385eb702bf2e1f8ace5012))
+* change variable name ([e65e071](https://github.com/rrivirr/rriv-api/commit/e65e071a1864d60fc300d469986f798ec3de1706))
+* merge conflict ([9ecbca7](https://github.com/rrivirr/rriv-api/commit/9ecbca79448e3371b41575f48e090e9fd5ef425e))
+
 ## [1.13.2](https://github.com/rrivirr/rriv-api/compare/v1.13.1...v1.13.2) (2026-03-10)
 
 
