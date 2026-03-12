@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY . /app
 
-RUN apt-get update -y && apt-get install -y openssl && apt-get install -y ca-certificates
+RUN apt-get update -y && apt-get install -y openssl
 
 RUN deno task prisma generate 
 
