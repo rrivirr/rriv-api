@@ -48,6 +48,8 @@ spec:
                 echo "Vault secrets injected"
                 . /vault/secrets/credentials
                 echo $DATABASE_CA_CRT > ca-certificate.crt
+                cp ca-certificate.crt /usr/local/share/ca-certificates
+                sudo update-ca-certificates
                 echo "starting service"
                 #while :; do echo 'Hit CTRL+C'; sleep 1; done # go forever
                 exec deno run --allow-read --allow-net --allow-env --allow-sys --allow-ffi src/server.ts
