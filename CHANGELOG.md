@@ -1,3 +1,10 @@
+## [1.13.8](https://github.com/rrivirr/rriv-api/compare/v1.13.7...v1.13.8) (2026-03-12)
+
+
+### Bug Fixes
+
+* .crt ([10fb3a0](https://github.com/rrivirr/rriv-api/commit/10fb3a045577f54c8745e19e2ffd7d8128f27ea1))
+
 ## [1.13.7](https://github.com/rrivirr/rriv-api/compare/v1.13.6...v1.13.7) (2026-03-12)
 
 
