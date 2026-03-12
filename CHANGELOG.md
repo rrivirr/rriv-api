@@ -1,3 +1,10 @@
+## [1.13.7](https://github.com/rrivirr/rriv-api/compare/v1.13.6...v1.13.7) (2026-03-12)
+
+
+### Bug Fixes
+
+* convert ca-certificate.crt to .pem ([8d8f06e](https://github.com/rrivirr/rriv-api/commit/8d8f06e955f9a4c4dd1c9a8240de6b65bf19b01e))
+
 ## [1.13.6](https://github.com/rrivirr/rriv-api/compare/v1.13.5...v1.13.6) (2026-03-12)
 
 
