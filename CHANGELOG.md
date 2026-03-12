@@ -1,3 +1,10 @@
+## [1.13.9](https://github.com/rrivirr/rriv-api/compare/v1.13.8...v1.13.9) (2026-03-12)
+
+
+### Bug Fixes
+
+* remove --cert ([c8db1c9](https://github.com/rrivirr/rriv-api/commit/c8db1c9daef0e38e0b4855d759ceb0a526b0f599))
+
 ## [1.13.8](https://github.com/rrivirr/rriv-api/compare/v1.13.7...v1.13.8) (2026-03-12)
 
 
