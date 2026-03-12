@@ -1,3 +1,10 @@
+## [1.13.4](https://github.com/rrivirr/rriv-api/compare/v1.13.3...v1.13.4) (2026-03-12)
+
+
+### Bug Fixes
+
+* copy crt to trust store ([3d2b98d](https://github.com/rrivirr/rriv-api/commit/3d2b98d3015e4ff693e5bae1ba1af65fc989f70c))
+
 ## [1.13.3](https://github.com/rrivirr/rriv-api/compare/v1.13.2...v1.13.3) (2026-03-11)
 
 
