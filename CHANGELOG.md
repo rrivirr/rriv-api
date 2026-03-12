@@ -1,3 +1,10 @@
+## [1.13.11](https://github.com/rrivirr/rriv-api/compare/v1.13.10...v1.13.11) (2026-03-12)
+
+
+### Bug Fixes
+
+* replace certificate whitespace with new line ([7a5001a](https://github.com/rrivirr/rriv-api/commit/7a5001ac0473bc0d736d59f8d3575c6057815db2))
+
 ## [1.13.10](https://github.com/rrivirr/rriv-api/compare/v1.13.9...v1.13.10) (2026-03-12)
 
 
