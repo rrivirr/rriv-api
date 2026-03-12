@@ -1,3 +1,12 @@
+## [1.13.6](https://github.com/rrivirr/rriv-api/compare/v1.13.5...v1.13.6) (2026-03-12)
+
+
+### Bug Fixes
+
+* add certificate with the deno --cert flag ([9281adf](https://github.com/rrivirr/rriv-api/commit/9281adf44d571f4b903d595748fb4170c705f61a))
+* change prisma adapter scheme option ([721505a](https://github.com/rrivirr/rriv-api/commit/721505a7631ffcfa94ff237269df2296f51b9d76))
+* revert ca-certificates changes ([2280798](https://github.com/rrivirr/rriv-api/commit/22807983ea28a3324db56e5d042f2cb998b6177d))
+
 ## [1.13.5](https://github.com/rrivirr/rriv-api/compare/v1.13.4...v1.13.5) (2026-03-12)
 
 
