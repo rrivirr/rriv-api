@@ -50,7 +50,7 @@ spec:
                 echo $DATABASE_CA_CRT > ca-certificate.crt
                 echo "starting service"
                 #while :; do echo 'Hit CTRL+C'; sleep 1; done # go forever
-                exec deno run --cert ./ca-certificate.crt --allow-read --allow-net --allow-env --allow-sys --allow-ffi src/server.ts
+                exec deno run --allow-read --allow-net --allow-env --allow-sys --allow-ffi src/server.ts
           image: registry.digitalocean.com/rriv/rriv-api:1.0.5
           ports:
             - containerPort: 3006
