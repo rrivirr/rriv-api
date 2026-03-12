@@ -1,3 +1,10 @@
+## [1.13.10](https://github.com/rrivirr/rriv-api/compare/v1.13.9...v1.13.10) (2026-03-12)
+
+
+### Bug Fixes
+
+* trigger release ([697486a](https://github.com/rrivirr/rriv-api/commit/697486a3ac975441e20c7349443c6dd8b129c237))
+
 ## [1.13.9](https://github.com/rrivirr/rriv-api/compare/v1.13.8...v1.13.9) (2026-03-12)
 
 
