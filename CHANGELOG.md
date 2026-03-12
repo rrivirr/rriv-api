@@ -1,3 +1,10 @@
+## [1.13.5](https://github.com/rrivirr/rriv-api/compare/v1.13.4...v1.13.5) (2026-03-12)
+
+
+### Bug Fixes
+
+* install ca-certs ([2ad6e76](https://github.com/rrivirr/rriv-api/commit/2ad6e765971c1ccd6c1bcbe75d448ce2bf372964))
+
 ## [1.13.4](https://github.com/rrivirr/rriv-api/compare/v1.13.3...v1.13.4) (2026-03-12)
 
 
