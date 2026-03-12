@@ -48,9 +48,10 @@ spec:
                 echo "Vault secrets injected"
                 . /vault/secrets/credentials
                 echo $DATABASE_CA_CRT > ca-certificate.crt
+                openssl x509 -in ca-certificate.crt -outform PEM -out ca-certificate.pem
                 echo "starting service"
                 #while :; do echo 'Hit CTRL+C'; sleep 1; done # go forever
-                exec deno run --cert ./ca-certificate.crt --allow-read --allow-net --allow-env --allow-sys --allow-ffi src/server.ts
+                exec deno run --cert ./ca-certificate.pem --allow-read --allow-net --allow-env --allow-sys --allow-ffi src/server.ts
           image: registry.digitalocean.com/rriv/rriv-api:1.0.5
           ports:
             - containerPort: 3006
