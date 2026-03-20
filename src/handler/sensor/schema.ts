@@ -46,6 +46,7 @@ export const createSensorLibraryConfigSchema = z.object({
   name: getNameSchema(),
   description: getNameSchema().optional(),
   config: z.object({}).passthrough(),
+  sensorName: getNameSchema(),
 }).strict();
 
 export const sensorLibraryConfigQuerySchema = z.object({

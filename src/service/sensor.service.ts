@@ -165,7 +165,7 @@ export const createSensorConfig = async (
 export const createSensorLibraryConfig = async (
   requestBody: CreateSensorLibraryConfigDto,
 ) => {
-  const { name, accountId, config, description } = requestBody;
+  const { name, accountId, config, description, sensorName } = requestBody;
 
   const defaultSensorDriver = await getSensorDriver({ limit: 1 });
 
@@ -177,7 +177,11 @@ export const createSensorLibraryConfig = async (
   return await sensorRepository.createSensorLibraryConfig({
     name,
     accountId,
-    sensorConfig: { config, name, driverId: defaultSensorDriver[0].id },
+    sensorConfig: {
+      config,
+      name: sensorName,
+      driverId: defaultSensorDriver[0].id,
+    },
     description,
   });
 };
