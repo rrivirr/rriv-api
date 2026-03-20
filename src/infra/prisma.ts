@@ -4,7 +4,10 @@ import { PrismaPg } from "@prisma/adapter-pg";
 const connectionString = Deno.env.get("DATABASE_URL");
 const schema = connectionString?.split("schema=")[1];
 
-const adapter = new PrismaPg({ connectionString }, { schema });
+const adapter = new PrismaPg({
+  connectionString,
+  options: schema && `-c search_path="${schema}"`,
+}, { schema });
 
 export default new PrismaClient({
   adapter,
