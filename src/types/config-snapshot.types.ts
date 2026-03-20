@@ -42,7 +42,8 @@ export type QueryConfigHistoryDto =
   & z.input<
     typeof configHistoryQuerySchema
   >
-  & AccountIdDto;
+  & AccountIdDto
+  & { deviceValidated?: boolean };
 
 export type CreateConfigSnapshotLibraryConfigDto =
   & z.input<typeof createConfigSnapshotLibraryConfigSchema>

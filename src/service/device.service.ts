@@ -12,13 +12,13 @@ import {
   BindDeviceDto,
   CreateFirmwareEntryDto,
   CreateLogDto,
+  DeviceIdentifierDto,
   ProvisionDeviceDto,
   QueryDeviceDto,
   QueryFirmwareHistoryDto,
   QueryLogsDto,
   RegisterEuiDto,
   SendCommandDto,
-  SerialNumberDeviceDto,
 } from "../types/device.types.ts";
 import * as deviceRepository from "../repository/device.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
