@@ -313,8 +313,8 @@ export const deleteDataloggerLibraryConfig = async (
 export const getDataloggerConfigHistory = async (
   query: QueryConfigHistoryDto,
 ) => {
-  const { deviceId, accountId, asAt } = query;
-  await validateDevice({ id: deviceId, accountId });
+  const { deviceIdentifier, accountId, asAt, deviceValidated } = query;
+  await validateDevice({ deviceIdentifier, accountId });
 
   const dataloggerConfigs = await dataloggerRepository.getDataloggerConfig(
     query,

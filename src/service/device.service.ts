@@ -100,10 +100,10 @@ export const provisionDevice = async (body: ProvisionDeviceDto) => {
   return { status: 201, device: newDevice };
 };
 
-export const getDeviceBySerialNumberOrId = async (
-  requestBody: SerialNumberDeviceDto | IdDto,
+export const getDeviceByIdentifierOrId = async (
+  requestBody: DeviceIdentifierDto | IdDto,
 ) => {
-  const deviceWithBind = await deviceRepository.getDeviceBySerialNumberOrId(
+  const deviceWithBind = await deviceRepository.getDeviceByIdentifierOrId(
     requestBody,
   );
 
@@ -141,8 +141,8 @@ export const getDeviceBySerialNumberOrId = async (
 export const bindDevice = async (requestBody: BindDeviceDto) => {
   const { accountId, serialNumber } = requestBody;
 
-  const deviceObject = await getDeviceBySerialNumberOrId({
-    serialNumber,
+  const deviceObject = await getDeviceByIdentifierOrId({
+    deviceIdentifier: serialNumber,
   });
 
   if (!deviceObject) {
@@ -166,7 +166,11 @@ export const bindDevice = async (requestBody: BindDeviceDto) => {
 };
 
 export const unbindDevice = async (requestBody: AccountUniqueDeviceDto) => {
-  const deviceObject = await validateDevice(requestBody);
+  const { serialNumber, accountId } = requestBody;
+  const deviceObject = await validateDevice({
+    deviceIdentifier: serialNumber,
+    accountId,
+  });
   const { device, activeBind } = deviceObject;
   await deviceRepository.unbindDevice({ bindId: activeBind.id });
   return device;
@@ -186,10 +190,14 @@ export const getDevices = async (query: QueryDeviceDto) => {
 };
 
 export const deleteDevice = async (requestBody: AccountUniqueDeviceDto) => {
-  const deviceObject = await validateDevice(requestBody);
+  const { serialNumber, accountId } = requestBody;
+  const deviceObject = await validateDevice({
+    deviceIdentifier: serialNumber,
+    accountId,
+  });
 
   await deviceRepository.deleteDevice({
-    serialNumber: requestBody.serialNumber,
+    serialNumber,
   });
   return deviceObject.device;
 };
@@ -216,7 +224,7 @@ export const getFirmwareHistory = async (query: QueryFirmwareHistoryDto) => {
   if ("deviceId" in query) {
     await validateDevice({ id: query.deviceId, accountId });
   } else {
-    await validateDevice({ serialNumber: query.serialNumber, accountId });
+    await validateDevice({ deviceIdentifier: query.serialNumber, accountId });
   }
   const firmwareHistory = await deviceRepository.getFirmwareHistory(query);
   return firmwareHistory.map((

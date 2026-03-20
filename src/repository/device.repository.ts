@@ -2,6 +2,7 @@ import prisma from "../infra/prisma.ts";
 import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "../service/utils/constants.ts";
 import {
   AccountUniqueDeviceDto,
+  DeviceIdentifierDto,
   ProvisionDeviceDto,
   QueryDeviceDto,
   QueryFirmwareHistoryDto,
@@ -84,12 +85,17 @@ export const getActiveEui = async (body: { deviceId: string }) => {
   });
 };
 
-export const getDeviceBySerialNumberOrId = async (
-  body: SerialNumberDeviceDto | IdDto,
+export const getDeviceByIdentifierOrId = async (
+  body: DeviceIdentifierDto | IdDto,
 ) => {
-  return await prisma.device.findUnique({
+  return await prisma.device.findFirst({
     where: {
-      ...(isId(body) ? { id: body.id } : { serialNumber: body.serialNumber }),
+      ...(isId(body) ? { id: body.id } : {
+        OR: [
+          { uniqueName: body.deviceIdentifier },
+          { serialNumber: body.deviceIdentifier },
+        ],
+      }),
       archivedAt: null,
     },
     include: {

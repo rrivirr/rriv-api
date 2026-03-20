@@ -313,8 +313,8 @@ export const deleteSensorLibraryConfig = async (
 };
 
 export const getSensorConfigHistory = async (query: QueryConfigHistoryDto) => {
-  const { asAt, accountId, deviceId } = query;
-  await validateDevice({ id: deviceId, accountId });
+  const { asAt, accountId, deviceIdentifier, deviceValidated } = query;
+  await validateDevice({ deviceIdentifier, accountId });
   const sensorConfigs = await getSensorConfig(query);
 
   if (asAt) {
