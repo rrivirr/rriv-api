@@ -314,7 +314,9 @@ export const getDataloggerConfigHistory = async (
   query: QueryConfigHistoryDto,
 ) => {
   const { deviceIdentifier, accountId, asAt, deviceValidated } = query;
-  await validateDevice({ deviceIdentifier, accountId });
+  if (!deviceValidated) {
+    await validateDevice({ deviceIdentifier, accountId });
+  }
 
   const dataloggerConfigs = await dataloggerRepository.getDataloggerConfig(
     query,
