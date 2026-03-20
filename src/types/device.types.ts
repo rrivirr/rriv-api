@@ -52,4 +52,6 @@ export type SerialNumberDeviceDto = z.input<
   typeof serialNumberSchema
 >;
 
+export type DeviceIdentifierDto = { deviceIdentifier: string };
+
 export type AccountUniqueDeviceDto = SerialNumberDeviceDto & AccountIdDto;

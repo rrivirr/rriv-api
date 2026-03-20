@@ -22,7 +22,7 @@ export const activeConfigQuerySchema = z
 
 export const configHistoryQuerySchema = z
   .object({
-    deviceId: z.string().uuid(),
+    deviceIdentifier: z.string(),
     limit: z.coerce.number().int().min(1).max(100).optional().default(100),
     offset: z.number().int().min(0).max(100).optional().default(0),
     order: z.enum(["asc", "desc"]).optional().default("asc"),
