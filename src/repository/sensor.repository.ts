@@ -115,8 +115,16 @@ export const getSensorConfig = async (
       orderBy: { createdAt: order },
     });
   } else {
-    const { accountId, asAt, limit, offset, order, sensorName, deviceId } =
-      query;
+    const {
+      accountId,
+      asAt,
+      limit,
+      offset,
+      order,
+      sensorName,
+      deviceIdentifier,
+    } = query;
+
     if (asAt) {
       const result: SensorConfig[] = await prisma.$queryRaw`
       SELECT 
@@ -141,8 +149,10 @@ export const getSensorConfig = async (
               ON sensor_config.config_snapshot_id = config_snapshot.id
         JOIN device_context
               ON config_snapshot.device_context_id = device_context.id
+        JOIN device
+              ON device_context.device_id = device.id
         WHERE sensor_config.creator_id = ${accountId}::uuid 
-              AND device_context.device_id = ${deviceId}::uuid 
+              AND (device.serial_number = ${deviceIdentifier} OR device.unique_name = ${deviceIdentifier}) 
               AND sensor_config.created_at <= ${asAt}
               AND (${sensorName}::text is NULL OR sensor_config.name = ${sensorName})
       ) subquery
@@ -155,7 +165,15 @@ export const getSensorConfig = async (
       where: {
         name: sensorName,
         creatorId: accountId,
-        ConfigSnapshot: { DeviceContext: { deviceId } },
+        ConfigSnapshot: {
+          DeviceContext: {
+            Device: {
+              OR: [{ uniqueName: deviceIdentifier }, {
+                serialNumber: deviceIdentifier,
+              }],
+            },
+          },
+        },
         archivedAt: null,
       },
       take: limit,
