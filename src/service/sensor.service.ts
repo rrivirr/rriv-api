@@ -169,7 +169,10 @@ export const createSensorLibraryConfig = async (
 
   const defaultSensorDriver = await getSensorDriver({ limit: 1 });
 
-  const existingSensorLibraryConfig = await getSensorLibraryConfig({ name });
+  const existingSensorLibraryConfig = await getSensorLibraryConfig({
+    name,
+    accountId,
+  });
   if (existingSensorLibraryConfig.length) {
     throw new HttpException(409, `${name} already exists`);
   }

@@ -193,6 +193,7 @@ export const createConfigSnapshotLibraryConfig = async (
   // chack if name exists
   const exisitingLibraryConfig = await getConfigSnapshotLibraryConfig({
     name,
+    accountId,
   });
 
   if (exisitingLibraryConfig.length) {

@@ -179,6 +179,7 @@ export const createDataloggerLibraryConfig = async (
 
   const existingDataloggerLibraryConfig = await getDataloggerLibraryConfig({
     name,
+    accountId,
   });
   if (existingDataloggerLibraryConfig.length) {
     throw new HttpException(409, `${name} already exists`);
