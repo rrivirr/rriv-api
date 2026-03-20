@@ -29,13 +29,19 @@ export const getActiveDataloggerConfig = async (
 export const getDataloggerConfig = async (
   query: QueryConfigHistoryDto,
 ) => {
-  const { asAt, accountId, limit, offset, order, deviceId } = query;
+  const { asAt, accountId, limit, offset, order, deviceIdentifier } = query;
   if (asAt) {
     return await prisma.dataloggerConfig.findMany({
       where: {
         creatorId: accountId,
         ConfigSnapshot: {
-          DeviceContext: { deviceId },
+          DeviceContext: {
+            Device: {
+              OR: [{ uniqueName: deviceIdentifier }, {
+                serialNumber: deviceIdentifier,
+              }],
+            },
+          },
         },
         createdAt: { lte: asAt },
         archivedAt: null,
@@ -49,7 +55,13 @@ export const getDataloggerConfig = async (
     where: {
       creatorId: accountId,
       ConfigSnapshot: {
-        DeviceContext: { deviceId },
+        DeviceContext: {
+          Device: {
+            OR: [{ uniqueName: deviceIdentifier }, {
+              serialNumber: deviceIdentifier,
+            }],
+          },
+        },
       },
       archivedAt: null,
     },
