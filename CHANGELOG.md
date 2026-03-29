@@ -1,3 +1,23 @@
+## [1.13.12](https://github.com/rrivirr/rriv-api/compare/v1.13.11...v1.13.12) (2026-03-21)
+
+
+### Bug Fixes
+
+* add schema as an option to support raw queries ([08be803](https://github.com/rrivirr/rriv-api/commit/08be8037abc47b9df0906fcf6e8c3a1cca6d2981))
+* add sensor length validation ([3e18fee](https://github.com/rrivirr/rriv-api/commit/3e18fee5f5be13b3fa30067f3c9f7e8fdcab68f7))
+* limit library name uniqueness to accounts ([ee096ad](https://github.com/rrivirr/rriv-api/commit/ee096ad60d0cdaf6b409543acdd878830979c387))
+* prevent validate device running twice ([1189fc7](https://github.com/rrivirr/rriv-api/commit/1189fc7657b6186af66613d065088b79ca84f494))
+* support generic device identifier instead of serial number ([e1da8f3](https://github.com/rrivirr/rriv-api/commit/e1da8f3dd1ed2417673f8b6b43a5da7efe6de55a))
+* support sensor names when creating libraries ([59948ae](https://github.com/rrivirr/rriv-api/commit/59948ae9a50116925e460947e500ae96233062aa))
+* update where clause to use device identifier ([e9d3c4c](https://github.com/rrivirr/rriv-api/commit/e9d3c4c1a17d88a68bca92f0ad3ea9fc4ea075ab))
+
+## [1.13.11](https://github.com/rrivirr/rriv-api/compare/v1.13.10...v1.13.11) (2026-03-12)
+
+
+### Bug Fixes
+
+* replace certificate whitespace with new line ([7a5001a](https://github.com/rrivirr/rriv-api/commit/7a5001ac0473bc0d736d59f8d3575c6057815db2))
+
 ## [1.13.10](https://github.com/rrivirr/rriv-api/compare/v1.13.9...v1.13.10) (2026-03-12)
 
 
