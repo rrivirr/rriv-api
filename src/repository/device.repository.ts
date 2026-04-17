@@ -144,6 +144,16 @@ export const getDevices = async (query: QueryDeviceDto) => {
           OR: [
             { uniqueName: identifier },
             { serialNumber: identifier },
+            {
+              DeviceContext: {
+                some: {
+                  endedAt: null,
+                  archivedAt: null,
+                  assignedDeviceName: identifier,
+                  contextId,
+                },
+              },
+            },
           ],
         }
         : {
