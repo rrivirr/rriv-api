@@ -1,3 +1,10 @@
+## [1.13.13](https://github.com/rrivirr/rriv-api/compare/v1.13.12...v1.13.13) (2026-04-22)
+
+
+### Bug Fixes
+
+* increase limit for assignedDeviceName ([e95c8a7](https://github.com/rrivirr/rriv-api/commit/e95c8a73ff6a05103c0bca8ef31e902aa2ec126c))
+
 ## [1.13.12](https://github.com/rrivirr/rriv-api/compare/v1.13.11...v1.13.12) (2026-03-21)
 
 
