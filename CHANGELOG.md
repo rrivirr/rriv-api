@@ -1,3 +1,10 @@
+# [1.14.0](https://github.com/rrivirr/rriv-api/compare/v1.13.13...v1.14.0) (2026-05-12)
+
+
+### Features
+
+* upgrade chirpstack functionalities/integration ([cf36f19](https://github.com/rrivirr/rriv-api/commit/cf36f198ae3feef7b5513077e0024b6bd7363bff))
+
 ## [1.13.13](https://github.com/rrivirr/rriv-api/compare/v1.13.12...v1.13.13) (2026-04-22)
 
 
