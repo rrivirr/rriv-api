@@ -4,8 +4,6 @@ import {
   colors,
   uniqueNamesGenerator,
 } from "npm:@joaomoreno/unique-names-generator";
-import grpc from "npm:@grpc/grpc-js";
-import deviceGrpc from "@chirpstack/chirpstack-api/api/device_grpc_pb.js";
 import devicePb from "@chirpstack/chirpstack-api/api/device_pb.js";
 import {
   AccountUniqueDeviceDto,
@@ -20,6 +18,7 @@ import {
   RegisterEuiDto,
   SendCommandDto,
 } from "../types/device.types.ts";
+import { getChirpstackConnection } from "../infra/chirpstack.ts";
 import * as deviceRepository from "../repository/device.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
 import { IdDto } from "../types/generic.types.ts";
@@ -237,14 +236,78 @@ export const getFirmwareHistory = async (query: QueryFirmwareHistoryDto) => {
   }));
 };
 
+export const getChirpstackApplications = async () => {
+  const {
+    getApplications,
+    closeConnection,
+  } = getChirpstackConnection();
+
+  const applications = await getApplications();
+  closeConnection();
+  return applications;
+};
+
 export const registerEui = async (body: RegisterEuiDto) => {
-  const { deviceId, accountId, eui } = body;
-  await validateDevice({ id: deviceId, accountId });
+  const { deviceId, accountId, eui, joinEui, application } = body;
+  const deviceDetails = await validateDevice({ id: deviceId, accountId });
 
   const activeEui = await deviceRepository.getActiveEui({ deviceId });
   if (activeEui && activeEui.eui === eui) {
     return 200;
   }
+
+  const {
+    deviceService,
+    metadata,
+    getApplications,
+    getDeviceProfile,
+    closeConnection,
+  } = getChirpstackConnection();
+
+  const deviceApplication = application || "rriv";
+  const applications = await getApplications();
+  const applicationToUse = applications.find((a) =>
+    a.name.toUpperCase() === deviceApplication.toUpperCase()
+  );
+  console.log(applicationToUse);
+  if (!applicationToUse) {
+    throw new HttpException(422, "invalid application received");
+  }
+  const deviceProfile = await getDeviceProfile();
+
+  const chirpstackDevice = new devicePb.Device();
+  chirpstackDevice.setApplicationId(applicationToUse.id);
+  chirpstackDevice.setDeviceProfileId(deviceProfile.id);
+  chirpstackDevice.setName(deviceDetails.device.serialNumber);
+  chirpstackDevice.setDevEui(eui);
+  chirpstackDevice.setJoinEui(joinEui);
+
+  const createDeviceRequest = new devicePb.CreateDeviceRequest();
+  createDeviceRequest.setDevice(chirpstackDevice);
+
+  const addDeviceToChirpstack = () =>
+    new Promise((resolve, reject) => {
+      deviceService.create(createDeviceRequest, metadata, (err, resp) => {
+        if (err) {
+          if (
+            err.message ===
+              '13 INTERNAL: duplicate key value violates unique constraint "device_pkey"'
+          ) {
+            reject(
+              new HttpException(422, "device already added to chirpstack"),
+            );
+          } else {
+            reject(err);
+          }
+        }
+
+        resolve(resp?.toObject());
+      });
+    });
+
+  await addDeviceToChirpstack();
+  closeConnection();
+
   await deviceRepository.registerEui(body);
   return 201;
 };
@@ -262,17 +325,8 @@ export const sendCommand = async (body: SendCommandDto) => {
     throw new HttpException(422, "no active eui registered for device");
   }
 
-  const server = Deno.env.get("CHIRPSTACK_API_URL")!;
-  const apiToken = Deno.env.get("CHIRPSTACK_API_KEY")!;
-
-  const deviceService = new deviceGrpc.DeviceServiceClient(
-    server,
-    grpc.credentials.createInsecure(),
-  );
-
-  // Create the Metadata object.
-  const metadata = new grpc.Metadata();
-  metadata.set("authorization", "Bearer " + apiToken);
+  const { deviceService, metadata, closeConnection } =
+    getChirpstackConnection();
 
   // Enqueue downlink.
   const item = new devicePb.DeviceQueueItem();
@@ -296,6 +350,7 @@ export const sendCommand = async (body: SendCommandDto) => {
     });
 
   const responseId = await enqueue();
+  closeConnection();
 
   return { responseId };
 };

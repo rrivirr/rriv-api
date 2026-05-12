@@ -127,3 +127,8 @@ export const createLog = async (req: Request, res: Response) => {
   });
   res.status(201).json();
 };
+
+export const getApplications = async (_req: Request, res: Response) => {
+  const applications = await deviceService.getChirpstackApplications();
+  res.json(applications);
+};
