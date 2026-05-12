@@ -3,6 +3,7 @@ import {
   createFirmwareEntry,
   createLog,
   deleteDevice,
+  getApplications,
   getDevices,
   getFirmwareHistory,
   getLogs,
@@ -28,6 +29,7 @@ router.route("/firmware/history").get(getFirmwareHistory).post(
   createFirmwareEntry,
 );
 router.route("/log").get(getLogs).post(createLog);
+router.route("/applications").get(getApplications);
 
 routerWrapper.use(basePath, router);
 

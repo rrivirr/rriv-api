@@ -1,4 +1,4 @@
-FROM denoland/deno
+FROM denoland/deno:2.7.14
 
 EXPOSE 3006
 
@@ -12,4 +12,4 @@ RUN deno task prisma generate
 
 RUN deno install --entrypoint src/server.ts
 
-CMD "deno", "task", "start"]
+CMD ["deno", "task", "start"]
