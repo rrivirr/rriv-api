@@ -269,7 +269,6 @@ export const registerEui = async (body: RegisterEuiDto) => {
   const applicationToUse = applications.find((a) =>
     a.name.toUpperCase() === deviceApplication.toUpperCase()
   );
-  console.log(applicationToUse);
   if (!applicationToUse) {
     throw new HttpException(422, "invalid application received");
   }
