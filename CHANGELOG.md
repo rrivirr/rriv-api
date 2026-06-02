@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/rrivirr/rriv-api/compare/v1.15.0...v1.15.1) (2026-06-02)
+
+
+### Bug Fixes
+
+* debug kustomize ([e0d8b91](https://github.com/rrivirr/rriv-api/commit/e0d8b9175e08d59e29ada0434d430a0fefde6b4f))
+
 # [1.15.0](https://github.com/rrivirr/rriv-api/compare/v1.14.0...v1.15.0) (2026-06-02)
 
 
