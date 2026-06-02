@@ -4,6 +4,7 @@ resources:
   - ../../base
 patches:
   - path: deployment.yaml
+  - path: migration-job.yaml
 images:
   - name: registry.digitalocean.com/rriv/rriv-api
     newTag: 1.12.0

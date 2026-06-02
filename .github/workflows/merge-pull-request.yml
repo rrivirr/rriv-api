@@ -84,7 +84,7 @@ jobs:
         run: curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 
       - name: Update image tag
-        run: (cd deployment/overlays/development && kustomize edit set image registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }})
+        run: (cd deployment/overlays/dev && kustomize edit set image registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }})
 
       - name: apply update
-        run: kustomize build deployment/overlays/development | kubectl apply --wait -f -
+        run: kustomize build deployment/overlays/dev | kubectl apply --wait -f -
