@@ -81,7 +81,7 @@ jobs:
           tags: registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }}
 
       - name: Install kustomize
-        run: curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
+        run: curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 
       - name: Update image tag
         run: (cd deployment/overlays/dev && kustomize edit set image registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }})
