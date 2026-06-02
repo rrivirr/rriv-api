@@ -6,7 +6,6 @@ metadata:
     app: rriv-api
 spec:
   backoffLimit: 0
-  replicas: 0
   template:
     metadata:
       labels:

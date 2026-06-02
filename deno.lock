@@ -8,7 +8,6 @@
     "npm:@grpc/grpc-js@^1.14.3": "1.14.4",
     "npm:@joaomoreno/unique-names-generator@*": "5.2.0",
     "npm:@joaomoreno/unique-names-generator@^5.2.0": "5.2.0",
-    "npm:@openfga/sdk@~0.9.6": "0.9.6",
     "npm:@prisma/adapter-pg@^7.2.0": "7.8.0",
     "npm:@prisma/client@^7.2.0": "7.8.0_prisma@7.8.0__typescript@6.0.3__@types+react@19.2.15__react@19.2.6__react-dom@19.2.6___react@19.2.6_typescript@6.0.3_@types+react@19.2.15_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:@types/express@5": "5.0.6",
@@ -378,18 +377,6 @@
       "dependencies": [
         "@octokit/openapi-types"
       ]
-    },
-    "@openfga/sdk@0.9.6": {
-      "integrity": "sha512-110QWSMKp28IeZTNG8Li1NinSZPuVh2aVlDE2wCJztbOCPy/ayn0E6b5z4XJcPpAno4KRRgt3E4Tvhihoqpm8w==",
-      "dependencies": [
-        "@opentelemetry/api",
-        "axios",
-        "jose",
-        "tiny-async-pool"
-      ]
-    },
-    "@opentelemetry/api@1.9.1": {
-      "integrity": "sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q=="
     },
     "@pnpm/config.env-replace@1.1.0": {
       "integrity": "sha512-htyl8TWnKL7K/ESFa1oW2UB5lVDxuF5DpM7tBi6Hu2LNL3mWkIzNLG6N4zoCUP1lCKNxWy/3iu8mS8MvToGd6w=="
@@ -2002,9 +1989,6 @@
       "integrity": "sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==",
       "bin": true
     },
-    "jose@5.10.0": {
-      "integrity": "sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg=="
-    },
     "js-tokens@4.0.0": {
       "integrity": "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="
     },
@@ -3228,9 +3212,6 @@
         "convert-hrtime"
       ]
     },
-    "tiny-async-pool@2.1.0": {
-      "integrity": "sha512-ltAHPh/9k0STRQqaoUX52NH4ZQYAJz24ZAEwf1Zm+HYg3l9OXTWeqWKyYsHu40wF/F0rxd2N2bk5sLvX2qlSvg=="
-    },
     "tinyexec@1.2.4": {
       "integrity": "sha512-SHf/r48b7vOrjve9PxJo3MN5v5yuyjHvdUcrQffT3WXMUfnGmHDVbC4k3sHJaJTgZCwpUplIaAo5ANtMyp3YHg=="
     },
@@ -3514,7 +3495,6 @@
         "npm:@commitlint/config-conventional@^19.6.0",
         "npm:@grpc/grpc-js@^1.14.3",
         "npm:@joaomoreno/unique-names-generator@^5.2.0",
-        "npm:@openfga/sdk@~0.9.6",
         "npm:@prisma/adapter-pg@^7.2.0",
         "npm:@prisma/client@^7.2.0",
         "npm:ajv@^8.17.1",
