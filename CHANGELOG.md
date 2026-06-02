@@ -1,3 +1,11 @@
+## [1.15.3](https://github.com/rrivirr/rriv-api/compare/v1.15.2...v1.15.3) (2026-06-02)
+
+
+### Reverts
+
+* Revert "chore: deno.lock" ([af469df](https://github.com/rrivirr/rriv-api/commit/af469df618a35669ecbbb48e0dcee2ec3cfde966))
+* Revert "fix: remove replicas for migration job" ([86d5283](https://github.com/rrivirr/rriv-api/commit/86d528365788349f9024d5141bf5a3f1872e3dcd))
+
 ## [1.15.2](https://github.com/rrivirr/rriv-api/compare/v1.15.1...v1.15.2) (2026-06-02)
 
 
