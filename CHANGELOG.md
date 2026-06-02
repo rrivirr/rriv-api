@@ -1,3 +1,10 @@
+## [1.15.2](https://github.com/rrivirr/rriv-api/compare/v1.15.1...v1.15.2) (2026-06-02)
+
+
+### Bug Fixes
+
+* remove replicas for migration job ([6b7937e](https://github.com/rrivirr/rriv-api/commit/6b7937e555eef6ca8a0e05717e6047e56e1fb3e2))
+
 ## [1.15.1](https://github.com/rrivirr/rriv-api/compare/v1.15.0...v1.15.1) (2026-06-02)
 
 
