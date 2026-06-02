@@ -1,3 +1,16 @@
+# [1.15.0](https://github.com/rrivirr/rriv-api/compare/v1.14.0...v1.15.0) (2026-06-02)
+
+
+### Bug Fixes
+
+* [#103](https://github.com/rrivirr/rriv-api/issues/103) ([ba53be8](https://github.com/rrivirr/rriv-api/commit/ba53be8a5e3a0af695ef591e75f1835ede1a22e6))
+* miscellaneous ([e50a52a](https://github.com/rrivirr/rriv-api/commit/e50a52a4d6457a109c9b7640283541d14cf77d13))
+
+
+### Features
+
+* support migrations with deployment ([486460f](https://github.com/rrivirr/rriv-api/commit/486460f48e82ab10d09d8548a6a6aa630543870e))
+
 # [1.14.0](https://github.com/rrivirr/rriv-api/compare/v1.13.13...v1.14.0) (2026-05-12)
 
 
