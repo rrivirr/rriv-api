@@ -53,3 +53,10 @@ spec:
           env:
             - name: DATABASE_SCHEMA
               value: rriv
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 200m
+              memory: 384Mi

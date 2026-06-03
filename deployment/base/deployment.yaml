@@ -61,3 +61,10 @@ spec:
               value: rriv
             - name: KEYCLOAK_CLIENT_ID
               value: rriv-api
+          resources:
+            requests:
+              cpu: 50m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 384Mi
