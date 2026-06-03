@@ -14,7 +14,7 @@ spec:
               value: rriv-beta-dev
           resources:
             requests:
-              cpu: 10m
+              cpu: 50m
               memory: 256Mi
             limits:
               cpu: 100m
