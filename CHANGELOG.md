@@ -1,3 +1,10 @@
+## [1.15.5](https://github.com/rrivirr/rriv-api/compare/v1.15.4...v1.15.5) (2026-06-03)
+
+
+### Bug Fixes
+
+* set agent limits ([db4a7a3](https://github.com/rrivirr/rriv-api/commit/db4a7a3a3670f07bff6b9dcc982353aebe202e0c))
+
 ## [1.15.4](https://github.com/rrivirr/rriv-api/compare/v1.15.3...v1.15.4) (2026-06-03)
 
 
