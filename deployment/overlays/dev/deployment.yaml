@@ -12,3 +12,10 @@ spec:
               value: https://auth.dev.rriv.org
             - name: KEYCLOAK_REALM
               value: rriv-beta-dev
+          resources:
+            requests:
+              cpu: 10m
+              memory: 256Mi
+            limits:
+              cpu: 100m
+              memory: 384Mi
