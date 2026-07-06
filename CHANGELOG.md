@@ -1,3 +1,10 @@
+## [1.15.6](https://github.com/rrivirr/rriv-api/compare/v1.15.5...v1.15.6) (2026-07-06)
+
+
+### Bug Fixes
+
+* add database ca cert secret ([8487127](https://github.com/rrivirr/rriv-api/commit/84871277304f4582b2886402be919fc4f10f1bfa))
+
 ## [1.15.5](https://github.com/rrivirr/rriv-api/compare/v1.15.4...v1.15.5) (2026-06-03)
 
 
