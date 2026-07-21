@@ -33,12 +33,17 @@ jobs:
           ref: v1.1.0
           token: ${{ secrets.GH_ACTIONS_ACCESS_TOKEN }}
           path: ./.github/actions/rrivirr-github-actions
+      - name: capitalize env
+        run: |
+          env=${{ env.ENV }}
+          CAPITALIZED="${env^^}"
+          echo "CAPITALIZED_ENV=$CAPITALIZED" >> $GITHUB_ENV
       - name: Prepare deployment
         uses: ./.github/actions/rrivirr-github-actions/.github/actions/prepare-deployment.yaml@v1.1.0 # make sure you point at the latest version!
         with:
           ENV: ${{ env.ENV }}
           # This line is required to pass the AWS role to the action
-          AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', env.ENV)] }}
+          AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', env.CAPITALIZED_ENV)] }}
 
       - name: Install kustomize
         run: curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
