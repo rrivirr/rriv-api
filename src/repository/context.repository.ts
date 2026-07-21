@@ -1,18 +1,37 @@
 import {
   CreateContextDto,
   QueryContextDto,
-  UniqueContextDto,
   UpdateContextDto,
 } from "../types/context.types.ts";
 import prisma from "../infra/prisma.ts";
+import { SYSTEM, writeRelationships } from "../service/auth.service.ts";
+import { Tuple } from "../types/auth-service.types.ts";
 
 export const createContext = async (requestBody: CreateContextDto) => {
-  return await prisma.context.create({
-    data: { ...requestBody },
+  await prisma.$transaction(async (trx) => {
+    const context = await trx.context.create({
+      data: { ...requestBody },
+    });
+    await writeRelationships({
+      writes: [{
+        user: SYSTEM,
+        object: `context:${context.id}`,
+        relation: "system",
+      }, {
+        user: `user:${requestBody.accountId}`,
+        object: `context:${context.id}`,
+        relation: "owner",
+      }],
+      trx,
+      singletonKey: context.id,
+    });
+    return context;
   });
 };
 
-export const getContext = async (query: QueryContextDto) => {
+export const getContext = async (
+  query: QueryContextDto & { contextIds: string[] },
+) => {
   const {
     search,
     limit,
@@ -20,43 +39,35 @@ export const getContext = async (query: QueryContextDto) => {
     order,
     orderBy,
     name,
-    accountId,
-    deviceId,
+    contextIds,
     ended,
   } = query;
   return await prisma.context.findMany({
     where: {
+      id: { in: contextIds },
       name: name || { contains: search },
-      accountId,
-      archivedAt: null,
       endedAt: ended ? { not: null } : ended === false ? null : undefined,
-      ...(deviceId && {
-        DeviceContext: {
-          some: {
-            archivedAt: null,
-            endedAt: null,
-            deviceId,
-          },
-        },
-      }),
     },
+    include: { Account: { select: { id: true, email: true } } },
     take: limit,
     skip: offset,
     orderBy: orderBy ? { [orderBy]: order } : undefined,
   });
 };
 
-export const getContextById = async (body: UniqueContextDto) => {
-  const { accountId, contextId } = body;
+export const getContextById = async (contextId: string) => {
   return await prisma.context.findUnique({
-    where: { id: contextId, accountId, archivedAt: null },
+    where: { id: contextId },
   });
 };
 
 export const updateContext = async (
-  requestBody: Omit<UpdateContextDto, "accountId"> & { archive?: true },
+  requestBody: Omit<UpdateContextDto, "accountId"> & {
+    archive?: true;
+    deletes?: Tuple[];
+  },
 ) => {
-  const { id, name, archive, end } = requestBody;
+  const { id, name, archive, end, deletes } = requestBody;
 
   return await prisma.$transaction(async (trx) => {
     if (end) {
@@ -73,6 +84,7 @@ export const updateContext = async (
       });
     }
 
+    await writeRelationships({ deletes, singletonKey: id, trx });
     return await trx.context.update({
       where: { id },
       data: {

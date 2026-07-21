@@ -20,9 +20,7 @@ export type UpdateContextDto =
   & AccountIdDto
   & IdDto;
 
-export type QueryContextDto =
-  & z.input<typeof contextQuerySchema>
-  & AccountIdDto;
+export type QueryContextDto = z.input<typeof contextQuerySchema>;
 
 export type UniqueContextDto = { contextId: string } & AccountIdDto;
 

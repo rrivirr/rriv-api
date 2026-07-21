@@ -1,4 +1,5 @@
 import prisma from "../infra/prisma.ts";
+import { writeRelationships } from "../service/auth.service.ts";
 import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "../service/utils/constants.ts";
 import {
   UniqueDeviceContextDto,
@@ -22,49 +23,84 @@ export const createDeviceContext = async (
   },
 ) => {
   const { accountId, deviceId, contextId, assignedDeviceName } = body;
-  return await prisma.deviceContext.create({
-    data: {
-      deviceId,
-      contextId,
-      assignedDeviceName,
-      ConfigSnapshot: {
-        create: {
-          name: ACTIVE_CONFIG_SNAPSHOT_NAME,
-          active: true,
-          Creator: { connect: { id: accountId } },
+  return await prisma.$transaction(async (trx) => {
+    await writeRelationships({
+      writes: [{
+        user: `context:${contextId}`,
+        relation: "context",
+        object: `device:${deviceId}`,
+      }],
+      trx,
+      singletonKey: contextId,
+    });
+    return await trx.deviceContext.create({
+      data: {
+        deviceId,
+        contextId,
+        assignedDeviceName,
+        ConfigSnapshot: {
+          create: {
+            name: ACTIVE_CONFIG_SNAPSHOT_NAME,
+            active: true,
+            Creator: { connect: { id: accountId } },
+          },
         },
       },
-    },
+    });
   });
 };
 
 export const updateDeviceContext = async (body: UpdateDeviceContextDto) => {
   const { contextId, deviceId, assignedDeviceName, end } = body;
 
-  return await prisma.deviceContext.updateMany({
-    where: {
-      deviceId,
-      contextId,
-      endedAt: null,
-      archivedAt: null,
-    },
-    data: {
-      assignedDeviceName,
-      ...(end && { endedAt: new Date() }),
-    },
+  return await prisma.$transaction(async (trx) => {
+    if (end) {
+      await writeRelationships({
+        deletes: [{
+          user: `context:${contextId}`,
+          relation: "context",
+          object: `device:${deviceId}`,
+        }],
+        trx,
+        singletonKey: contextId,
+      });
+    }
+    return await trx.deviceContext.updateMany({
+      where: {
+        deviceId,
+        contextId,
+        endedAt: null,
+        archivedAt: null,
+      },
+      data: {
+        assignedDeviceName,
+        ...(end && { endedAt: new Date() }),
+      },
+    });
   });
 };
 
 export const deleteDeviceContext = async (body: UniqueDeviceContextDto) => {
   const { contextId, deviceId } = body;
 
-  return await prisma.deviceContext.updateMany({
-    where: {
-      deviceId,
-      contextId,
-      endedAt: null,
-      archivedAt: null,
-    },
-    data: { archivedAt: new Date(), endedAt: new Date() },
+  return await prisma.$transaction(async (trx) => {
+    await writeRelationships({
+      deletes: [{
+        user: `context:${contextId}`,
+        relation: "context",
+        object: `device:${deviceId}`,
+      }],
+      trx,
+      singletonKey: contextId,
+    });
+    return await trx.deviceContext.updateMany({
+      where: {
+        deviceId,
+        contextId,
+        endedAt: null,
+        archivedAt: null,
+      },
+      data: { archivedAt: new Date(), endedAt: new Date() },
+    });
   });
 };

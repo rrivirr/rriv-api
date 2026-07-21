@@ -9,6 +9,7 @@ import {
 import { ZodError } from "zod";
 import logger from "../winston.ts";
 import { HttpException } from "./http-exception.ts";
+import { AxiosError } from "axios";
 
 export default (
   // deno-lint-ignore no-explicit-any
@@ -48,6 +49,21 @@ export default (
     res.status(401).send({
       code: 401,
       message: "invalid access token",
+    });
+  } else if (err instanceof AxiosError) {
+    errorLogger.error("external service call", {
+      apiErrorDetails: {
+        apiErrorData: err.response?.data,
+        apiErrormessage: err.message,
+        apiBaseUrl: err.config?.baseURL,
+        apiUrl: err.config?.url,
+        apiErrorCode: err.code,
+      },
+    });
+
+    res.status(500).send({
+      code: 500,
+      message: `Internal Server Error`,
     });
   } else {
     errorLogger.error(err);

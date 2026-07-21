@@ -3,10 +3,15 @@ import { ParameterObject } from "npm:openapi3-ts@^4.4.0/oas31";
 import {
   contextQuerySchema,
   createContextSchema,
+  shareSchema,
   updateContextSchema,
 } from "../../handler/context/schema.ts";
 import { idSchema } from "../../handler/generic/generic.schema.ts";
-import { registerContextSchema } from "./schema.ts";
+import {
+  registerContextSchema,
+  registerRecipientSchema,
+  registerSharedContextSchema,
+} from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
 
 export const basePath = "/context";
@@ -21,6 +26,8 @@ const singleContextResponse = {
   },
 };
 registerContextSchema();
+registerRecipientSchema();
+registerSharedContextSchema();
 const ContextQuerySchema = generateSchema(contextQuerySchema);
 const ContextQuerySchemaProperties = ContextQuerySchema.properties;
 
@@ -89,6 +96,60 @@ swaggerBuilder.addPath(`${basePath}/:id`, {
     tags,
     responses: {
       200: singleContextResponse,
+    },
+  },
+});
+
+swaggerBuilder.addPath(`${basePath}/:id/share`, {
+  parameters: [{
+    name: "id",
+    in: "path",
+    schema: generateSchema(idSchema).properties!["id"],
+  }],
+  get: {
+    tags,
+    summary: `Get share recipients`,
+    responses: {
+      200: {
+        content: {
+          [mediaTypeHeader]: {
+            schema: {
+              type: "array",
+              items: { $ref: "#/components/schemas/Recipient" },
+            },
+          },
+        },
+      },
+    },
+  },
+  post: {
+    tags,
+    summary: `Share a context`,
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(shareSchema),
+        },
+      },
+    },
+  },
+});
+
+swaggerBuilder.addPath(`${basePath}/shared`, {
+  get: {
+    tags,
+    summary: `Get user's list of shared contexts`,
+    responses: {
+      200: {
+        content: {
+          [mediaTypeHeader]: {
+            schema: {
+              type: "array",
+              items: { $ref: "#/components/schemas/SharedContext" },
+            },
+          },
+        },
+      },
     },
   },
 });

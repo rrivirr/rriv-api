@@ -13,7 +13,6 @@ export const contextQuerySchema = z
   .object({
     search: getNameSchema().optional(),
     name: getNameSchema().optional(),
-    deviceId: z.string().uuid().optional(),
     ended: booleanQuerySchema,
   })
   .merge(
@@ -31,3 +30,5 @@ export const updateContextSchema = z.object({
   (data) => Object.values(data).length,
   "empty data received",
 );
+
+export const shareSchema = z.object({ email: z.string().email() });

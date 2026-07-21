@@ -17,7 +17,7 @@ import {
   UpdateLibraryConfigDto,
 } from "../types/config-snapshot.types.ts";
 import { getDataloggerConfigChanges } from "./utils/get-datalogger-config-changes.ts";
-import { validateDevice } from "./utils/validate-device.ts";
+import { authDeviceCheck } from "./device.service.ts";
 
 export const getDataloggerDriver = async (query: QueryDataloggerDriverDto) => {
   return await dataloggerRepository.getDataloggerDriver(query);
@@ -89,7 +89,7 @@ const getActiveDataloggerConfig = async (
   const { configSnapshotId } = deviceContext;
 
   const dataloggerConfigs = await dataloggerRepository
-    .getActiveDataloggerConfig({ configSnapshotId, accountId });
+    .getActiveDataloggerConfig({ configSnapshotId });
 
   if (dataloggerConfigs.length > 1) {
     throw new HttpException(
@@ -316,7 +316,11 @@ export const getDataloggerConfigHistory = async (
 ) => {
   const { deviceIdentifier, accountId, asAt, deviceValidated } = query;
   if (!deviceValidated) {
-    await validateDevice({ deviceIdentifier, accountId });
+    await authDeviceCheck({
+      deviceIdentifier,
+      accountId,
+      relation: "can_write",
+    });
   }
 
   const dataloggerConfigs = await dataloggerRepository.getDataloggerConfig(
