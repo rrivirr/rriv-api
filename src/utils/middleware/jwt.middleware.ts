@@ -5,6 +5,7 @@ import { verifyJwtToken } from "../../infra/jwt.ts";
 import prisma from "../../infra/prisma.ts";
 import winston from "../../winston.ts";
 import { idSchema } from "../../handler/generic/generic.schema.ts";
+import { storage } from "../async-local-storage.ts";
 
 export const jwtMiddleware = async (
   req: Request,
@@ -44,5 +45,5 @@ export const jwtMiddleware = async (
   }
 
   req["accountId"] = accountId;
-  next();
+  storage.run({ token: jwtToken }, () => next());
 };

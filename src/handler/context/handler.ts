@@ -3,6 +3,7 @@ import { Request, Response } from "npm:express";
 import {
   contextQuerySchema,
   createContextSchema,
+  shareSchema,
   updateContextSchema,
 } from "./schema.ts";
 import { idSchema } from "../generic/generic.schema.ts";
@@ -46,4 +47,30 @@ export const deleteContext = async (req: Request, res: Response) => {
     contextId: params.id,
   });
   res.json(deletedContext);
+};
+
+export const shareContext = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
+  const params = idSchema.parse(req.params);
+  const body = shareSchema.parse(req.body);
+
+  await contextService.shareContext({ accountId, ...params, ...body });
+  res.json();
+};
+
+export const getShareRecipients = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
+  const params = idSchema.parse(req.params);
+
+  const recipients = await contextService.getShareRecipients({
+    accountId,
+    ...params,
+  });
+  res.json(recipients);
+};
+
+export const getSharedContexts = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
+  const contexts = await contextService.getSharedContexts({ accountId });
+  res.json(contexts);
 };

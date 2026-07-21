@@ -18,7 +18,7 @@ export const getPublicKey = async () => {
   } catch (error: any) {
     throw new HttpException(
       500,
-      JSON.stringify(error?.response) || error,
+      error,
     );
   }
 };
@@ -39,7 +39,7 @@ export const getM2MToken = async () => {
   } catch (error: any) {
     throw new HttpException(
       500,
-      JSON.stringify(error?.response) || error,
+      error,
     );
   }
 };
@@ -89,7 +89,7 @@ export const createUser = async (
       }
       throw new HttpException(
         500,
-        `keycloakCreateUser: ${JSON.stringify(error?.response || error)}`,
+        error,
       );
     }
     if (errorStatus === 400 || errorStatus === 409) {
@@ -117,7 +117,7 @@ export const executeActionsEmail = async (
     if (errorOut) {
       throw new HttpException(
         500,
-        JSON.stringify(errorInformation),
+        errorInformation,
       );
     } else {
       const logger = winston.child({ source: "executeActionsEmail" });

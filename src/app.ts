@@ -7,6 +7,9 @@ import errorHandler from "./utils/error-handler.ts";
 import routes from "./routes/index.ts";
 import { swaggerBuilder } from "./swagger/index.ts";
 import { jwtMiddleware } from "./utils/middleware/jwt.middleware.ts";
+import pgBoss from "./infra/pg-boss/pg-boss.ts";
+import { QUEUE_NAME } from "./infra/pg-boss/constants.ts";
+import { worker } from "./infra/pg-boss/worker.ts";
 
 const app = express();
 
@@ -33,5 +36,13 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(routes);
 app.use(errorHandler);
+
+await pgBoss.start();
+await pgBoss.createQueue(QUEUE_NAME, {
+  policy: "key_strict_fifo",
+  retryLimit: 3,
+  retryBackoff: true,
+});
+await pgBoss.work(QUEUE_NAME, worker);
 
 export default app;

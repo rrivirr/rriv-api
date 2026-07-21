@@ -20,7 +20,7 @@ import {
   getDataloggerDriver,
 } from "./datalogger.service.ts";
 import { getSensorConfigHistory, getSensorDriver } from "./sensor.service.ts";
-import { validateDevice } from "./utils/validate-device.ts";
+import { authDeviceCheck } from "./device.service.ts";
 
 const getConfigSnapshotById = async (query: IdDto) => {
   return await configSnapshotRepository.getConfigSnapshotById(query);
@@ -76,9 +76,10 @@ export const getActiveConfig = async (
 export const getConfigSnapshotHistory = async (
   query: QueryConfigHistoryDto,
 ) => {
-  await validateDevice({
+  await authDeviceCheck({
     deviceIdentifier: query.deviceIdentifier,
     accountId: query.accountId,
+    relation: "can_write",
   });
   const dataloggerConfigs = await getDataloggerConfigHistory({
     ...query,

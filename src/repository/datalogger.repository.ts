@@ -13,15 +13,14 @@ import {
 } from "../types/config-snapshot.types.ts";
 
 export const getActiveDataloggerConfig = async (
-  query: { configSnapshotId: string; accountId: string },
+  query: { configSnapshotId: string },
 ) => {
-  const { configSnapshotId, accountId } = query;
+  const { configSnapshotId } = query;
   return await prisma.dataloggerConfig.findMany({
     where: {
       configSnapshotId,
       active: true,
       archivedAt: null,
-      creatorId: accountId,
     },
   });
 };
@@ -29,11 +28,10 @@ export const getActiveDataloggerConfig = async (
 export const getDataloggerConfig = async (
   query: QueryConfigHistoryDto,
 ) => {
-  const { asAt, accountId, limit, offset, order, deviceIdentifier } = query;
+  const { asAt, limit, offset, order, deviceIdentifier } = query;
   if (asAt) {
     return await prisma.dataloggerConfig.findMany({
       where: {
-        creatorId: accountId,
         ConfigSnapshot: {
           DeviceContext: {
             Device: {
@@ -53,7 +51,6 @@ export const getDataloggerConfig = async (
   }
   return await prisma.dataloggerConfig.findMany({
     where: {
-      creatorId: accountId,
       ConfigSnapshot: {
         DeviceContext: {
           Device: {

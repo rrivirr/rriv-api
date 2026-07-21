@@ -1,6 +1,8 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@std/assert@1": "1.0.19",
+    "jsr:@std/internal@^1.0.12": "1.0.12",
     "npm:@anatine/zod-openapi@^2.2.6": "2.2.8_openapi3-ts@4.6.0_zod@3.25.76",
     "npm:@chirpstack/chirpstack-api@4.12.0": "4.12.0",
     "npm:@commitlint/config-conventional@^19.6.0": "19.8.1",
@@ -8,6 +10,7 @@
     "npm:@grpc/grpc-js@^1.14.3": "1.14.4",
     "npm:@joaomoreno/unique-names-generator@*": "5.2.0",
     "npm:@joaomoreno/unique-names-generator@^5.2.0": "5.2.0",
+    "npm:@openfga/sdk@*": "0.9.6",
     "npm:@prisma/adapter-pg@^7.2.0": "7.8.0",
     "npm:@prisma/client@^7.2.0": "7.8.0_prisma@7.8.0__typescript@6.0.3__@types+react@19.2.15__react@19.2.6__react-dom@19.2.6___react@19.2.6_typescript@6.0.3_@types+react@19.2.15_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:@types/express@5": "5.0.6",
@@ -23,6 +26,8 @@
     "npm:jsonwebtoken@*": "9.0.3",
     "npm:jsonwebtoken@^9.0.2": "9.0.3",
     "npm:openapi3-ts@^4.4.0": "4.6.0",
+    "npm:pg-boss@*": "12.18.3",
+    "npm:pg-boss@^12.18.3": "12.18.3",
     "npm:pg@^8.16.3": "8.21.0",
     "npm:prisma@*": "7.8.0_typescript@6.0.3_@types+react@19.2.15_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:prisma@^7.2.0": "7.8.0_typescript@6.0.3_@types+react@19.2.15_react@19.2.6_react-dom@19.2.6__react@19.2.6",
@@ -32,6 +37,17 @@
     "npm:winston@*": "3.19.0",
     "npm:winston@^3.17.0": "3.19.0",
     "npm:zod@^3.24.1": "3.25.76"
+  },
+  "jsr": {
+    "@std/assert@1.0.19": {
+      "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/internal@1.0.12": {
+      "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
+    }
   },
   "npm": {
     "@actions/core@3.0.1": {
@@ -377,6 +393,18 @@
       "dependencies": [
         "@octokit/openapi-types"
       ]
+    },
+    "@openfga/sdk@0.9.6": {
+      "integrity": "sha512-110QWSMKp28IeZTNG8Li1NinSZPuVh2aVlDE2wCJztbOCPy/ayn0E6b5z4XJcPpAno4KRRgt3E4Tvhihoqpm8w==",
+      "dependencies": [
+        "@opentelemetry/api",
+        "axios",
+        "jose",
+        "tiny-async-pool"
+      ]
+    },
+    "@opentelemetry/api@1.9.1": {
+      "integrity": "sha512-gLyJlPHPZYdAk1JENA9LeHejZe1Ti77/pTeFm/nMXmQH/HFZlcS/O2XJB+L8fkbrNSqhdtlvjBVjxwUYanNH5Q=="
     },
     "@pnpm/config.env-replace@1.1.0": {
       "integrity": "sha512-htyl8TWnKL7K/ESFa1oW2UB5lVDxuF5DpM7tBi6Hu2LNL3mWkIzNLG6N4zoCUP1lCKNxWy/3iu8mS8MvToGd6w=="
@@ -1288,6 +1316,12 @@
         "typescript"
       ]
     },
+    "cron-parser@5.5.0": {
+      "integrity": "sha512-oML4lKUXxizYswqmxuOCpgFS8BNUJpIu6k/2HVHyaL8Ynnf3wdf9tkns0yRdJLSIjkJ+b0DXHMZEHGpMwjnPww==",
+      "dependencies": [
+        "luxon"
+      ]
+    },
     "cross-spawn@7.0.6": {
       "integrity": "sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==",
       "dependencies": [
@@ -1989,6 +2023,9 @@
       "integrity": "sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==",
       "bin": true
     },
+    "jose@5.10.0": {
+      "integrity": "sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg=="
+    },
     "js-tokens@4.0.0": {
       "integrity": "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="
     },
@@ -2157,6 +2194,9 @@
     "lru.min@1.1.4": {
       "integrity": "sha512-DqC6n3QQ77zdFpCMASA1a3Jlb64Hv2N2DciFGkO/4L9+q/IpIAuRlKOvCXabtRW6cQf8usbmM6BE/TOPysCdIA=="
     },
+    "luxon@3.7.2": {
+      "integrity": "sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew=="
+    },
     "make-asynchronous@1.1.0": {
       "integrity": "sha512-ayF7iT+44LXdxJLTrTd3TLQpFDDvPCBxXxbv+pMUSuHA5Q8zyAfwkRP6aHHwNVFBUFWtxAHqwNJxF8vMZLAbVg==",
       "dependencies": [
@@ -2321,6 +2361,9 @@
       "dependencies": [
         "whatwg-url"
       ]
+    },
+    "non-error@0.1.0": {
+      "integrity": "sha512-TMB1uHiGsHRGv1uYclfhivcnf0/PdFp2pNqRxXjncaAsjYMoisaQJI+SSZCqRq+VliwRTC8tsMQfmrWjDMhkPQ=="
     },
     "nopt@5.0.0": {
       "integrity": "sha512-Tbj67rffqceeLpcRXrT7vKAN8CwfPeIBgM7E6iBkmKLV7bEMwpGgYLGv0jACUsECaa/vuxP0IjEont6umdMgtQ==",
@@ -2539,6 +2582,15 @@
     },
     "perfect-debounce@2.1.0": {
       "integrity": "sha512-LjgdTytVFXeUgtHZr9WYViYSM/g8MkcTPYDlPa3cDqMirHjKiSZPYd6DoL7pK8AJQr+uWkQvCjHNdiMqsrJs+g=="
+    },
+    "pg-boss@12.18.3": {
+      "integrity": "sha512-3pwVjvVwWE38XsD1lW01MA3LFlxemkasWbX3qB/NjZ5r9uQDfiytqA3hV7Jmsq7Up8bT7deZLJ98Kagcsw4VAg==",
+      "dependencies": [
+        "cron-parser",
+        "pg",
+        "serialize-error"
+      ],
+      "bin": true
     },
     "pg-cloudflare@1.4.0": {
       "integrity": "sha512-Vo7z/6rrQYxpNRylp4Tlob2elzbh+N/MOQbxFVWCxS7oEx6jF53GTJFxK2WWpKuBRkmiin4Mt+xofFDjx09R0A=="
@@ -2931,6 +2983,13 @@
     "seq-queue@0.0.5": {
       "integrity": "sha512-hr3Wtp/GZIc/6DAGPDcV4/9WoZhjrkXsi5B/07QgX8tsdc6ilr7BFM6PM6rbdAX1kFSDYeZGLipIZZKyQP0O5Q=="
     },
+    "serialize-error@13.0.1": {
+      "integrity": "sha512-bBZaRwLH9PN5HbLCjPId4dP5bNGEtumcErgOX952IsvOhVPrm3/AeK1y0UHA/QaPG701eg0yEnOKsCOC6X/kaA==",
+      "dependencies": [
+        "non-error",
+        "type-fest@5.7.0"
+      ]
+    },
     "serve-static@2.2.1": {
       "integrity": "sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==",
       "dependencies": [
@@ -3211,6 +3270,9 @@
       "dependencies": [
         "convert-hrtime"
       ]
+    },
+    "tiny-async-pool@2.1.0": {
+      "integrity": "sha512-ltAHPh/9k0STRQqaoUX52NH4ZQYAJz24ZAEwf1Zm+HYg3l9OXTWeqWKyYsHu40wF/F0rxd2N2bk5sLvX2qlSvg=="
     },
     "tinyexec@1.2.4": {
       "integrity": "sha512-SHf/r48b7vOrjve9PxJo3MN5v5yuyjHvdUcrQffT3WXMUfnGmHDVbC4k3sHJaJTgZCwpUplIaAo5ANtMyp3YHg=="
@@ -3504,6 +3566,7 @@
         "npm:express@^5.0.1",
         "npm:jsonwebtoken@^9.0.2",
         "npm:openapi3-ts@^4.4.0",
+        "npm:pg-boss@^12.18.3",
         "npm:pg@^8.16.3",
         "npm:prisma@^7.2.0",
         "npm:semantic-release-export-data@^1.2.0",
