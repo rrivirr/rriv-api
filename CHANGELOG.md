@@ -1,3 +1,10 @@
+## [1.15.8](https://github.com/rrivirr/rriv-api/compare/v1.15.7...v1.15.8) (2026-07-21)
+
+
+### Bug Fixes
+
+* migration job config fix ([bbf7ba9](https://github.com/rrivirr/rriv-api/commit/bbf7ba9a775fc9b075371cc859cb60ac17c28ea6))
+
 ## [1.15.7](https://github.com/rrivirr/rriv-api/compare/v1.15.6...v1.15.7) (2026-07-21)
 
 
