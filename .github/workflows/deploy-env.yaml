@@ -26,6 +26,11 @@ jobs:
       TAG: ${{ github.event.inputs.tag }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
       - name: Check out the github actions repo
         uses: actions/checkout@v4
         with:
@@ -33,11 +38,13 @@ jobs:
           ref: main
           token: ${{ secrets.GH_ACTIONS_ACCESS_TOKEN }}
           path: ./.github/actions/rrivirr-github-actions
+
       - name: capitalize env
         run: |
           env=${{ env.ENV }}
           CAPITALIZED="${env^^}"
           echo "CAPITALIZED_ENV=$CAPITALIZED" >> $GITHUB_ENV
+
       - name: Prepare deployment
         uses: ./.github/actions/rivirr-github-actions/prepare-deployment
         with:
