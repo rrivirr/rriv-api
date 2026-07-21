@@ -46,7 +46,7 @@ jobs:
           echo "CAPITALIZED_ENV=$CAPITALIZED" >> $GITHUB_ENV
 
       - name: Prepare deployment
-        uses: ./.github/actions/rivirr-github-actions/prepare-deployment
+        uses: ./.github/actions/rrivirr-github-actions/prepare-deployment
         with:
           ENV: ${{ env.ENV }}
           # This line is required to pass the AWS role to the action
