@@ -23,6 +23,7 @@
     "npm:jsonwebtoken@*": "9.0.3",
     "npm:jsonwebtoken@^9.0.2": "9.0.3",
     "npm:openapi3-ts@^4.4.0": "4.6.0",
+    "npm:pg-boss@^12.18.3": "12.18.3",
     "npm:pg@^8.16.3": "8.21.0",
     "npm:prisma@*": "7.8.0_typescript@6.0.3_@types+react@19.2.15_react@19.2.6_react-dom@19.2.6__react@19.2.6",
     "npm:prisma@^7.2.0": "7.8.0_typescript@6.0.3_@types+react@19.2.15_react@19.2.6_react-dom@19.2.6__react@19.2.6",
@@ -1288,6 +1289,12 @@
         "typescript"
       ]
     },
+    "cron-parser@5.5.0": {
+      "integrity": "sha512-oML4lKUXxizYswqmxuOCpgFS8BNUJpIu6k/2HVHyaL8Ynnf3wdf9tkns0yRdJLSIjkJ+b0DXHMZEHGpMwjnPww==",
+      "dependencies": [
+        "luxon"
+      ]
+    },
     "cross-spawn@7.0.6": {
       "integrity": "sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==",
       "dependencies": [
@@ -2157,6 +2164,9 @@
     "lru.min@1.1.4": {
       "integrity": "sha512-DqC6n3QQ77zdFpCMASA1a3Jlb64Hv2N2DciFGkO/4L9+q/IpIAuRlKOvCXabtRW6cQf8usbmM6BE/TOPysCdIA=="
     },
+    "luxon@3.7.2": {
+      "integrity": "sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew=="
+    },
     "make-asynchronous@1.1.0": {
       "integrity": "sha512-ayF7iT+44LXdxJLTrTd3TLQpFDDvPCBxXxbv+pMUSuHA5Q8zyAfwkRP6aHHwNVFBUFWtxAHqwNJxF8vMZLAbVg==",
       "dependencies": [
@@ -2321,6 +2331,9 @@
       "dependencies": [
         "whatwg-url"
       ]
+    },
+    "non-error@0.1.0": {
+      "integrity": "sha512-TMB1uHiGsHRGv1uYclfhivcnf0/PdFp2pNqRxXjncaAsjYMoisaQJI+SSZCqRq+VliwRTC8tsMQfmrWjDMhkPQ=="
     },
     "nopt@5.0.0": {
       "integrity": "sha512-Tbj67rffqceeLpcRXrT7vKAN8CwfPeIBgM7E6iBkmKLV7bEMwpGgYLGv0jACUsECaa/vuxP0IjEont6umdMgtQ==",
@@ -2539,6 +2552,15 @@
     },
     "perfect-debounce@2.1.0": {
       "integrity": "sha512-LjgdTytVFXeUgtHZr9WYViYSM/g8MkcTPYDlPa3cDqMirHjKiSZPYd6DoL7pK8AJQr+uWkQvCjHNdiMqsrJs+g=="
+    },
+    "pg-boss@12.18.3": {
+      "integrity": "sha512-3pwVjvVwWE38XsD1lW01MA3LFlxemkasWbX3qB/NjZ5r9uQDfiytqA3hV7Jmsq7Up8bT7deZLJ98Kagcsw4VAg==",
+      "dependencies": [
+        "cron-parser",
+        "pg",
+        "serialize-error"
+      ],
+      "bin": true
     },
     "pg-cloudflare@1.4.0": {
       "integrity": "sha512-Vo7z/6rrQYxpNRylp4Tlob2elzbh+N/MOQbxFVWCxS7oEx6jF53GTJFxK2WWpKuBRkmiin4Mt+xofFDjx09R0A=="
@@ -2930,6 +2952,13 @@
     },
     "seq-queue@0.0.5": {
       "integrity": "sha512-hr3Wtp/GZIc/6DAGPDcV4/9WoZhjrkXsi5B/07QgX8tsdc6ilr7BFM6PM6rbdAX1kFSDYeZGLipIZZKyQP0O5Q=="
+    },
+    "serialize-error@13.0.1": {
+      "integrity": "sha512-bBZaRwLH9PN5HbLCjPId4dP5bNGEtumcErgOX952IsvOhVPrm3/AeK1y0UHA/QaPG701eg0yEnOKsCOC6X/kaA==",
+      "dependencies": [
+        "non-error",
+        "type-fest@5.7.0"
+      ]
     },
     "serve-static@2.2.1": {
       "integrity": "sha512-xRXBn0pPqQTVQiC8wyQrKs2MOlX24zQ0POGaj0kultvoOCstBQM5yvOhAVSUwOMjQtTvsPWoNCHfPGwaaQJhTw==",
@@ -3504,6 +3533,7 @@
         "npm:express@^5.0.1",
         "npm:jsonwebtoken@^9.0.2",
         "npm:openapi3-ts@^4.4.0",
+        "npm:pg-boss@^12.18.3",
         "npm:pg@^8.16.3",
         "npm:prisma@^7.2.0",
         "npm:semantic-release-export-data@^1.2.0",
