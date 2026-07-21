@@ -1,6 +1,6 @@
 {
   "deno.enable": true,
-  "editor.formatOnSave": true,
+  "editor.formatOnSave": false,
   "[prisma]": {
     "editor.defaultFormatter": "Prisma.prisma"
   },
