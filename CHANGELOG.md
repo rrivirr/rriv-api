@@ -1,3 +1,10 @@
+## [1.15.10](https://github.com/rrivirr/rriv-api/compare/v1.15.9...v1.15.10) (2026-07-22)
+
+
+### Bug Fixes
+
+* migration job agent annotations ([44a5046](https://github.com/rrivirr/rriv-api/commit/44a504667f911fe7593bfceff8a768e0e111742f))
+
 ## [1.15.9](https://github.com/rrivirr/rriv-api/compare/v1.15.8...v1.15.9) (2026-07-22)
 
 
