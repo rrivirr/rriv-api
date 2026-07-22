@@ -11,7 +11,8 @@ spec:
       labels:
         app: rriv-api
       annotations:
-        vault.hashicorp.com/agent-init-first: "true"
+        vault.hashicorp.com/agent-inject: "true"
+        vault.hashicorp.com/agent-pre-populate-only: "true"
         vault.hashicorp.com/role: "webapp"
         vault.hashicorp.com/agent-requests-cpu: "10m"
         vault.hashicorp.com/agent-requests-memory: "32Mi"
