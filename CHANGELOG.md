@@ -1,3 +1,10 @@
+## [1.15.9](https://github.com/rrivirr/rriv-api/compare/v1.15.8...v1.15.9) (2026-07-22)
+
+
+### Bug Fixes
+
+* use agent-init-first ([5b95059](https://github.com/rrivirr/rriv-api/commit/5b95059d0a774d6fc192fa97843e9020f1d575ee))
+
 ## [1.15.8](https://github.com/rrivirr/rriv-api/compare/v1.15.7...v1.15.8) (2026-07-21)
 
 
