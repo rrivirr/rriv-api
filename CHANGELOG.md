@@ -1,3 +1,10 @@
+## [1.15.11](https://github.com/rrivirr/rriv-api/compare/v1.15.10...v1.15.11) (2026-07-29)
+
+
+### Bug Fixes
+
+* increase sensor name limit ([02d98e3](https://github.com/rrivirr/rriv-api/commit/02d98e35ef2a3498047140ecd10179e7bebec65b))
+
 ## [1.15.10](https://github.com/rrivirr/rriv-api/compare/v1.15.9...v1.15.10) (2026-07-22)
 
 
