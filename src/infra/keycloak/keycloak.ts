@@ -1,6 +1,8 @@
 import axios from "axios";
 import { HttpException } from "../../utils/http-exception.ts";
 import {
+  keycloakAuthClientId,
+  keycloakAuthClientSecret,
   keycloakClientId,
   keycloakClientSecret,
   keycloakRealm,
@@ -23,13 +25,26 @@ export const getPublicKey = async () => {
   }
 };
 
-export const getM2MToken = async () => {
+export const getM2MToken = async (auth?: boolean) => {
   try {
+    let clientId, clientSecret;
+    if (auth) {
+      clientId = keycloakAuthClientId;
+      clientSecret = keycloakAuthClientSecret;
+    } else {
+      clientId = keycloakClientId;
+      clientSecret = keycloakClientSecret;
+    }
+
+    if (!clientId || !clientSecret) {
+      throw new HttpException(500, "no auth credentials found");
+    }
+
     const response = await axios.post(
       `${keycloakUrl}/realms/${keycloakRealm}/protocol/openid-connect/token`,
       new URLSearchParams({
-        client_id: keycloakClientId!,
-        client_secret: keycloakClientSecret!,
+        client_id: clientId,
+        client_secret: clientSecret,
         grant_type: "client_credentials",
       }),
     );
