@@ -1,3 +1,10 @@
+## [1.15.13](https://github.com/rrivirr/rriv-api/compare/v1.15.12...v1.15.13) (2026-08-20)
+
+
+### Bug Fixes
+
+* deployment secret ([1760cc0](https://github.com/rrivirr/rriv-api/commit/1760cc0f9df3008acf8cc2efc1b5a0187cccc1ac))
+
 ## [1.15.12](https://github.com/rrivirr/rriv-api/compare/v1.15.11...v1.15.12) (2026-07-29)
 
 
