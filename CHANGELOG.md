@@ -1,3 +1,10 @@
+## [1.15.14](https://github.com/rrivirr/rriv-api/compare/v1.15.13...v1.15.14) (2026-09-02)
+
+
+### Bug Fixes
+
+* trigger deployment ([5489dde](https://github.com/rrivirr/rriv-api/commit/5489dde6780ec173f2a277326c5a6a33a4d424f3))
+
 ## [1.15.13](https://github.com/rrivirr/rriv-api/compare/v1.15.12...v1.15.13) (2026-08-20)
 
 
