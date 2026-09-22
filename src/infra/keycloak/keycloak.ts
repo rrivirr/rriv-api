@@ -18,7 +18,6 @@ export const getPublicKey = async () => {
 
     // deno-lint-ignore no-explicit-any
   } catch (error: any) {
-    console.log(keycloakUrl, keycloakRealm);
     logger.debug(error);
     throw new HttpException(
       500,
