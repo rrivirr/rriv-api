@@ -1,6 +1,6 @@
 {
   "name": "rriv-api",
-  "version": "1.15.14",
+  "version": "1.15.15",
   "description": "The main RRIV API, the heart of our platform",
   "main": "main.js",
   "scripts": {
@@ -30,9 +30,9 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "commitlint": "^19.6.1",
     "@commitlint/config-conventional": "^19.6.0",
-    "semantic-release-export-data": "^1.2.0",
-    "prisma": "^7.2.0"
+    "commitlint": "^19.6.1",
+    "prisma": "^7.2.0",
+    "semantic-release-export-data": "^1.2.0"
   }
 }

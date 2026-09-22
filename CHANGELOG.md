@@ -1,3 +1,10 @@
+## [1.15.15](https://github.com/rrivirr/rriv-api/compare/v1.15.14...v1.15.15) (2026-09-22)
+
+
+### Bug Fixes
+
+* make use of ditroless container ([88f8766](https://github.com/rrivirr/rriv-api/commit/88f87660c965d5056ba0155540acda94a0dddde7))
+
 ## [1.15.14](https://github.com/rrivirr/rriv-api/compare/v1.15.13...v1.15.14) (2026-09-02)
 
 
