@@ -9,6 +9,8 @@ import {
 import { KEYCLOAK_ACTIONS_EMAIL } from "./enum.ts";
 import winston from "../../winston.ts";
 
+const logger = winston.child({ source: "KeycloakAPI" });
+
 export const getPublicKey = async () => {
   try {
     const response = await axios.get(`${keycloakUrl}/realms/${keycloakRealm}`);
@@ -16,6 +18,8 @@ export const getPublicKey = async () => {
 
     // deno-lint-ignore no-explicit-any
   } catch (error: any) {
+    console.log(keycloakUrl, keycloakRealm);
+    logger.debug(error);
     throw new HttpException(
       500,
       JSON.stringify(error?.response) || error,
@@ -37,6 +41,7 @@ export const getM2MToken = async () => {
     return response.data.access_token;
     // deno-lint-ignore no-explicit-any
   } catch (error: any) {
+    logger.debug(error);
     throw new HttpException(
       500,
       JSON.stringify(error?.response) || error,
@@ -77,6 +82,7 @@ export const createUser = async (
     return userId;
     // deno-lint-ignore no-explicit-any
   } catch (error: any) {
+    logger.debug(error);
     const errorResponse = error?.response?.data;
     const errorMessage = errorResponse.errorMessage;
     const errorStatus = error?.status;
@@ -113,6 +119,7 @@ export const executeActionsEmail = async (
     );
     // deno-lint-ignore no-explicit-any
   } catch (error: any) {
+    logger.debug(error);
     const errorInformation = error?.response?.data || error;
     if (errorOut) {
       throw new HttpException(

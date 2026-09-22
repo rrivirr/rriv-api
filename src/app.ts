@@ -1,7 +1,5 @@
 // @deno-types="npm:@types/express@5"
 import express, { NextFunction, Request, Response } from "npm:express";
-// @deno-types="npm:@types/swagger-ui-express"
-import swaggerUi from "npm:swagger-ui-express";
 import { HttpException } from "./utils/http-exception.ts";
 import errorHandler from "./utils/error-handler.ts";
 import routes from "./routes/index.ts";
@@ -9,12 +7,19 @@ import { swaggerBuilder } from "./swagger/index.ts";
 import { jwtMiddleware } from "./utils/middleware/jwt.middleware.ts";
 
 const app = express();
+const specJson = swaggerBuilder.getSpecAsJson();
+const specYaml = swaggerBuilder.getSpecAsYaml();
 
-app.use(
+app.get(
   "/version",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerBuilder.getSpec()),
+  (_req: Request, res: Response) => res.redirect("/version.yaml"),
 );
+app.get("/version.json", (_req: Request, res: Response) => {
+  res.type("application/json").json(JSON.parse(specJson));
+});
+app.get("/version.yaml", (_req: Request, res: Response) => {
+  res.type("application/yaml").send(specYaml);
+});
 app.use(jwtMiddleware);
 
 app.use((req: Request, _res: Response, next: NextFunction) => {
