@@ -80,6 +80,9 @@ jobs:
           push: true
           tags: registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }}
 
+      - name: Delete previous migration job if exists
+        run: kubectl delete job rriv-api-migration-job --ignore-not-found
+
       - name: Install kustomize
         run: curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 

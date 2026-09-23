@@ -1,3 +1,80 @@
+## [1.15.15](https://github.com/rrivirr/rriv-api/compare/v1.15.14...v1.15.15) (2026-09-22)
+
+
+### Bug Fixes
+
+* make use of ditroless container ([88f8766](https://github.com/rrivirr/rriv-api/commit/88f87660c965d5056ba0155540acda94a0dddde7))
+
+## [1.15.14](https://github.com/rrivirr/rriv-api/compare/v1.15.13...v1.15.14) (2026-09-02)
+
+
+### Bug Fixes
+
+* trigger deployment ([5489dde](https://github.com/rrivirr/rriv-api/commit/5489dde6780ec173f2a277326c5a6a33a4d424f3))
+
+## [1.15.13](https://github.com/rrivirr/rriv-api/compare/v1.15.12...v1.15.13) (2026-08-20)
+
+
+### Bug Fixes
+
+* deployment secret ([1760cc0](https://github.com/rrivirr/rriv-api/commit/1760cc0f9df3008acf8cc2efc1b5a0187cccc1ac))
+
+## [1.15.12](https://github.com/rrivirr/rriv-api/compare/v1.15.11...v1.15.12) (2026-07-29)
+
+
+### Bug Fixes
+
+* remove previous migration job ([e0f9596](https://github.com/rrivirr/rriv-api/commit/e0f95966d2d7ac769a53e2255f693c009508a24f))
+
+## [1.15.11](https://github.com/rrivirr/rriv-api/compare/v1.15.10...v1.15.11) (2026-07-29)
+
+
+### Bug Fixes
+
+* increase sensor name limit ([02d98e3](https://github.com/rrivirr/rriv-api/commit/02d98e35ef2a3498047140ecd10179e7bebec65b))
+
+## [1.15.10](https://github.com/rrivirr/rriv-api/compare/v1.15.9...v1.15.10) (2026-07-22)
+
+
+### Bug Fixes
+
+* migration job agent annotations ([44a5046](https://github.com/rrivirr/rriv-api/commit/44a504667f911fe7593bfceff8a768e0e111742f))
+
+## [1.15.9](https://github.com/rrivirr/rriv-api/compare/v1.15.8...v1.15.9) (2026-07-22)
+
+
+### Bug Fixes
+
+* use agent-init-first ([5b95059](https://github.com/rrivirr/rriv-api/commit/5b95059d0a774d6fc192fa97843e9020f1d575ee))
+
+## [1.15.8](https://github.com/rrivirr/rriv-api/compare/v1.15.7...v1.15.8) (2026-07-21)
+
+
+### Bug Fixes
+
+* migration job config fix ([bbf7ba9](https://github.com/rrivirr/rriv-api/commit/bbf7ba9a775fc9b075371cc859cb60ac17c28ea6))
+
+## [1.15.7](https://github.com/rrivirr/rriv-api/compare/v1.15.6...v1.15.7) (2026-07-21)
+
+
+### Bug Fixes
+
+* update migration job config ([e42cc67](https://github.com/rrivirr/rriv-api/commit/e42cc679ed82c8b8d28fb86c2aa56b35d3c96896))
+
+## [1.15.6](https://github.com/rrivirr/rriv-api/compare/v1.15.5...v1.15.6) (2026-07-06)
+
+
+### Bug Fixes
+
+* add database ca cert secret ([8487127](https://github.com/rrivirr/rriv-api/commit/84871277304f4582b2886402be919fc4f10f1bfa))
+
+## [1.15.5](https://github.com/rrivirr/rriv-api/compare/v1.15.4...v1.15.5) (2026-06-03)
+
+
+### Bug Fixes
+
+* set agent limits ([db4a7a3](https://github.com/rrivirr/rriv-api/commit/db4a7a3a3670f07bff6b9dcc982353aebe202e0c))
+
 ## [1.15.4](https://github.com/rrivirr/rriv-api/compare/v1.15.3...v1.15.4) (2026-06-03)
 
 

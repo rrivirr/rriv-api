@@ -26,19 +26,34 @@ jobs:
       TAG: ${{ github.event.inputs.tag }}
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag }}
+
       - name: Check out the github actions repo
         uses: actions/checkout@v4
         with:
           repository: rrivirr/github-actions
-          ref: v1.1.0
+          ref: v1.3.6
           token: ${{ secrets.GH_ACTIONS_ACCESS_TOKEN }}
           path: ./.github/actions/rrivirr-github-actions
+
+      - name: capitalize env
+        run: |
+          env=${{ env.ENV }}
+          CAPITALIZED="${env^^}"
+          echo "CAPITALIZED_ENV=$CAPITALIZED" >> $GITHUB_ENV
+
       - name: Prepare deployment
-        uses: ./.github/actions/rrivirr-github-actions/.github/actions/prepare-deployment.yaml@v1.1.0 # make sure you point at the latest version!
+        uses: ./.github/actions/rrivirr-github-actions/prepare-deployment
         with:
           ENV: ${{ env.ENV }}
           # This line is required to pass the AWS role to the action
-          AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', env.ENV)] }}
+          AWS_ROLE_ARN: ${{ secrets[format('{0}_GITHUB_ACTIONS_AWS_ROLE_ARN', env.CAPITALIZED_ENV)] }}
+
+      - name: Delete previous migration job if exists
+        run: kubectl delete job rriv-api-migration-job --ignore-not-found
 
       - name: Install kustomize
         run: curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash

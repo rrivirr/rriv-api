@@ -1,6 +1,6 @@
 {
   "name": "rriv-api",
-  "version": "1.15.4",
+  "version": "1.15.15",
   "description": "The main RRIV API, the heart of our platform",
   "main": "main.js",
   "scripts": {
@@ -15,26 +15,25 @@
   "dependencies": {
     "@anatine/zod-openapi": "^2.2.6",
     "@chirpstack/chirpstack-api": "4.12.0",
-    "@commitlint/config-conventional": "^19.6.0",
     "@grpc/grpc-js": "^1.14.3",
     "@joaomoreno/unique-names-generator": "^5.2.0",
     "@prisma/adapter-pg": "^7.2.0",
     "@prisma/client": "^7.2.0",
     "ajv": "^8.17.1",
     "axios": "^1.11.0",
-    "commitlint": "^19.6.1",
     "dotenv": "^17.3.1",
     "express": "^5.0.1",
     "jsonwebtoken": "^9.0.2",
     "openapi3-ts": "^4.4.0",
     "pg": "^8.16.3",
     "pg-boss": "^12.18.3",
-    "semantic-release-export-data": "^1.2.0",
-    "swagger-ui-express": "^5.0.1",
     "winston": "^3.17.0",
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "prisma": "^7.2.0"
+    "@commitlint/config-conventional": "^19.6.0",
+    "commitlint": "^19.6.1",
+    "prisma": "^7.2.0",
+    "semantic-release-export-data": "^1.2.0"
   }
 }

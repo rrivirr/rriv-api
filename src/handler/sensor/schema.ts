@@ -25,7 +25,7 @@ export const createSensorDriverSchema = z.object({
 }).strict();
 
 export const createSensorConfigSchema = z.object({
-  name: getNameSchema(1, 6),
+  name: getNameSchema(1, 12),
   config: z.object({}).passthrough(),
   sensorDriverId: z.string().uuid(),
   deviceId: z.string().uuid(),
@@ -46,7 +46,7 @@ export const createSensorLibraryConfigSchema = z.object({
   name: getNameSchema(),
   description: getNameSchema().optional(),
   config: z.object({}).passthrough(),
-  sensorName: getNameSchema(1, 6),
+  sensorName: getNameSchema(1, 12),
 }).strict();
 
 export const sensorLibraryConfigQuerySchema = z.object({
@@ -59,7 +59,7 @@ export const sensorLibraryConfigQuerySchema = z.object({
 ).strict();
 
 export const createNewSensorLibraryConfigVersionSchema = z.object({
-  sensorName: getNameSchema(1, 6),
+  sensorName: getNameSchema(1, 12),
   config: z.object({}).passthrough(),
   description: getNameSchema().optional(),
 }).strict();

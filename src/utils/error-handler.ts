@@ -19,6 +19,7 @@ export default (
   _next: NextFunction,
 ) => {
   const errorLogger = logger.child({ source: "errorHandler" });
+  errorLogger.debug(err);
   if (err instanceof HttpException) {
     if (err.code === 500) {
       errorLogger.error(err.message);
