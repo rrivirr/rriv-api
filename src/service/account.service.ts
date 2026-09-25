@@ -2,6 +2,7 @@ import { CreateAccountDto } from "../types/account.types.ts";
 import * as keycloak from "../infra/keycloak/keycloak.ts";
 import * as accountRepository from "../repository/account.repository.ts";
 import { KEYCLOAK_ACTIONS_EMAIL } from "../infra/keycloak/enum.ts";
+import { HttpException } from "../utils/http-exception.ts";
 
 export const createAccount = async (body: CreateAccountDto) => {
   const userId = await keycloak.createUser({ ...body });
@@ -35,4 +36,17 @@ export const resetPassword = async (email: string) => {
       true,
     );
   }
+};
+
+export const getAccountByEmail = async (email: string) => {
+  const user = await accountRepository.getAccountByEmail(email);
+
+  if (!user) {
+    throw new HttpException(404, "email specified not found");
+  }
+  return user;
+};
+
+export const getAccountsByIds = async (ids: string[]) => {
+  return await accountRepository.getAccountsByIds(ids);
 };

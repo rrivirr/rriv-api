@@ -22,10 +22,16 @@ import { getChirpstackConnection } from "../infra/chirpstack.ts";
 import * as deviceRepository from "../repository/device.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
 import { IdDto } from "../types/generic.types.ts";
-import { validateDevice } from "./utils/validate-device.ts";
 import { getSeed } from "./utils/get-seed.ts";
 import { validateDeviceContext } from "./utils/validate-device-context.ts";
 import { idSchema } from "../handler/generic/generic.schema.ts";
+import {
+  authorizationCheck,
+  listObjects,
+  listUsers,
+  read,
+  SYSTEM,
+} from "./auth.service.ts";
 
 const getNewIdentifiers = async (lastSerialNumber?: string) => {
   let newSerialNumber = 0n;
@@ -64,6 +70,30 @@ const getNewIdentifiers = async (lastSerialNumber?: string) => {
     serialNumber,
     uniqueName,
   };
+};
+
+export const authDeviceCheck = async (
+  requestBody: (DeviceIdentifierDto | IdDto) & {
+    accountId: string;
+    relation: "owner" | "can_write";
+  },
+) => {
+  const { accountId, relation, ...deviceIdentifier } = requestBody;
+
+  const deviceObject = await getDeviceByIdentifierOrId(deviceIdentifier);
+  if (!deviceObject || !deviceObject.activeBind) {
+    throw new HttpException(404, "device not found");
+  }
+
+  const deviceId = deviceObject.device.id;
+
+  await authorizationCheck({
+    object: `device:${deviceId}`,
+    user: `user:${accountId}`,
+    relation: relation,
+  });
+
+  return deviceObject;
 };
 
 export const provisionDevice = async (body: ProvisionDeviceDto) => {
@@ -150,28 +180,43 @@ export const bindDevice = async (requestBody: BindDeviceDto) => {
       "invalid serial number received",
     );
   }
-  const { device, activeBind } = deviceObject;
+  const { device } = deviceObject;
 
-  if (!activeBind) {
-    await deviceRepository.bindDevice({ serialNumber, accountId });
+  // get device owner
+  const ownerIds = await listUsers({
+    userType: "user",
+    objectType: "device",
+    id: device.id,
+    relation: "owner",
+  });
+
+  if (ownerIds.length) {
+    if (ownerIds[0].object.id !== accountId) {
+      throw new HttpException(409, "device bound to another user");
+    }
+
     return device;
   }
 
-  if (activeBind.accountId !== accountId) {
-    throw new HttpException(409, "device bound to another user");
-  }
+  await deviceRepository.bindDevice({
+    accountId,
+    deviceId: deviceObject.device.id,
+  });
 
   return device;
 };
 
 export const unbindDevice = async (requestBody: AccountUniqueDeviceDto) => {
   const { serialNumber, accountId } = requestBody;
-  const deviceObject = await validateDevice({
+
+  const deviceObject = await authDeviceCheck({
     deviceIdentifier: serialNumber,
     accountId,
+    relation: "owner",
   });
+
   const { device, activeBind } = deviceObject;
-  await deviceRepository.unbindDevice({ bindId: activeBind.id });
+  await deviceRepository.unbindDevice({ bindId: activeBind!.id });
   return device;
 };
 
@@ -184,19 +229,51 @@ export const getDevices = async (query: QueryDeviceDto) => {
       delete payload.identifier;
     }
   }
+  let deviceIds = await listObjects({
+    user: `user:${payload.accountId}`,
+    type: "device",
+    relation: "can_write",
+  });
 
-  return await deviceRepository.getDevices(payload);
+  if (payload.id) {
+    if (!deviceIds.includes(payload.id)) {
+      throw new HttpException(403, "access to resource denied");
+    }
+    deviceIds = [payload.id];
+  }
+
+  return await deviceRepository.getDevices({ ...payload, deviceIds });
 };
 
 export const deleteDevice = async (requestBody: AccountUniqueDeviceDto) => {
   const { serialNumber, accountId } = requestBody;
-  const deviceObject = await validateDevice({
+  const deviceObject = await authDeviceCheck({
     deviceIdentifier: serialNumber,
     accountId,
+    relation: "owner",
   });
+
+  const deviceId = deviceObject.device.id;
+
+  const tuples = await read({
+    object: `device:${deviceId}`,
+    relation: `context`,
+  });
+
+  const deletes = [{
+    user: SYSTEM,
+    object: `device:${deviceId}`,
+    relation: "system",
+  }, {
+    user: `user:${accountId}`,
+    object: `device:${deviceId}`,
+    relation: "owner",
+  }];
 
   await deviceRepository.deleteDevice({
     serialNumber,
+    accountId,
+    deletes: [...deletes, ...tuples],
   });
   return deviceObject.device;
 };
@@ -205,10 +282,12 @@ export const createFirmwareEntry = async (
   requestBody: CreateFirmwareEntryDto,
 ) => {
   const { deviceId, contextId, accountId, version, installedAt } = requestBody;
+
   const deviceContext = await validateDeviceContext({
     deviceId,
     contextId,
     accountId,
+    relation: "can_edit",
   });
   await deviceRepository.createFirmwareEntry({
     deviceContextId: deviceContext.id,
@@ -220,12 +299,25 @@ export const createFirmwareEntry = async (
 
 export const getFirmwareHistory = async (query: QueryFirmwareHistoryDto) => {
   const { accountId } = query;
+  let device: Awaited<ReturnType<typeof authDeviceCheck>>;
+
   if ("deviceId" in query) {
-    await validateDevice({ id: query.deviceId, accountId });
+    device = await authDeviceCheck({
+      id: query.deviceId,
+      accountId,
+      relation: "can_write",
+    });
   } else {
-    await validateDevice({ deviceIdentifier: query.serialNumber, accountId });
+    device = await authDeviceCheck({
+      deviceIdentifier: query.serialNumber,
+      accountId,
+      relation: "can_write",
+    });
   }
-  const firmwareHistory = await deviceRepository.getFirmwareHistory(query);
+  const firmwareHistory = await deviceRepository.getFirmwareHistory({
+    ...query,
+    id: device.device.id,
+  });
   return firmwareHistory.map((
     { version, installedAt, createdAt, DeviceContext: { Context: { name } } },
   ) => ({
@@ -249,7 +341,11 @@ export const getChirpstackApplications = async () => {
 
 export const registerEui = async (body: RegisterEuiDto) => {
   const { deviceId, accountId, eui, joinEui, application } = body;
-  const deviceDetails = await validateDevice({ id: deviceId, accountId });
+  const deviceDetails = await authDeviceCheck({
+    id: deviceId,
+    accountId,
+    relation: "can_write",
+  });
 
   const activeEui = await deviceRepository.getActiveEui({ deviceId });
   if (activeEui && activeEui.eui === eui) {
@@ -313,8 +409,13 @@ export const registerEui = async (body: RegisterEuiDto) => {
 
 export const sendCommand = async (body: SendCommandDto) => {
   const { accountId, identifier, command } = body;
-  const devices = await getDevices({ accountId, identifier });
-  const device = devices[0];
+  const deviceDetails = await authDeviceCheck({
+    deviceIdentifier: identifier,
+    accountId,
+    relation: "can_write",
+  });
+
+  const device = deviceDetails.device;
   if (!device) {
     throw new HttpException(404, "no device found with specified identifier");
   }
@@ -356,21 +457,28 @@ export const sendCommand = async (body: SendCommandDto) => {
 
 export const getLogs = async (query: QueryLogsDto) => {
   const { identifier, accountId, ...sortingParam } = query;
-  const devices = await getDevices({ identifier, accountId });
-  if (!devices.length) {
-    throw new HttpException(404, "device not found");
-  }
+  const deviceDetails = await authDeviceCheck({
+    deviceIdentifier: identifier,
+    accountId,
+    relation: "can_write",
+  });
+
   return await deviceRepository.getLogs({
     ...sortingParam,
-    deviceId: devices[0].id,
+    deviceId: deviceDetails.device.id,
   });
 };
 
 export const createLog = async (body: CreateLogDto) => {
   const { identifier, accountId, log } = body;
-  const devices = await getDevices({ identifier, accountId });
-  if (!devices.length) {
-    throw new HttpException(404, "device not found");
-  }
-  await deviceRepository.createLog({ accountId, log, deviceId: devices[0].id });
+  const deviceDetails = await authDeviceCheck({
+    deviceIdentifier: identifier,
+    accountId,
+    relation: "can_write",
+  });
+  await deviceRepository.createLog({
+    accountId,
+    log,
+    deviceId: deviceDetails.device.id,
+  });
 };

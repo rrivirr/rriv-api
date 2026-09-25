@@ -4,19 +4,19 @@ import {
   UpdateDeviceContextDto,
 } from "../types/context.types.ts";
 import { HttpException } from "../utils/http-exception.ts";
-import { validateDevice } from "./utils/validate-device.ts";
 import * as deviceContextRepository from "../repository/device-context.repository.ts";
 import * as configSnapshotRepository from "../repository/config-snapshot.repository.ts";
-import { validateContext } from "./utils/validate-context.ts";
 import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "./utils/constants.ts";
 import { validateDeviceContext } from "./utils/validate-device-context.ts";
+import { authContextCheck } from "./context.service.ts";
+import { authDeviceCheck } from "./device.service.ts";
 
 export const createDeviceContext = async (
   requestBody: CreateDeviceContextDto,
 ) => {
   const { contextId, deviceId, accountId, assignedDeviceName } = requestBody;
 
-  await validateContext({ contextId, accountId });
+  await authContextCheck({ contextId, accountId, relation: "can_edit" });
 
   const deviceContext = await deviceContextRepository.getDeviceContext({
     contextId,
@@ -29,13 +29,16 @@ export const createDeviceContext = async (
     );
   }
 
-  const deviceObject = await validateDevice({ id: deviceId, accountId });
-  const { activeDeviceContext } = deviceObject;
+  const deviceDetails = await authDeviceCheck({
+    id: deviceId,
+    accountId,
+    relation: "can_write",
+  });
 
-  if (activeDeviceContext) {
+  if (deviceDetails.activeDeviceContext) {
     throw new HttpException(
       422,
-      `device already in ${activeDeviceContext.Context.name} context`,
+      `device already in ${deviceDetails.activeDeviceContext.Context.name} context`,
     );
   }
 
@@ -51,14 +54,12 @@ export const createDeviceContext = async (
 export const getDeviceContext = async (query: DeviceContextDto) => {
   const { contextId, deviceId, accountId } = query;
 
-  await validateContext({ contextId, accountId });
-
-  const deviceObject = await validateDevice({ id: deviceId, accountId });
-  const { activeDeviceContext } = deviceObject;
-
-  if (!activeDeviceContext || activeDeviceContext.contextId !== contextId) {
-    return null;
-  }
+  const activeDeviceContext = await validateDeviceContext({
+    contextId,
+    accountId,
+    deviceId,
+    relation: "can_edit",
+  });
 
   let configSnapshotId: string;
   if (!activeDeviceContext.ConfigSnapshot.length) {
@@ -82,9 +83,22 @@ export const getDeviceContext = async (query: DeviceContextDto) => {
 };
 
 export const updateDeviceContext = async (body: UpdateDeviceContextDto) => {
-  const { contextId, deviceId, accountId, assignedDeviceName } = body;
+  const { contextId, deviceId, accountId, assignedDeviceName, end } = body;
 
-  await validateDeviceContext({ deviceId, contextId, accountId });
+  await validateDeviceContext({
+    deviceId,
+    contextId,
+    accountId,
+    relation: "can_edit",
+  });
+
+  if (end) {
+    await authDeviceCheck({
+      id: deviceId,
+      accountId,
+      relation: "owner",
+    });
+  }
 
   if (assignedDeviceName) {
     // assignedDeviceName should be unique in a context
@@ -104,7 +118,12 @@ export const updateDeviceContext = async (body: UpdateDeviceContextDto) => {
 };
 
 export const deleteDeviceContext = async (body: DeviceContextDto) => {
-  const { contextId, deviceId } = body;
-  await validateDeviceContext(body);
+  const { contextId, deviceId, accountId } = body;
+  await validateDeviceContext({ ...body, relation: "can_edit" });
+  await authDeviceCheck({
+    id: deviceId,
+    accountId,
+    relation: "owner",
+  });
   await deviceContextRepository.deleteDeviceContext({ contextId, deviceId });
 };

@@ -1,6 +1,8 @@
 import axios from "axios";
 import { HttpException } from "../../utils/http-exception.ts";
 import {
+  keycloakAuthClientId,
+  keycloakAuthClientSecret,
   keycloakClientId,
   keycloakClientSecret,
   keycloakRealm,
@@ -21,18 +23,31 @@ export const getPublicKey = async () => {
     logger.debug(error);
     throw new HttpException(
       500,
-      JSON.stringify(error?.response) || error,
+      error,
     );
   }
 };
 
-export const getM2MToken = async () => {
+export const getM2MToken = async (auth?: boolean) => {
   try {
+    let clientId, clientSecret;
+    if (auth) {
+      clientId = keycloakAuthClientId;
+      clientSecret = keycloakAuthClientSecret;
+    } else {
+      clientId = keycloakClientId;
+      clientSecret = keycloakClientSecret;
+    }
+
+    if (!clientId || !clientSecret) {
+      throw new HttpException(500, "no auth credentials found");
+    }
+
     const response = await axios.post(
       `${keycloakUrl}/realms/${keycloakRealm}/protocol/openid-connect/token`,
       new URLSearchParams({
-        client_id: keycloakClientId!,
-        client_secret: keycloakClientSecret!,
+        client_id: clientId,
+        client_secret: clientSecret,
         grant_type: "client_credentials",
       }),
     );
@@ -43,7 +58,7 @@ export const getM2MToken = async () => {
     logger.debug(error);
     throw new HttpException(
       500,
-      JSON.stringify(error?.response) || error,
+      error,
     );
   }
 };
@@ -94,7 +109,7 @@ export const createUser = async (
       }
       throw new HttpException(
         500,
-        `keycloakCreateUser: ${JSON.stringify(error?.response || error)}`,
+        error,
       );
     }
     if (errorStatus === 400 || errorStatus === 409) {
@@ -123,7 +138,7 @@ export const executeActionsEmail = async (
     if (errorOut) {
       throw new HttpException(
         500,
-        JSON.stringify(errorInformation),
+        errorInformation,
       );
     } else {
       const logger = winston.child({ source: "executeActionsEmail" });

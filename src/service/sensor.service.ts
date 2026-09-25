@@ -18,8 +18,8 @@ import {
   UpdateLibraryConfigDto,
 } from "../types/config-snapshot.types.ts";
 import { getSensorConfigChanges } from "./utils/get-sensor-config-changes.ts";
-import { validateDevice } from "./utils/validate-device.ts";
 import { JsonObject } from "generated/internal/prismaNamespace.ts";
+import { authDeviceCheck } from "./device.service.ts";
 
 export const getSensorDriver = async (query: QuerySensorDriverDto) => {
   return await sensorRepository.getSensorDriver(query);
@@ -322,7 +322,11 @@ export const deleteSensorLibraryConfig = async (
 export const getSensorConfigHistory = async (query: QueryConfigHistoryDto) => {
   const { asAt, accountId, deviceIdentifier, deviceValidated } = query;
   if (!deviceValidated) {
-    await validateDevice({ deviceIdentifier, accountId });
+    await authDeviceCheck({
+      deviceIdentifier,
+      accountId,
+      relation: "can_write",
+    });
   }
   const sensorConfigs = await getSensorConfig(query);
 

@@ -1,6 +1,7 @@
 import winston from "npm:winston";
+import config from "./infra/get-config.ts";
 
-const logLevel = Deno.env.get("LOG_LEVEL") ?? "info";
+const logLevel = config.LOG_LEVEL ?? "info";
 const logger = winston.createLogger({
   format: winston.format.combine(
     winston.format.timestamp(),

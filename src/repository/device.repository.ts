@@ -1,7 +1,8 @@
 import prisma from "../infra/prisma.ts";
+import { SYSTEM, writeRelationships } from "../service/auth.service.ts";
 import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "../service/utils/constants.ts";
+import { Tuple } from "../types/auth-service.types.ts";
 import {
-  AccountUniqueDeviceDto,
   DeviceIdentifierDto,
   ProvisionDeviceDto,
   QueryDeviceDto,
@@ -118,29 +119,35 @@ export const getDeviceByIdentifierOrId = async (
           endedAt: null,
         },
       },
+      DeviceEuis: {
+        where: { active: true },
+        select: { eui: true },
+      },
     },
   });
 };
 
-export const getDevices = async (query: QueryDeviceDto) => {
+export const getDevices = async (
+  query: QueryDeviceDto & { deviceIds: string[] },
+) => {
   const {
     search,
     limit,
     offset,
     order,
     orderBy,
-    accountId,
     contextId,
-    id,
     serialNumber,
     uniqueName,
     identifier,
+    deviceIds,
   } = query;
 
   return await prisma.device.findMany({
     where: {
       ...(identifier
         ? {
+          id: { in: deviceIds },
           OR: [
             { uniqueName: identifier },
             { serialNumber: identifier },
@@ -157,7 +164,7 @@ export const getDevices = async (query: QueryDeviceDto) => {
           ],
         }
         : {
-          id,
+          id: { in: deviceIds },
           uniqueName: uniqueName || { contains: search, mode: "insensitive" },
           serialNumber: serialNumber ||
             { contains: search, mode: "insensitive" },
@@ -172,13 +179,6 @@ export const getDevices = async (query: QueryDeviceDto) => {
           }),
         }),
       archivedAt: null,
-      Bind: {
-        some: {
-          accountId,
-          unboundAt: null,
-          archivedAt: null,
-        },
-      },
     },
     include: {
       DeviceContext: {
@@ -206,64 +206,108 @@ export const createDevice = async (
   body: ProvisionDeviceDto & { uniqueName: string; serialNumber: string },
 ) => {
   const { uniqueName, serialNumber, uid, type, accountId } = body;
-  return await prisma.device.create({
-    data: {
-      uniqueName,
-      serialNumber,
-      uid,
-      type,
-      ProvisionedBy: {
-        connect: {
-          id: accountId,
+
+  return await prisma.$transaction(async (trx) => {
+    const device = await trx.device.create({
+      data: {
+        uniqueName,
+        serialNumber,
+        uid,
+        type,
+        ProvisionedBy: {
+          connect: {
+            id: accountId,
+          },
         },
       },
-    },
+    });
+
+    await writeRelationships({
+      writes: [{
+        user: SYSTEM,
+        object: `device:${device.id}`,
+        relation: "system",
+      }],
+      trx,
+      singletonKey: accountId,
+    });
+
+    return device;
   });
 };
 
-export const bindDevice = async (body: AccountUniqueDeviceDto) => {
-  const { serialNumber, accountId } = body;
-
-  return await prisma.bind.create({
-    data: {
-      Account: { connect: { id: accountId } },
-      Device: { connect: { serialNumber } },
-    },
+export const bindDevice = async (
+  body: { accountId: string; deviceId: string },
+) => {
+  const { deviceId, accountId } = body;
+  return await prisma.$transaction(async (trx) => {
+    await writeRelationships({
+      writes: [{
+        user: `user:${accountId}`,
+        object: `device:${deviceId}`,
+        relation: "owner",
+      }],
+      trx,
+      singletonKey: accountId,
+    });
+    return await trx.bind.create({
+      data: {
+        Account: { connect: { id: accountId } },
+        Device: { connect: { id: deviceId } },
+      },
+    });
   });
 };
 
-export const unbindDevice = async (body: { bindId: string }) => {
+export const unbindDevice = async (
+  body: { bindId: string },
+) => {
   const { bindId } = body;
 
-  return await prisma.bind.update({
-    where: { id: bindId },
-    data: {
-      unboundAt: new Date(),
-      Device: {
-        update: {
-          DeviceContext: {
-            updateMany: {
-              where: { endedAt: null },
-              data: { endedAt: new Date() },
+  return await prisma.$transaction(async (trx) => {
+    const bind = await trx.bind.update({
+      where: { id: bindId },
+      data: {
+        unboundAt: new Date(),
+        Device: {
+          update: {
+            DeviceContext: {
+              updateMany: {
+                where: { endedAt: null },
+                data: { endedAt: new Date() },
+              },
             },
           },
         },
       },
-    },
+    });
+    await writeRelationships({
+      deletes: [{
+        user: `user:${bind.accountId}`,
+        object: `device:${bind.deviceId}`,
+        relation: "owner",
+      }],
+      trx,
+      singletonKey: bind.accountId,
+    });
   });
 };
 
-export const deleteDevice = async (body: SerialNumberDeviceDto) => {
-  const { serialNumber } = body;
+export const deleteDevice = async (
+  body: SerialNumberDeviceDto & { accountId: string; deletes: Tuple[] },
+) => {
+  const { serialNumber, accountId, deletes } = body;
 
   return await prisma.$transaction(async (trx) => {
-    await trx.deviceContext.updateMany({
+    await trx.deviceContext.updateManyAndReturn({
       where: {
         Device: { serialNumber },
         endedAt: null,
+        archivedAt: null,
       },
       data: {
         endedAt: new Date(),
+        archivedAt: new Date(),
       },
     });
 
@@ -288,6 +332,12 @@ export const deleteDevice = async (body: SerialNumberDeviceDto) => {
         },
       },
     });
+
+    await writeRelationships({
+      deletes,
+      trx,
+      singletonKey: accountId,
+    });
   });
 };
 
@@ -311,15 +361,12 @@ export const createFirmwareEntry = async (
 };
 
 export const getFirmwareHistory = async (
-  query: QueryFirmwareHistoryDto,
+  query: QueryFirmwareHistoryDto & { id: string },
 ) => {
-  const { limit, offset, order, orderBy, accountId } = query;
+  const { limit, offset, order, orderBy, id } = query;
   return await prisma.deviceFirmwareHistory.findMany({
     where: {
-      creatorId: accountId,
-      ...("deviceId" in query
-        ? { DeviceContext: { deviceId: query.deviceId } }
-        : { DeviceContext: { Device: { serialNumber: query.serialNumber } } }),
+      DeviceContext: { deviceId: id },
     },
     include: {
       DeviceContext: { select: { Context: { select: { name: true } } } },

@@ -2,6 +2,9 @@ import {
   createContext,
   deleteContext,
   getContext,
+  getSharedContexts,
+  getShareRecipients,
+  shareContext,
   updateContext,
 } from "../handler/context/handler.ts";
 import { basePath } from "../swagger/context/document.ts";
@@ -14,6 +17,8 @@ router.get("/", getContext);
 router.post("/", createContext);
 router.patch("/:id", updateContext);
 router.delete("/:id", deleteContext);
+router.route("/:id/share").get(getShareRecipients).post(shareContext);
+router.route("/shared").get(getSharedContexts);
 
 routerWrapper.use(basePath, router);
 

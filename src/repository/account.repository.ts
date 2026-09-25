@@ -17,3 +17,15 @@ export const getAccountByEmail = async (email: string) => {
     },
   });
 };
+
+export const getAccountsByIds = async (ids: string[]) => {
+  return await prisma.account.findMany({
+    where: { id: { in: ids } },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+    },
+  });
+};
