@@ -1,3 +1,16 @@
+# [1.16.0](https://github.com/rrivirr/rriv-api/compare/v1.15.15...v1.16.0) (2026-09-25)
+
+
+### Bug Fixes
+
+* m2m auth token ([2bfb027](https://github.com/rrivirr/rriv-api/commit/2bfb027d1719c52924e8caaa7f2e478c340073ed))
+* use config file ([c9c4786](https://github.com/rrivirr/rriv-api/commit/c9c4786dd146f4486b2ead35c47b1085904baff9))
+
+
+### Features
+
+* auth service ([9b11b85](https://github.com/rrivirr/rriv-api/commit/9b11b85436693cec4535e4bf9cfbf9dd976c5719))
+
 ## [1.15.15](https://github.com/rrivirr/rriv-api/compare/v1.15.14...v1.15.15) (2026-09-22)
 
 
