@@ -7,10 +7,11 @@ import applicationGrpc from "@chirpstack/chirpstack-api/api/application_grpc_pb.
 import tenantGrpc from "@chirpstack/chirpstack-api/api/tenant_grpc_pb.js";
 import deviceProfileGrpc from "@chirpstack/chirpstack-api/api/device_profile_grpc_pb.js";
 import { HttpException } from "../utils/http-exception.ts";
+import config from "./get-config.ts";
 
 export const getChirpstackConnection = () => {
-  const server = Deno.env.get("CHIRPSTACK_API_URL")!;
-  const apiToken = Deno.env.get("CHIRPSTACK_API_KEY")!;
+  const server = config.CHIRPSTACK_API_URL;
+  const apiToken = config.CHIRPSTACK_API_KEY;
   const credentials = grpc.credentials.createSsl();
 
   const deviceService = new deviceGrpc.DeviceServiceClient(

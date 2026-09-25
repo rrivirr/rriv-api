@@ -1,7 +1,8 @@
 import { PrismaClient } from "generated/client.ts";
 import { PrismaPg } from "@prisma/adapter-pg";
+import config from "./get-config.ts";
 
-const connectionString = Deno.env.get("DATABASE_URL");
+const connectionString = config.DATABASE_URL;
 const schema = connectionString?.split("schema=")[1];
 
 const adapter = new PrismaPg({

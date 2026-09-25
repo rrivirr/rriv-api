@@ -1,8 +1,9 @@
 import { PgBoss, SendOptions } from "npm:pg-boss";
 import logger from "../../winston.ts";
 import { JobDto } from "./types.ts";
+import config from "../get-config.ts";
 
-const connectionString = Deno.env.get("DATABASE_URL")?.split("schema=")[0];
+const connectionString = config.DATABASE_URL.split("schema=")[0];
 const pgBoss = new PgBoss({
   connectionString: connectionString!,
   persistWarnings: true,
