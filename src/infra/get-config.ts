@@ -19,6 +19,7 @@ const readSchema = z.strictObject({
   KEYCLOAK_AUTH_CLIENT_SECRET: z.string(),
   CHIRPSTACK_API_URL: z.string(),
   CHIRPSTACK_API_KEY: z.string(),
+  DATABASE_CA_CRT: z.string().optional(),
   APP_ENV: z.enum(["production", "development"]).default("development"),
 });
 
