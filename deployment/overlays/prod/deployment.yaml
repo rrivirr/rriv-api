@@ -22,5 +22,3 @@ spec:
               value: https://auth.rriv.org
             - name: KEYCLOAK_REALM
               value: rriv-beta-prod
-            - name: CHIRPSTACK_API_URL
-              value: chirpstack:8080
