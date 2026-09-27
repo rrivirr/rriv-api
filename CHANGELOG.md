@@ -1,3 +1,10 @@
+## [1.16.4](https://github.com/rrivirr/rriv-api/compare/v1.16.3...v1.16.4) (2026-09-27)
+
+
+### Bug Fixes
+
+* zod config fix ([2adb33f](https://github.com/rrivirr/rriv-api/commit/2adb33ff2d393f963c99f0382f7c9a6054edae54))
+
 ## [1.16.3](https://github.com/rrivirr/rriv-api/compare/v1.16.2...v1.16.3) (2026-09-27)
 
 
