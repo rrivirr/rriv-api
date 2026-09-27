@@ -20,6 +20,8 @@ RUN deno compile \
 
 FROM gcr.io/distroless/cc-debian13:nonroot
 
+WORKDIR /app
+
 COPY --from=builder --chown=nonroot /app/server ./server
 
 ENTRYPOINT ["./server"]
