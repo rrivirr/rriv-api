@@ -1,3 +1,10 @@
+## [1.16.5](https://github.com/rrivirr/rriv-api/compare/v1.16.4...v1.16.5) (2026-09-27)
+
+
+### Bug Fixes
+
+* db crt ([d31f3ce](https://github.com/rrivirr/rriv-api/commit/d31f3ce7cfab86ceaf61c2652113b44e90c16457))
+
 ## [1.16.4](https://github.com/rrivirr/rriv-api/compare/v1.16.3...v1.16.4) (2026-09-27)
 
 
