@@ -5,6 +5,7 @@ import errorHandler from "./utils/error-handler.ts";
 import routes from "./routes/index.ts";
 import { swaggerBuilder } from "./swagger/index.ts";
 import { jwtMiddleware } from "./utils/middleware/jwt.middleware.ts";
+import { corsMiddleware } from "./utils/middleware/cors.middleware.ts";
 import pgBoss from "./infra/pg-boss/pg-boss.ts";
 import { QUEUE_NAME } from "./infra/pg-boss/constants.ts";
 import { worker } from "./infra/pg-boss/worker.ts";
@@ -12,6 +13,8 @@ import { worker } from "./infra/pg-boss/worker.ts";
 const app = express();
 const specJson = swaggerBuilder.getSpecAsJson();
 const specYaml = swaggerBuilder.getSpecAsYaml();
+
+app.use(corsMiddleware);
 
 app.get(
   "/version",

@@ -54,7 +54,7 @@ spec:
                 echo "starting service"
                 #while :; do echo 'Hit CTRL+C'; sleep 1; done # go forever
                 exec deno task prisma migrate deploy
-          image: registry.digitalocean.com/rriv/rriv-api:1.0.5
+          image: registry.digitalocean.com/rriv/rriv-api-migrate:latest
           env:
             - name: DATABASE_SCHEMA
               value: rriv
