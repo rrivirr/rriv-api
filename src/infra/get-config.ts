@@ -77,6 +77,17 @@ const getConfigValues = () => {
 
   const config = readSchema.parse({ ...fileConfig, ...envConfig });
 
+  // write db certificate
+  const { DATABASE_CA_CRT } = config;
+  if (!DATABASE_CA_CRT) {
+    return config;
+  }
+
+  const pem = `${DATABASE_CA_CRT.replace(/\s(?!CERTIFICATE)/g, "\n").trim()}\n`;
+  const certFilePath = path.join(".", "ca-certificate.crt");
+  fs.writeFileSync(certFilePath, pem, { mode: 0o600 });
+  delete config.DATABASE_CA_CRT;
+
   return config;
 };
 
