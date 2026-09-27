@@ -16,9 +16,14 @@ RUN deno compile \
     --output server \
     --preload src/shims.ts \
     --no-check --bundle --minify --allow-net --allow-env --allow-read --allow-sys --allow-ffi \
+    --allow-write=/app/ca-certificate.crt \
     src/server.ts
 
+RUN mkdir -p /app-dir/app
+
 FROM gcr.io/distroless/cc-debian13:nonroot
+
+COPY --from=builder --chown=nonroot /app-dir/ /
 
 WORKDIR /app
 
