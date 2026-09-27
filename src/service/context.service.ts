@@ -54,10 +54,7 @@ export const getContext = async (
   });
 
   const contexts = await contextRepositoy.getContext({ ...query, contextIds });
-  return contexts.map((c) => ({
-    ...c,
-    ...(c.Account.id === accountId && { Account: undefined }),
-  }));
+  return contexts;
 };
 
 export const createContext = async (requestBody: CreateContextDto) => {

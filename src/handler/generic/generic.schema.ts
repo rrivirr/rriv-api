@@ -5,8 +5,8 @@ export const getPaginationSchema = (
   defaultOrderByValue: string,
 ) =>
   z.object({
-    limit: z.number().int().min(1).max(100).optional().default(100),
-    offset: z.number().int().min(0).max(100).optional().default(0),
+    limit: z.coerce.number().int().min(1).max(100).optional().default(100),
+    offset: z.coerce.number().int().min(0).max(100).optional().default(0),
     order: z.enum(["asc", "desc"]).optional().default("desc"),
     orderBy: z
       .enum(orderByAllowedFields)

@@ -175,6 +175,9 @@ export const getSensorConfig = async (
       skip: offset,
       orderBy: { createdAt: order },
       include: {
+        Creator: {
+          select: { firstName: true, lastName: true },
+        },
         ConfigSnapshot: {
           select: {
             DeviceContext: {

@@ -19,6 +19,7 @@ const readSchema = z.strictObject({
   KEYCLOAK_AUTH_CLIENT_SECRET: z.string(),
   CHIRPSTACK_API_URL: z.string(),
   CHIRPSTACK_API_KEY: z.string(),
+  APP_ENV: z.enum(["production", "development"]).default("development"),
 });
 
 const getConfigValues = () => {
@@ -36,6 +37,7 @@ const getConfigValues = () => {
   );
   const CHIRPSTACK_API_URL = Deno.env.get("CHIRPSTACK_API_URL");
   const CHIRPSTACK_API_KEY = Deno.env.get("CHIRPSTACK_API_KEY");
+  const APP_ENV = Deno.env.get("APP_ENV");
 
   const envConfig = {
     ...(KEYCLOAK_REALM && { KEYCLOAK_REALM }),
@@ -50,6 +52,7 @@ const getConfigValues = () => {
     ...(KEYCLOAK_AUTH_CLIENT_SECRET && { KEYCLOAK_AUTH_CLIENT_SECRET }),
     ...(CHIRPSTACK_API_URL && { CHIRPSTACK_API_URL }),
     ...(CHIRPSTACK_API_KEY && { CHIRPSTACK_API_KEY }),
+    ...(APP_ENV && { APP_ENV }),
   };
 
   const dirPath = path.join(homedir(), ".auth-api");

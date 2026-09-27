@@ -27,6 +27,7 @@ spec:
           {{ with secret "secret/data/rriv-api-creds" }}
           DATABASE_URL="{{ .Data.data.database_url }}"
           KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
+          KEYCLOAK_AUTH_CLIENT_SECRET="{{ .Data.data.keycloak_auth_client_secret }}"
           CHIRPSTACK_API_KEY="{{ .Data.data.chirpstack_downlink_key }}"
           DATABASE_CA_CRT="{{ .Data.data.database_ca_cert }}"
           {{ end }}
@@ -45,6 +46,10 @@ spec:
               value: rriv
             - name: KEYCLOAK_CLIENT_ID
               value: rriv-api
+            - name: KEYCLOAK_AUTH_CLIENT_ID
+              value: auth-api
+            - name: APP_ENV
+              value: production
           resources:
             requests:
               cpu: 50m

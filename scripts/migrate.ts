@@ -1,12 +1,19 @@
 import { OpenFgaClient, WriteRequestWritesOnDuplicate } from "npm:@openfga/sdk";
 import prisma from "../src/infra/prisma.ts";
+import { CredentialsMethod } from "npm:@openfga/sdk";
 
 (async () => {
   try {
     const openFga = new OpenFgaClient({
-      apiUrl: "openfga_url",
-      storeId: "store_id",
-      authorizationModelId: "model_id",
+      apiUrl: "http://localhost:8082",
+      storeId: "01KWEW1HKCCGKWDB14RNSQ40SX",
+      authorizationModelId: "01M3FSW3QQS34XM0H7Q0T23G7N",
+      credentials: {
+        method: CredentialsMethod.ApiToken,
+        config: {
+          token: "long-random-key",
+        },
+      },
     });
 
     const superAdmin = "df8c04eb-49d6-437c-b128-0890903bc74c"; // id of account to make super admin

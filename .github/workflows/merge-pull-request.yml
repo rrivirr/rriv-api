@@ -80,6 +80,14 @@ jobs:
           push: true
           tags: registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }}
 
+      - name: Build and push migration image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.migrate
+          push: true
+          tags: registry.digitalocean.com/rriv/rriv-api-migrate:${{ needs.release.outputs.new-release-git-tag }}
+
       - name: Delete previous migration job if exists
         run: kubectl delete job rriv-api-migration-job --ignore-not-found
 
@@ -87,7 +95,10 @@ jobs:
         run: curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh"  | bash
 
       - name: Update image tag
-        run: (cd deployment/overlays/dev && kustomize edit set image registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }})
+        run: |
+          cd deployment/overlays/dev
+          kustomize edit set image registry.digitalocean.com/rriv/rriv-api:${{ needs.release.outputs.new-release-git-tag }}
+          kustomize edit set image registry.digitalocean.com/rriv/rriv-api-migrate:${{ needs.release.outputs.new-release-git-tag }}
 
       - name: apply update
         run: kustomize build deployment/overlays/dev | kubectl apply --wait -f -
