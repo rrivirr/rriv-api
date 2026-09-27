@@ -1,3 +1,10 @@
+## [1.16.2](https://github.com/rrivirr/rriv-api/compare/v1.16.1...v1.16.2) (2026-09-27)
+
+
+### Bug Fixes
+
+* prisma.config.ts ([304c6d2](https://github.com/rrivirr/rriv-api/commit/304c6d282b39ee1f1cc5b4b45453afedd7a1a10b))
+
 ## [1.16.1](https://github.com/rrivirr/rriv-api/compare/v1.16.0...v1.16.1) (2026-09-27)
 
 
