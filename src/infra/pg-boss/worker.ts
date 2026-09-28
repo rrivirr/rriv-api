@@ -1,10 +1,10 @@
 import type { WorkHandler } from "pg-boss";
 import logger from "../../winston.ts";
 import authServiceAxios from "../axios/auth-service.ts";
-import { AxiosError } from "axios";
 import { TYPES } from "./constants.ts";
 import { JobDto } from "./types.ts";
 import { getM2MToken } from "../keycloak/keycloak.ts";
+import { serializeError } from "../../utils/log-error.ts";
 
 export const worker: WorkHandler<JobDto> = async ([job]) => {
   const workerLogger = logger.child({ source: "pgBossWorker" });
@@ -17,22 +17,21 @@ export const worker: WorkHandler<JobDto> = async ([job]) => {
       if (deletes?.length || writes?.length) {
         try {
           const token = await getM2MToken(true);
-          await authServiceAxios.post(`/relationship`, {
-            ...message.payload,
-          }, { headers: { Authorization: `Bearer ${token}` } });
+          await authServiceAxios.post(
+            `/relationship`,
+            { ...message.payload },
+            { headers: { Authorization: `Bearer ${token}` } },
+          );
           workerLogger.info({ jobId: job.id, status: "processed" });
         } catch (error) {
-          if (error instanceof AxiosError) {
-            workerLogger.warn({
-              jobId: job.id,
-              status: "failed",
-              error: error.response?.data,
-            });
-            throw error;
-          } else {
-            workerLogger.warn({ jobId: job.id, status: "failed", error });
-            throw error;
-          }
+          workerLogger.error({
+            jobId: job.id,
+            status: "failed",
+            type: message.type,
+            payload: message.payload,
+            error: serializeError(error),
+          });
+          throw error;
         }
       } else {
         workerLogger.info({
