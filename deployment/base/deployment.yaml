@@ -49,7 +49,7 @@ spec:
             - name: KEYCLOAK_AUTH_CLIENT_ID
               value: auth-api
             - name: AUTH_SERVICE_URL
-              value: http://auth-api:3006
+              value: http://auth-api:80
             - name: CHIRPSTACK_API_URL
               value: chirpstack:8080
             - name: APP_ENV
