@@ -8,6 +8,7 @@ const pgBoss = new PgBoss({
   connectionString: connectionString!,
   persistWarnings: true,
   warningRetentionDays: 60,
+  createSchema: false,
 });
 const pgBossLogger = logger.child({ source: "pgBoss" });
 
