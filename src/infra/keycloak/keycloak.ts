@@ -10,6 +10,7 @@ import {
 } from "./config.ts";
 import { KEYCLOAK_ACTIONS_EMAIL } from "./enum.ts";
 import winston from "../../winston.ts";
+import { serializeError } from "../../utils/log-error.ts";
 
 const logger = winston.child({ source: "KeycloakAPI" });
 
@@ -20,7 +21,10 @@ export const getPublicKey = async () => {
 
     // deno-lint-ignore no-explicit-any
   } catch (error: any) {
-    logger.debug(error);
+    logger.error({
+      message: "failed to fetch keycloak realm public key",
+      error: serializeError(error),
+    });
     throw new HttpException(
       500,
       error,
@@ -55,7 +59,10 @@ export const getM2MToken = async (auth?: boolean) => {
     return response.data.access_token;
     // deno-lint-ignore no-explicit-any
   } catch (error: any) {
-    logger.debug(error);
+    logger.error({
+      message: "keycloak token request failed",
+      error: serializeError(error),
+    });
     throw new HttpException(
       500,
       error,
@@ -142,7 +149,10 @@ export const executeActionsEmail = async (
       );
     } else {
       const logger = winston.child({ source: "executeActionsEmail" });
-      logger.error(errorInformation);
+      logger.error({
+        message: "execute actions email failed",
+        error: serializeError(error),
+      });
     }
   }
 };
