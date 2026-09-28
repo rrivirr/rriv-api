@@ -1,3 +1,10 @@
+## [1.16.7](https://github.com/rrivirr/rriv-api/compare/v1.16.6...v1.16.7) (2026-09-28)
+
+
+### Bug Fixes
+
+* dev auth api url ([bc99fb9](https://github.com/rrivirr/rriv-api/commit/bc99fb9284621dc0c7d45d4ebf5838b78be20e5c))
+
 ## [1.16.6](https://github.com/rrivirr/rriv-api/compare/v1.16.5...v1.16.6) (2026-09-28)
 
 
