@@ -6,11 +6,14 @@ spec:
   template:
     metadata:
       annotations:
-        vault.hashicorp.com/agent-inject-secret-credentials.txt: "secret/data/staging-rriv-api-creds"
-        vault.hashicorp.com/agent-inject-template-credentials: |
+        vault.hashicorp.com/agent-inject-secret-config: "secret/data/staging-rriv-api-creds"
+        vault.hashicorp.com/agent-inject-template-config: |
           {{ with secret "secret/data/staging-rriv-api-creds" }}
-          export DATABASE_URL="{{ .Data.data.database_url }}"
-          export KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
+          DATABASE_URL="{{ .Data.data.database_url }}"
+          KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
+          KEYCLOAK_AUTH_CLIENT_SECRET="{{ .Data.data.keycloak_auth_client_secret }}"
+          CHIRPSTACK_API_KEY="{{ .Data.data.chirpstack_downlink_key }}"
+          DATABASE_CA_CRT="{{ .Data.data.database_ca_cert }}"
           {{ end }}
     spec:
       containers:
