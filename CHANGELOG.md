@@ -1,3 +1,10 @@
+## [1.16.6](https://github.com/rrivirr/rriv-api/compare/v1.16.5...v1.16.6) (2026-09-28)
+
+
+### Bug Fixes
+
+* pgboss don't create schema auto ([da8af7e](https://github.com/rrivirr/rriv-api/commit/da8af7e632084fe5876bc81953d4c70953585a3c))
+
 ## [1.16.5](https://github.com/rrivirr/rriv-api/compare/v1.16.4...v1.16.5) (2026-09-27)
 
 
