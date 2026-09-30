@@ -1,3 +1,10 @@
+## [1.17.2](https://github.com/rrivirr/rriv-api/compare/v1.17.1...v1.17.2) (2026-09-30)
+
+
+### Bug Fixes
+
+* update dockerignore ([52786e5](https://github.com/rrivirr/rriv-api/commit/52786e5dd5e16890c52d092d39e4ae7a809dc842))
+
 ## [1.17.1](https://github.com/rrivirr/rriv-api/compare/v1.17.0...v1.17.1) (2026-09-30)
 
 
