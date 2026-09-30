@@ -1,3 +1,10 @@
+## [1.17.3](https://github.com/rrivirr/rriv-api/compare/v1.17.2...v1.17.3) (2026-09-30)
+
+
+### Bug Fixes
+
+* admin dashboard update ([16289ec](https://github.com/rrivirr/rriv-api/commit/16289ece67afcb4faa9b13d31d5d38d84c3edb16))
+
 ## [1.17.2](https://github.com/rrivirr/rriv-api/compare/v1.17.1...v1.17.2) (2026-09-30)
 
 
