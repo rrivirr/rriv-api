@@ -1,3 +1,10 @@
+## [1.17.1](https://github.com/rrivirr/rriv-api/compare/v1.17.0...v1.17.1) (2026-09-30)
+
+
+### Bug Fixes
+
+* concurrency policy ([8adfe67](https://github.com/rrivirr/rriv-api/commit/8adfe679b117f5695a16bff801d40a0a6494b14f))
+
 # [1.17.0](https://github.com/rrivirr/rriv-api/compare/v1.16.7...v1.17.0) (2026-09-30)
 
 
