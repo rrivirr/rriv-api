@@ -19,9 +19,7 @@ const ALLOWED_AZP = ["auth-api", "rrivctl", "rriv-web"];
 const SEP = "\u0000";
 const keyOf = (t: Tuple) => `${t.user}${SEP}${t.relation}${SEP}${t.object}`;
 
-const decodeJwtPayload = (
-  token: string,
-): Record<string, unknown> | null => {
+const decodeJwtPayload = (token: string): Record<string, unknown> | null => {
   const parts = token.split(".");
   if (parts.length !== 3) return null;
   try {
@@ -94,6 +92,50 @@ export const startFakeAuthApi = async (port: number): Promise<FakeAuthApi> => {
     for (const tuple of writes) store.add(keyOf(tuple));
   };
 
+  type ReadQuery = { user?: string; relation?: string; object?: string };
+  const objectType = (object: string): string => object.split(":")[0];
+  const isTypeOnly = (object: string): boolean => object.endsWith(":");
+
+  const validateRead = (query: ReadQuery): string | undefined => {
+    if (
+      query.user === undefined &&
+      query.object === undefined &&
+      query.relation === undefined
+    ) {
+      return undefined;
+    }
+    if (!query.object) {
+      return "the 'tuple_key' field was provided but the object type field is required";
+    }
+    if (isTypeOnly(query.object) && !query.user) {
+      return "the 'tuple_key' field was provided but the object type field is required and both the object id and user cannot be empty";
+    }
+    return undefined;
+  };
+
+  const matchesRead = (tuple: Tuple, query: ReadQuery): boolean => {
+    if (query.user !== undefined && tuple.user !== query.user) return false;
+    if (query.relation !== undefined && tuple.relation !== query.relation) {
+      return false;
+    }
+    if (query.object !== undefined) {
+      if (isTypeOnly(query.object)) {
+        if (objectType(tuple.object) !== objectType(query.object)) return false;
+      } else if (tuple.object !== query.object) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const readTuples = (
+    query: ReadQuery,
+  ): { error?: string; tuples: Tuple[] } => {
+    const error = validateRead(query);
+    if (error) return { error, tuples: [] };
+    return { tuples: allTuples().filter((tuple) => matchesRead(tuple, query)) };
+  };
+
   const app = express();
   app.use(express.json());
 
@@ -156,28 +198,39 @@ export const startFakeAuthApi = async (port: number): Promise<FakeAuthApi> => {
   });
 
   app.post("/read", (req, res) => {
-    const { user, relation, object } = req.body ?? {};
-    const tuples = allTuples()
-      .filter((t) =>
-        (user === undefined || t.user === user) &&
-        (relation === undefined || t.relation === relation) &&
-        (object === undefined || t.object === object)
-      )
-      .map((t) => ({ key: t, timestamp: new Date().toISOString() }));
-    res.json({ tuples });
+    const result = readTuples(req.body ?? {});
+    if (result.error) {
+      return res
+        .status(400)
+        .json({ code: "validation_error", message: result.error });
+    }
+    res.json({
+      tuples: result.tuples.map((key) => ({
+        key,
+        timestamp: new Date().toISOString(),
+      })),
+    });
   });
 
   app.post("/read-resource", (req, res) => {
     const { type, id } = req.body ?? {};
-    const key = `${type}:${id}`;
+
+    const key = type === "account" ? `user:${id}` : `${type}:${id}`;
+    const asUser = readTuples({ user: key, object: "device:" });
+    const asObject = readTuples({ object: key });
+
+    const error = asUser.error ?? asObject.error;
+    if (error) {
+      return res.status(400).json({ code: "validation_error", message: error });
+    }
+
     const seen = new Set<string>();
     const tuples: Tuple[] = [];
-    for (const t of allTuples()) {
-      if (t.user === key || t.object === key) {
-        if (!seen.has(keyOf(t))) {
-          seen.add(keyOf(t));
-          tuples.push(t);
-        }
+    for (const tuple of [...asUser.tuples, ...asObject.tuples]) {
+      const tupleKey = keyOf(tuple);
+      if (!seen.has(tupleKey)) {
+        seen.add(tupleKey);
+        tuples.push(tuple);
       }
     }
     res.json({ tuples });

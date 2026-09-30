@@ -12,6 +12,19 @@ interface JobStateRow {
   oldest_seconds: number | null;
 }
 
+export const OUTSTANDING_JOB_STATES: ReadonlySet<string> = new Set([
+  "created",
+  "retry",
+  "active",
+]);
+
+export const outstandingJobCount = (rows: JobStateRow[]): number =>
+  rows.reduce(
+    (total, row) =>
+      OUTSTANDING_JOB_STATES.has(row.state) ? total + row.count : total,
+    0,
+  );
+
 const queueStats = async (queue: string) => {
   try {
     const rows = await prisma.$queryRawUnsafe<JobStateRow[]>(
@@ -26,10 +39,8 @@ const queueStats = async (queue: string) => {
 
     const byState: Record<string, number> = {};
     let oldestQueuedSeconds: number | null = null;
-    let total = 0;
     for (const row of rows) {
       byState[row.state] = row.count;
-      total += row.count;
       if (
         (row.state === "created" || row.state === "retry") &&
         row.oldest_seconds != null
@@ -41,7 +52,13 @@ const queueStats = async (queue: string) => {
       }
     }
 
-    return { available: true, byState, total, oldestQueuedSeconds };
+    // Only outstanding work is counted; terminal rows are history.
+    return {
+      available: true,
+      byState,
+      total: outstandingJobCount(rows),
+      oldestQueuedSeconds,
+    };
   } catch {
     // Queue tables may not exist on a fresh environment.
     return {
@@ -56,11 +73,6 @@ const queueStats = async (queue: string) => {
 const secondsSince = (date: Date | null | undefined): number | null =>
   date ? Math.max(0, Math.round((Date.now() - date.getTime()) / 1000)) : null;
 
-/**
- * Operational snapshot for the admin view: authorization convergence plus
- * pg-boss queue/DLQ health. No Prometheus stack is deployed, so this is the
- * consumer of these numbers.
- */
 export const getSystemMetrics = async () => {
   const now = Date.now();
 
