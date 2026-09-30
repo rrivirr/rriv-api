@@ -1,19 +1,4 @@
--- Database backstops for the remaining check-then-act invariants. Unlike the
--- authorization-sync windows, these are plain concurrency races: two
--- overlapping requests were enough, with a healthy auth-api.
---
--- Each section resolves pre-existing duplicates deterministically and without
--- data loss (renaming, deactivating or renumbering — never deleting) before
--- creating a partial/unique index. The API maps the resulting unique violation
--- (P2002 / 23505) to a 4xx.
---
--- NOTE: Prisma cannot express partial indexes, so the partial ones do not
--- appear in schema.prisma. Do not let `prisma migrate dev` / `db pull` drop
--- them; they are the real guard.
-
--- ---------------------------------------------------------------------------
--- 1. One active device context per device.
--- ---------------------------------------------------------------------------
+-- One active device context per device.
 WITH ranked AS (
     SELECT
         "id",
@@ -33,9 +18,7 @@ CREATE UNIQUE INDEX "device_context_device_id_active_key"
     ON "device_context" ("device_id")
     WHERE "ended_at" IS NULL AND "archived_at" IS NULL;
 
--- ---------------------------------------------------------------------------
--- 2. One active assigned-device-name per context.
--- ---------------------------------------------------------------------------
+-- One active assigned-device-name per context.
 WITH ranked AS (
     SELECT
         "id",

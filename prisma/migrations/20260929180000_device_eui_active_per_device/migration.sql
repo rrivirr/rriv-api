@@ -1,12 +1,5 @@
 -- One active EUI per device.
---
--- The earlier 20260929160000 migration added a global unique index on
--- device_eui(eui) WHERE active (one device per EUI). This adds the
--- complementary invariant the service already assumes — a device has at most
--- one active EUI — which is what `sendCommand` relies on when it reads
--- DeviceEuis[0].
 
--- Close any pre-existing duplicate active EUIs per device, keeping the newest.
 WITH ranked AS (
     SELECT
         "id",
