@@ -1,9 +1,3 @@
--- Discriminate config_snapshot rows (device_active / saved / library) so that
--- saved-snapshot names can be made unique per creator without colliding with
--- the per-device "active" snapshots (all named "active") or the per-library
--- "vN" snapshots (all named "v1", "v2", ...), which share the same table and
--- the same (creator_id, name) space.
---
 -- This is a stored discriminator: the kind cannot be derived in a partial index
 -- predicate (the library link is a foreign key from
 -- system_library_config_version, and partial predicates cannot use subqueries).
