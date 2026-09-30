@@ -9,7 +9,7 @@ metadata:
     app: rriv-api
 spec:
   schedule: "*/15 * * * *"
-  concurrencyPolicy: Forbidden
+  concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 3
   jobTemplate:
@@ -77,7 +77,7 @@ metadata:
     app: rriv-api
 spec:
   schedule: "0 3 * * *"
-  concurrencyPolicy: Forbidden
+  concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
