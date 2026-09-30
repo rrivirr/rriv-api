@@ -1,6 +1,8 @@
 node_modules
 deployment
-scripts
+
+scripts/docker-build-deploy.sh
+scripts/tag.sh
 
 # Build output
 dist
