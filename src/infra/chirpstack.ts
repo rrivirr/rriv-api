@@ -9,7 +9,7 @@ import deviceProfileGrpc from "@chirpstack/chirpstack-api/api/device_profile_grp
 import { HttpException } from "../utils/http-exception.ts";
 import config from "./get-config.ts";
 
-export const getChirpstackConnection = () => {
+const createChirpstackConnection = () => {
   const server = config.CHIRPSTACK_API_URL;
   const apiToken = config.CHIRPSTACK_API_KEY;
   const credentials = grpc.credentials.createSsl();
@@ -139,4 +139,24 @@ export const getChirpstackConnection = () => {
     getApplications,
     closeConnection,
   };
+};
+
+export type ChirpstackConnection = ReturnType<
+  typeof createChirpstackConnection
+>;
+
+let connectionFactory: () => ChirpstackConnection = createChirpstackConnection;
+
+export const getChirpstackConnection = (): ChirpstackConnection =>
+  connectionFactory();
+
+/** Test seam: replace the gRPC client factory. Restore with the reset below. */
+export const setChirpstackConnectionFactory = (
+  factory: () => ChirpstackConnection,
+): void => {
+  connectionFactory = factory;
+};
+
+export const resetChirpstackConnectionFactory = (): void => {
+  connectionFactory = createChirpstackConnection;
 };

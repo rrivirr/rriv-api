@@ -10,6 +10,7 @@ import {
 } from "../types/sensor.types.ts";
 import * as sensorRepository from "../repository/sensor.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
+import { isUniqueConstraintError } from "../utils/prisma-errors.ts";
 import { AccountIdDto, IdDto, IdorNameDto } from "../types/generic.types.ts";
 import { getDeviceContext } from "./device-context.service.ts";
 import { isDeepStrictEqual } from "node:util";
@@ -80,11 +81,18 @@ export const createSensorDriver = async (
     throw new HttpException(409, `${name} already exists`);
   }
 
-  return await sensorRepository.createSensorDriver({
-    name,
-    accountId,
-    validation,
-  });
+  try {
+    return await sensorRepository.createSensorDriver({
+      name,
+      accountId,
+      validation,
+    });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(409, `${name} already exists`);
+    }
+    throw error;
+  }
 };
 
 export const createSensorConfig = async (
@@ -153,13 +161,23 @@ export const createSensorConfig = async (
     throw new HttpException(422, "invalid config received");
   }
 
-  return await sensorRepository.createSensorConfig({
-    ...requestBody,
-    config: configToCreate,
-    active: true,
-    configSnapshotId,
-    sensorConfigToDeactivateId,
-  });
+  try {
+    return await sensorRepository.createSensorConfig({
+      ...requestBody,
+      config: configToCreate,
+      active: true,
+      configSnapshotId,
+      sensorConfigToDeactivateId,
+    });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(
+        409,
+        "an active sensor config with this name already exists in this snapshot",
+      );
+    }
+    throw error;
+  }
 };
 
 export const createSensorLibraryConfig = async (
@@ -177,16 +195,23 @@ export const createSensorLibraryConfig = async (
     throw new HttpException(409, `${name} already exists`);
   }
 
-  return await sensorRepository.createSensorLibraryConfig({
-    name,
-    accountId,
-    sensorConfig: {
-      config,
-      name: sensorName,
-      driverId: defaultSensorDriver[0].id,
-    },
-    description,
-  });
+  try {
+    return await sensorRepository.createSensorLibraryConfig({
+      name,
+      accountId,
+      sensorConfig: {
+        config,
+        name: sensorName,
+        driverId: defaultSensorDriver[0].id,
+      },
+      description,
+    });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(409, `${name} already exists`);
+    }
+    throw error;
+  }
 };
 
 export const createNewSensorLibraryConfigVersion = async (
@@ -211,13 +236,20 @@ export const createNewSensorLibraryConfigVersion = async (
     sensorLibraryConfig.SensorLibraryConfigVersion;
 
   if (!sensorLibraryConfigVersions.length) {
-    await sensorRepository.createNewSensorLibraryConfigVersion({
-      accountId,
-      sensorConfig,
-      sensorLibraryConfigId: id,
-      version: 1,
-      description,
-    });
+    try {
+      await sensorRepository.createNewSensorLibraryConfigVersion({
+        accountId,
+        sensorConfig,
+        sensorLibraryConfigId: id,
+        version: 1,
+        description,
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new HttpException(409, "version already published, retry");
+      }
+      throw error;
+    }
   } else {
     // already ordered in the db query
     const latestLibraryConfigVersion = sensorLibraryConfigVersions[0];
@@ -245,13 +277,20 @@ export const createNewSensorLibraryConfigVersion = async (
         `current sensor config is published as latest version`,
       );
     }
-    await sensorRepository.createNewSensorLibraryConfigVersion({
-      accountId,
-      sensorConfig,
-      sensorLibraryConfigId: id,
-      version: latestLibraryConfigVersion.version + 1,
-      description,
-    });
+    try {
+      await sensorRepository.createNewSensorLibraryConfigVersion({
+        accountId,
+        sensorConfig,
+        sensorLibraryConfigId: id,
+        version: latestLibraryConfigVersion.version + 1,
+        description,
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new HttpException(409, "version already published, retry");
+      }
+      throw error;
+    }
   }
 };
 

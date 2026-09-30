@@ -18,11 +18,10 @@ export const getConfigSnapshots = async (req: Request, res: Response) => {
   const accountId = req.accountId;
   const query = configSnapshotQuerySchema.parse(req.query);
 
-  // saved/tagged config snapshots only
+  // user-saved config snapshots only (repository scopes to kind = 'saved')
   const configSnapshots = await configSnapshotService.getConfigSnapshots({
     ...query,
     accountId,
-    active: false,
   });
 
   res.json(configSnapshots);

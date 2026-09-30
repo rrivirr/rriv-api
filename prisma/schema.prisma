@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client"
-  previewFeatures = ["postgresqlExtensions", "relationJoins"]
+  previewFeatures = ["postgresqlExtensions", "relationJoins", "partialIndexes"]
   output          = "./generated"
 }
 
@@ -24,6 +24,8 @@ model Account {
   Position                       Position[]
   Installation                   Installation[]
   Context                        Context[]
+  ContextShare                   ContextShare[]
+  Notification                   Notification[]
   DataloggerLibraryConfigVersion DataloggerLibraryConfigVersion[]
   DataloggerLibraryConfig        DataloggerLibraryConfig[]
   ConfigSnapshot                 ConfigSnapshot[]
@@ -63,6 +65,8 @@ model Device {
   @@map("device")
 }
 
+// Context-name uniqueness is backstopped by a partial unique index on
+// (account_id, name) WHERE archived_at IS NULL (20260929120000).
 model Context {
   id            String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name          String
@@ -72,8 +76,61 @@ model Context {
   endedAt       DateTime?       @map("ended_at") @db.Timestamp(6)
   archivedAt    DateTime?       @map("archived_at") @db.Timestamp(6)
   DeviceContext DeviceContext[]
+  ContextShare  ContextShare[]
 
+  @@unique([accountId, name], map: "context_account_id_name_active_key", where: { archivedAt: null })
   @@map("context")
+}
+
+/// Persisted context sharing. Source of truth for the `editor` tuples so the
+/// authorization index (OpenFGA) can be reconciled from the database.
+model ContextShare {
+  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  Context   Context  @relation(fields: [contextId], references: [id])
+  contextId String   @map("context_id") @db.Uuid
+  Account   Account  @relation(fields: [accountId], references: [id])
+  accountId String   @map("account_id") @db.Uuid
+  relation  String
+  createdBy String?  @map("created_by") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@unique([contextId, accountId, relation])
+  @@map("context_share")
+}
+
+/// In-app notification for an account (e.g. a terminal sync failure).
+model Notification {
+  id           String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  Account      Account   @relation(fields: [accountId], references: [id])
+  accountId    String    @map("account_id") @db.Uuid
+  type         String
+  title        String
+  body         String?
+  resourceType String?   @map("resource_type")
+  resourceId   String?   @map("resource_id") @db.Uuid
+  readAt       DateTime? @map("read_at") @db.Timestamp(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+
+  @@index([accountId, readAt])
+  @@map("notification")
+}
+
+/// Tracks convergence of a resource's authorization state to OpenFGA.
+model AuthSync {
+  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  resourceType String   @map("resource_type")
+  resourceId   String   @map("resource_id") @db.Uuid
+  status       String   @default("pending")
+  attempts     Int      @default(0)
+  lastError    Json?    @map("last_error")
+  lastJobId    String?  @map("last_job_id")
+  version      Int      @default(1)
+  notifiedAt   DateTime? @map("notified_at") @db.Timestamp(6)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+
+  @@unique([resourceType, resourceId])
+  @@map("auth_sync")
 }
 
 model DeviceContext {
@@ -89,6 +146,8 @@ model DeviceContext {
   ConfigSnapshot        ConfigSnapshot[]
   DeviceFirmwareHistory DeviceFirmwareHistory[]
 
+  @@unique([deviceId], map: "device_context_device_id_active_key", where: { endedAt: null, archivedAt: null })
+  @@unique([contextId, assignedDeviceName], map: "device_context_context_id_assigned_name_active_key", where: { endedAt: null, archivedAt: null })
   @@map("device_context")
 }
 
@@ -115,6 +174,8 @@ model DeviceEui {
   active    Boolean
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
 
+  @@unique([eui], map: "device_eui_eui_active_key", where: raw("\"active\""))
+  @@unique([deviceId], map: "device_eui_device_id_active_key", where: raw("\"active\""))
   @@map("device_eui")
 }
 
@@ -142,6 +203,8 @@ model Telemeter {
   @@map("telemeter")
 }
 
+// One active bind per device is backstopped by a partial unique index on
+// (device_id) WHERE unbound_at IS NULL AND archived_at IS NULL (20260929120000).
 model Bind {
   id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   Device     Device    @relation(fields: [deviceId], references: [id])
@@ -152,6 +215,7 @@ model Bind {
   unboundAt  DateTime? @map("unbound_at") @db.Timestamp(6)
   archivedAt DateTime? @map("archived_at") @db.Timestamp(6)
 
+  @@unique([deviceId], map: "bind_device_id_active_key", where: { unboundAt: null, archivedAt: null })
   @@map("bind")
 }
 
@@ -165,6 +229,7 @@ model DataloggerDriver {
   archivedAt       DateTime?          @map("archived_at") @db.Timestamp(6)
   DataloggerConfig DataloggerConfig[]
 
+  @@unique([name], map: "datalogger_driver_name_key", where: { archivedAt: null })
   @@map("datalogger_driver")
 }
 
@@ -184,6 +249,7 @@ model DataloggerConfig {
   deactivatedAt                  DateTime?                        @map("deactivated_at") @db.Timestamp(6)
   DataloggerLibraryConfigVersion DataloggerLibraryConfigVersion[]
 
+  @@unique([configSnapshotId], map: "datalogger_config_config_snapshot_id_active_key", where: raw("\"active\" AND \"archived_at\" IS NULL"))
   @@map("datalogger_config")
 }
 
@@ -199,6 +265,7 @@ model DataloggerLibraryConfig {
 
   DataloggerLibraryConfigVersion DataloggerLibraryConfigVersion[]
 
+  @@unique([creatorId, name], map: "datalogger_library_config_creator_id_name_key", where: { archivedAt: null })
   @@map("datalogger_library_config")
 }
 
@@ -215,12 +282,16 @@ model DataloggerLibraryConfigVersion {
   createdAt                 DateTime                @default(now()) @map("created_at") @db.Timestamp(6)
   archivedAt                DateTime?               @map("archived_at") @db.Timestamp(6)
 
+  @@unique([dataloggerLibraryConfigId, version], map: "datalogger_library_config_version_config_id_version_key")
   @@map("datalogger_library_config_version")
 }
 
 model ConfigSnapshot {
   id                         String                       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name                       String
+  /// Discriminator: "device_active" | "saved" | "library". See the
+  /// 20260929170000_config_snapshot_kind migration.
+  kind                       String
   DeviceContext              DeviceContext?               @relation(fields: [deviceContextId], references: [id])
   deviceContextId            String?                      @map("device_context_id") @db.Uuid
   Creator                    Account                      @relation(fields: [creatorId], references: [id])
@@ -233,6 +304,8 @@ model ConfigSnapshot {
   Session                    Session[]
   DataloggerConfig           DataloggerConfig[]
 
+  @@unique([deviceContextId], map: "config_snapshot_device_context_id_active_key", where: raw("\"active\" AND \"archived_at\" IS NULL"))
+  @@unique([creatorId, name], map: "config_snapshot_saved_creator_id_name_key", where: { kind: "saved", archivedAt: null })
   @@map("config_snapshot")
 }
 
@@ -247,6 +320,7 @@ model SystemLibraryConfig {
   archivedAt                 DateTime?                    @map("archived_at") @db.Timestamp(6)
   SystemLibraryConfigVersion SystemLibraryConfigVersion[]
 
+  @@unique([creatorId, name], map: "system_library_config_creator_id_name_key", where: { archivedAt: null })
   @@map("system_library_config")
 }
 
@@ -263,6 +337,7 @@ model SystemLibraryConfigVersion {
   createdAt             DateTime            @default(now()) @map("created_at") @db.Timestamp(6)
   archivedAt            DateTime?           @map("archived_at") @db.Timestamp(6)
 
+  @@unique([systemLibraryConfigId, version], map: "system_library_config_version_config_id_version_key")
   @@map("system_library_config_version")
 }
 
@@ -276,6 +351,7 @@ model SensorDriver {
   archivedAt   DateTime?      @map("archived_at") @db.Timestamp(6)
   SensorConfig SensorConfig[]
 
+  @@unique([name], map: "sensor_driver_name_key", where: { archivedAt: null })
   @@map("sensor_driver")
 }
 
@@ -295,6 +371,7 @@ model SensorConfig {
   deactivatedAt              DateTime?                    @map("deactivated_at") @db.Timestamp(6)
   SensorLibraryConfigVersion SensorLibraryConfigVersion[]
 
+  @@unique([configSnapshotId, name], map: "sensor_config_config_snapshot_id_name_active_key", where: raw("\"active\" AND \"archived_at\" IS NULL"))
   @@index([name, createdAt])
   @@map("sensor_config")
 }
@@ -310,6 +387,7 @@ model SensorLibraryConfig {
   archivedAt                 DateTime?                    @map("archived_at") @db.Timestamp(6)
   SensorLibraryConfigVersion SensorLibraryConfigVersion[]
 
+  @@unique([creatorId, name], map: "sensor_library_config_creator_id_name_key", where: { archivedAt: null })
   @@map("sensor_library_config")
 }
 
@@ -326,6 +404,7 @@ model SensorLibraryConfigVersion {
   createdAt             DateTime            @default(now()) @map("created_at") @db.Timestamp(6)
   archivedAt            DateTime?           @map("archived_at") @db.Timestamp(6)
 
+  @@unique([sensorLibraryConfigId, version], map: "sensor_library_config_version_config_id_version_key")
   @@map("sensor_library_config_version")
 }
 

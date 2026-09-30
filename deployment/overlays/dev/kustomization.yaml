@@ -4,6 +4,46 @@ resources:
   - ../../base
 patches:
   - path: deployment.yaml
+  - target:
+      kind: CronJob
+      name: rriv-api-reconcile-sweep
+    patch: |
+      apiVersion: batch/v1
+      kind: CronJob
+      metadata:
+        name: rriv-api-reconcile-sweep
+      spec:
+        jobTemplate:
+          spec:
+            template:
+              spec:
+                containers:
+                  - name: reconcile
+                    env:
+                      - name: KEYCLOAK_URL
+                        value: https://auth.dev.rriv.org
+                      - name: KEYCLOAK_REALM
+                        value: rriv-beta-dev
+  - target:
+      kind: CronJob
+      name: rriv-api-reconcile-full
+    patch: |
+      apiVersion: batch/v1
+      kind: CronJob
+      metadata:
+        name: rriv-api-reconcile-full
+      spec:
+        jobTemplate:
+          spec:
+            template:
+              spec:
+                containers:
+                  - name: reconcile
+                    env:
+                      - name: KEYCLOAK_URL
+                        value: https://auth.dev.rriv.org
+                      - name: KEYCLOAK_REALM
+                        value: rriv-beta-dev
 images:
   - name: registry.digitalocean.com/rriv/rriv-api
     newTag: 1.12.0

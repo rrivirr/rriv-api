@@ -3,6 +3,16 @@ import * as keycloak from "../infra/keycloak/keycloak.ts";
 import * as accountRepository from "../repository/account.repository.ts";
 import { KEYCLOAK_ACTIONS_EMAIL } from "../infra/keycloak/enum.ts";
 import { HttpException } from "../utils/http-exception.ts";
+import prisma from "../infra/prisma.ts";
+import { isAdmin } from "./auth.service.ts";
+
+export const getMe = async (accountId: string) => {
+  const account = await prisma.account.findUnique({ where: { id: accountId } });
+  if (!account) {
+    throw new HttpException(404, "account not found");
+  }
+  return { ...account, isAdmin: await isAdmin(accountId) };
+};
 
 export const createAccount = async (body: CreateAccountDto) => {
   const userId = await keycloak.createUser({ ...body });

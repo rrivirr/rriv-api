@@ -1,26 +1,24 @@
-import { DataloggerConfig } from "generated/client.ts";
 import { getConfigChangesMade } from "./get-changes-made.ts";
 
-export const getDataloggerConfigChanges = (
-  dataloggerConfigs: DataloggerConfig[],
+export const getDataloggerConfigChanges = <T extends { config: unknown }>(
+  dataloggerConfigs: T[],
 ) => {
   if (dataloggerConfigs.length < 2) {
     return dataloggerConfigs;
   }
-  const dataloggerConfigWithDifference = [];
-  dataloggerConfigWithDifference.push(dataloggerConfigs[0]);
 
+  const withDifference: Array<T & { changesMade?: unknown }> = [
+    dataloggerConfigs[0],
+  ];
   for (let i = 1; i < dataloggerConfigs.length; i++) {
-    const previousConfig = dataloggerConfigs[i - 1].config;
-    const currentConfig = dataloggerConfigs[i].config;
-
-    const changesMade = getConfigChangesMade({ previousConfig, currentConfig });
-
-    dataloggerConfigWithDifference.push({
+    withDifference.push({
       ...dataloggerConfigs[i],
-      changesMade,
+      changesMade: getConfigChangesMade({
+        previousConfig: dataloggerConfigs[i - 1].config,
+        currentConfig: dataloggerConfigs[i].config,
+      }),
     });
   }
 
-  return dataloggerConfigWithDifference;
+  return withDifference;
 };

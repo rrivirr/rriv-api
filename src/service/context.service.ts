@@ -6,15 +6,11 @@ import {
 } from "../types/context.types.ts";
 import * as contextRepositoy from "../repository/context.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
-import {
-  authorizationCheck,
-  listObjects,
-  listUsers,
-  read,
-  SYSTEM,
-  writeRelationships,
-} from "./auth.service.ts";
+import { authorizationCheck, listObjects, listUsers } from "./auth.service.ts";
 import { getAccountByEmail, getAccountsByIds } from "./account.service.ts";
+import { syncAuthorization } from "./authorization-sync.service.ts";
+import { isUniqueConstraintError } from "../utils/prisma-errors.ts";
+import prisma from "../infra/prisma.ts";
 
 const getContextById = async (requestBody: UniqueContextDto) => {
   const { contextId } = requestBody;
@@ -66,7 +62,17 @@ export const createContext = async (requestBody: CreateContextDto) => {
   if (existingContext.length) {
     throw new HttpException(409, `'${name}' already exists`);
   }
-  return await contextRepositoy.createContext(requestBody);
+  try {
+    return await contextRepositoy.createContext(requestBody);
+  } catch (error) {
+    // The check above reads the authorization index, which lags the database.
+    // The partial unique index on (account_id, name) WHERE archived_at IS NULL
+    // is the real guard, so losing that race surfaces here.
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(409, `'${name}' already exists`);
+    }
+    throw error;
+  }
 };
 
 export const shareContext = async (
@@ -77,14 +83,27 @@ export const shareContext = async (
   await authContextCheck({ accountId, contextId: id, relation: "owner" });
   const account = await getAccountByEmail(email);
 
-  await writeRelationships({
-    writes: [{
-      user: `user:${account.id}`,
-      object: `context:${id}`,
-      relation: "editor",
-    }],
-    deletes: [],
-    singletonKey: id,
+  // Persist the share (source of truth) and enqueue the authorization write
+  // atomically, so it can always be recovered by reconciliation.
+  await prisma.$transaction(async (trx) => {
+    await trx.contextShare.upsert({
+      where: {
+        contextId_accountId_relation: {
+          contextId: id,
+          accountId: account.id,
+          relation: "editor",
+        },
+      },
+      create: {
+        contextId: id,
+        accountId: account.id,
+        relation: "editor",
+        createdBy: accountId,
+      },
+      update: {},
+    });
+
+    await syncAuthorization({ type: "context", id }, trx);
   });
 };
 
@@ -135,38 +154,10 @@ export const getSharedContexts = async (body: { accountId: string }) => {
   return await contextRepositoy.getContext({ contextIds: sharedContextIds });
 };
 
-const getContextTuples = async (
-  requestBody: UniqueContextDto & { toEnd?: boolean },
-) => {
-  const { contextId, accountId, toEnd } = requestBody;
-
-  const tuples = await read({
-    user: `context:${contextId}`,
-    object: `device:`,
-  });
-
-  if (toEnd) {
-    return tuples;
-  }
-
-  const deletes = [{
-    user: SYSTEM,
-    object: `context:${contextId}`,
-    relation: "system",
-  }, {
-    user: `user:${accountId}`,
-    object: `context:${contextId}`,
-    relation: "owner",
-  }];
-
-  return [...deletes, ...tuples];
-};
-
 export const updateContext = async (requestBody: UpdateContextDto) => {
-  const { id, name, accountId, end } = requestBody;
+  const { id, name, accountId } = requestBody;
   await authContextCheck({ accountId, contextId: id, relation: "owner" });
   const context = await getContextById({ contextId: id, accountId });
-  let deletes;
 
   if (context.endedAt) {
     throw new HttpException(
@@ -189,26 +180,33 @@ export const updateContext = async (requestBody: UpdateContextDto) => {
     }
   }
 
-  if (end) {
-    deletes = await getContextTuples({ accountId, contextId: id, toEnd: true });
+  try {
+    return await contextRepositoy.updateContext({ ...requestBody });
+  } catch (error) {
+    // Same partial unique index as createContext; a rename that loses the race
+    // against the authorization index surfaces here.
+    if (name && isUniqueConstraintError(error)) {
+      throw new HttpException(409, `'${name}' already exists`);
+    }
+    throw error;
   }
-
-  return await contextRepositoy.updateContext({ ...requestBody, deletes });
 };
 
 export const deleteContext = async (requestBody: UniqueContextDto) => {
   const { contextId, accountId } = requestBody;
   await authContextCheck({ accountId, contextId, relation: "owner" });
   const context = await getContextById(requestBody);
-  const deletes = await getContextTuples({
-    accountId,
-    contextId: contextId,
-  });
 
   return await contextRepositoy.updateContext({
     id: contextId,
     archive: true,
-    deletes,
     ...(!context.endedAt && { end: true }),
   });
+};
+
+/** Re-queues the authorization sync for a context the caller owns. */
+export const resyncContext = async (requestBody: UniqueContextDto) => {
+  const { contextId, accountId } = requestBody;
+  await authContextCheck({ accountId, contextId, relation: "owner" });
+  await syncAuthorization({ type: "context", id: contextId });
 };

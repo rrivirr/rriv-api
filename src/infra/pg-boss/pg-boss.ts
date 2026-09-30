@@ -1,6 +1,7 @@
 import { PgBoss, SendOptions } from "npm:pg-boss";
 import logger from "../../winston.ts";
 import { JobDto } from "./types.ts";
+import { SCHEMA } from "./constants.ts";
 import config from "../get-config.ts";
 
 const connectionString = config.DATABASE_URL.split("schema=")[0];
@@ -8,6 +9,7 @@ const pgBoss = new PgBoss({
   connectionString: connectionString!,
   persistWarnings: true,
   warningRetentionDays: 60,
+  schema: SCHEMA,
   createSchema: false,
 });
 const pgBossLogger = logger.child({ source: "pgBoss" });

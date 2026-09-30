@@ -4,6 +4,7 @@ import {
   getContext,
   getSharedContexts,
   getShareRecipients,
+  resyncContext,
   shareContext,
   updateContext,
 } from "../handler/context/handler.ts";
@@ -19,6 +20,7 @@ router.patch("/:id", updateContext);
 router.delete("/:id", deleteContext);
 router.route("/:id/share").get(getShareRecipients).post(shareContext);
 router.route("/shared").get(getSharedContexts);
+router.route("/:id/resync").post(resyncContext);
 
 routerWrapper.use(basePath, router);
 
