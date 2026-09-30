@@ -1,7 +1,14 @@
-import { WriteRelationshipDto } from "../../types/auth-service.types.ts";
 import { TYPES } from "./constants.ts";
 
+export type AuthResourceType = "context" | "account";
+
+export type AuthResourceRef = {
+  resourceType: AuthResourceType;
+  resourceId: string;
+  version: number;
+};
+
 export type JobDto = {
-  type: TYPES.AUTH_SERVICE_WRITE;
-  payload: WriteRelationshipDto;
+  type: TYPES.AUTH_SYNC;
+  payload: AuthResourceRef;
 };

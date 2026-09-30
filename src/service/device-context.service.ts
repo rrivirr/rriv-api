@@ -4,12 +4,43 @@ import {
   UpdateDeviceContextDto,
 } from "../types/context.types.ts";
 import { HttpException } from "../utils/http-exception.ts";
+import { isUniqueConstraintError } from "../utils/prisma-errors.ts";
 import * as deviceContextRepository from "../repository/device-context.repository.ts";
 import * as configSnapshotRepository from "../repository/config-snapshot.repository.ts";
 import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "./utils/constants.ts";
 import { validateDeviceContext } from "./utils/validate-device-context.ts";
 import { authContextCheck } from "./context.service.ts";
 import { authDeviceCheck } from "./device.service.ts";
+
+/**
+ * Returns the device context's "active" config snapshot, creating it if
+ * needed. Idempotent under concurrency: if another request created it first
+ * (partial unique index on config_snapshot(device_context_id) WHERE active),
+ * the winner is adopted instead of failing.
+ */
+const getOrCreateActiveSnapshot = async (
+  deviceContextId: string,
+  accountId: string,
+) => {
+  try {
+    return await configSnapshotRepository.createConfigSnapshot({
+      name: ACTIVE_CONFIG_SNAPSHOT_NAME,
+      accountId,
+      active: true,
+      deviceContextId,
+    });
+  } catch (error) {
+    if (!isUniqueConstraintError(error)) {
+      throw error;
+    }
+    const existing = await configSnapshotRepository
+      .getActiveConfigSnapshotByDeviceContext({ deviceContextId });
+    if (!existing) {
+      throw error;
+    }
+    return existing;
+  }
+};
 
 export const createDeviceContext = async (
   requestBody: CreateDeviceContextDto,
@@ -43,12 +74,24 @@ export const createDeviceContext = async (
   }
 
   // add device to context
-  await deviceContextRepository.createDeviceContext({
-    deviceId,
-    contextId,
-    assignedDeviceName,
-    accountId,
-  });
+  try {
+    await deviceContextRepository.createDeviceContext({
+      deviceId,
+      contextId,
+      assignedDeviceName,
+      accountId,
+    });
+  } catch (error) {
+    // The checks above are separate from the insert; the partial unique
+    // indexes on device_context are the real guard against concurrent adds.
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(
+        422,
+        "device is already in a context, or the name is already used in this context",
+      );
+    }
+    throw error;
+  }
 };
 
 export const getDeviceContext = async (query: DeviceContextDto) => {
@@ -63,12 +106,10 @@ export const getDeviceContext = async (query: DeviceContextDto) => {
 
   let configSnapshotId: string;
   if (!activeDeviceContext.ConfigSnapshot.length) {
-    const configSnapshot = await configSnapshotRepository.createConfigSnapshot({
-      name: ACTIVE_CONFIG_SNAPSHOT_NAME,
+    const configSnapshot = await getOrCreateActiveSnapshot(
+      activeDeviceContext.id,
       accountId,
-      active: true,
-      deviceContextId: activeDeviceContext.id,
-    });
+    );
     configSnapshotId = configSnapshot.id;
   } else {
     configSnapshotId = activeDeviceContext.ConfigSnapshot[0].id;
@@ -114,7 +155,17 @@ export const updateDeviceContext = async (body: UpdateDeviceContextDto) => {
     }
   }
 
-  await deviceContextRepository.updateDeviceContext(body);
+  try {
+    await deviceContextRepository.updateDeviceContext(body);
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(
+        422,
+        `${assignedDeviceName} already exists in this context`,
+      );
+    }
+    throw error;
+  }
 };
 
 export const deleteDeviceContext = async (body: DeviceContextDto) => {

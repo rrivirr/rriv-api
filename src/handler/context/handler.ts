@@ -49,6 +49,13 @@ export const deleteContext = async (req: Request, res: Response) => {
   res.json(deletedContext);
 };
 
+export const resyncContext = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
+  const params = idSchema.parse(req.params);
+  await contextService.resyncContext({ accountId, contextId: params.id });
+  res.json({ message: "context resync scheduled" });
+};
+
 export const shareContext = async (req: Request, res: Response) => {
   const accountId = req.accountId;
   const params = idSchema.parse(req.params);

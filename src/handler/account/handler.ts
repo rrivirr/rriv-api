@@ -26,3 +26,7 @@ export const resetPassword = async (req: Request, res: Response) => {
   await accountService.resetPassword(requestBody.email);
   res.status(204).json();
 };
+
+export const getMe = async (req: Request, res: Response) => {
+  res.json(await accountService.getMe(req.accountId));
+};

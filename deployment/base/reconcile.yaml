@@ -1,0 +1,138 @@
+# Authorization reconciler. Two schedules:
+#   sweep — every 15 min, re-queues resources whose auth_sync row is stale
+#   full  — nightly, re-queues every context and account (drift backstop)
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rriv-api-reconcile-sweep
+  labels:
+    app: rriv-api
+spec:
+  schedule: "*/15 * * * *"
+  concurrencyPolicy: Forbidden
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: rriv-api-reconcile
+          annotations:
+            vault.hashicorp.com/agent-inject: "true"
+            vault.hashicorp.com/agent-pre-populate-only: "true"
+            vault.hashicorp.com/role: "webapp"
+            vault.hashicorp.com/auth-path: "auth/kubernetes-rriv"
+            vault.hashicorp.com/agent-requests-cpu: "10m"
+            vault.hashicorp.com/agent-requests-memory: "32Mi"
+            vault.hashicorp.com/agent-limits-cpu: "500m"
+            vault.hashicorp.com/agent-limits-memory: "128Mi"
+            vault.hashicorp.com/secret-volume-path: "/app/config"
+            vault.hashicorp.com/agent-inject-secret-config: "secret/data/rriv-api-creds"
+            vault.hashicorp.com/agent-inject-template-config: |
+              {{ with secret "secret/data/rriv-api-creds" }}
+              DATABASE_URL="{{ .Data.data.database_url }}"
+              KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
+              KEYCLOAK_AUTH_CLIENT_SECRET="{{ .Data.data.keycloak_auth_client_secret }}"
+              CHIRPSTACK_API_KEY="{{ .Data.data.chirpstack_downlink_key }}"
+              DATABASE_CA_CRT="{{ .Data.data.database_ca_cert }}"
+              {{ end }}
+        spec:
+          restartPolicy: Never
+          serviceAccountName: internal-app
+          imagePullSecrets:
+            - name: registry-rriv
+          containers:
+            - name: reconcile
+              image: registry.digitalocean.com/rriv/rriv-api-migrate:latest
+              command:
+                ["deno", "run", "--allow-all", "scripts/reconcile.ts", "sweep"]
+              env:
+                - name: DATABASE_SCHEMA
+                  value: rriv
+                - name: KEYCLOAK_CLIENT_ID
+                  value: rriv-api
+                - name: KEYCLOAK_AUTH_CLIENT_ID
+                  value: auth-api
+                - name: AUTH_SERVICE_URL
+                  value: http://auth-api:80
+                - name: CHIRPSTACK_API_URL
+                  value: chirpstack:8080
+                - name: APP_ENV
+                  value: production
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 256Mi
+                limits:
+                  cpu: 200m
+                  memory: 384Mi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: rriv-api-reconcile-full
+  labels:
+    app: rriv-api
+spec:
+  schedule: "0 3 * * *"
+  concurrencyPolicy: Forbidden
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        metadata:
+          labels:
+            app: rriv-api-reconcile
+          annotations:
+            vault.hashicorp.com/agent-inject: "true"
+            vault.hashicorp.com/agent-pre-populate-only: "true"
+            vault.hashicorp.com/role: "webapp"
+            vault.hashicorp.com/auth-path: "auth/kubernetes-rriv"
+            vault.hashicorp.com/agent-requests-cpu: "10m"
+            vault.hashicorp.com/agent-requests-memory: "32Mi"
+            vault.hashicorp.com/agent-limits-cpu: "500m"
+            vault.hashicorp.com/agent-limits-memory: "128Mi"
+            vault.hashicorp.com/secret-volume-path: "/app/config"
+            vault.hashicorp.com/agent-inject-secret-config: "secret/data/rriv-api-creds"
+            vault.hashicorp.com/agent-inject-template-config: |
+              {{ with secret "secret/data/rriv-api-creds" }}
+              DATABASE_URL="{{ .Data.data.database_url }}"
+              KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
+              KEYCLOAK_AUTH_CLIENT_SECRET="{{ .Data.data.keycloak_auth_client_secret }}"
+              CHIRPSTACK_API_KEY="{{ .Data.data.chirpstack_downlink_key }}"
+              DATABASE_CA_CRT="{{ .Data.data.database_ca_cert }}"
+              {{ end }}
+        spec:
+          restartPolicy: Never
+          serviceAccountName: internal-app
+          imagePullSecrets:
+            - name: registry-rriv
+          containers:
+            - name: reconcile
+              image: registry.digitalocean.com/rriv/rriv-api-migrate:latest
+              command:
+                ["deno", "run", "--allow-all", "scripts/reconcile.ts", "full"]
+              env:
+                - name: DATABASE_SCHEMA
+                  value: rriv
+                - name: KEYCLOAK_CLIENT_ID
+                  value: rriv-api
+                - name: KEYCLOAK_AUTH_CLIENT_ID
+                  value: auth-api
+                - name: AUTH_SERVICE_URL
+                  value: http://auth-api:80
+                - name: CHIRPSTACK_API_URL
+                  value: chirpstack:8080
+                - name: APP_ENV
+                  value: production
+              resources:
+                requests:
+                  cpu: 50m
+                  memory: 256Mi
+                limits:
+                  cpu: 200m
+                  memory: 384Mi

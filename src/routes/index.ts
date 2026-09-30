@@ -5,6 +5,9 @@ import DeviceContextRouter from "./device-context.router.ts";
 import SensorRouter from "./sensor.router.ts";
 import DataloggerRouter from "./datalogger.router.ts";
 import ConfigSnapshotRouter from "./config-snapshot.router.ts";
+import AuthSyncRouter from "./auth-sync.router.ts";
+import NotificationRouter from "./notification.router.ts";
+import AdminRouter from "./admin.router.ts";
 
 export default [
   ContextRouter,
@@ -14,4 +17,7 @@ export default [
   DataloggerRouter,
   ConfigSnapshotRouter,
   AccountRouter,
+  AuthSyncRouter,
+  NotificationRouter,
+  AdminRouter,
 ];

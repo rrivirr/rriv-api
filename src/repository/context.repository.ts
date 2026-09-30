@@ -4,27 +4,14 @@ import {
   UpdateContextDto,
 } from "../types/context.types.ts";
 import prisma from "../infra/prisma.ts";
-import { SYSTEM, writeRelationships } from "../service/auth.service.ts";
-import { Tuple } from "../types/auth-service.types.ts";
+import { syncAuthorization } from "../service/authorization-sync.service.ts";
 
 export const createContext = async (requestBody: CreateContextDto) => {
   await prisma.$transaction(async (trx) => {
     const context = await trx.context.create({
       data: { ...requestBody },
     });
-    await writeRelationships({
-      writes: [{
-        user: SYSTEM,
-        object: `context:${context.id}`,
-        relation: "system",
-      }, {
-        user: `user:${requestBody.accountId}`,
-        object: `context:${context.id}`,
-        relation: "owner",
-      }],
-      trx,
-      singletonKey: context.id,
-    });
+    await syncAuthorization({ type: "context", id: context.id }, trx);
     return context;
   });
 };
@@ -64,10 +51,9 @@ export const getContextById = async (contextId: string) => {
 export const updateContext = async (
   requestBody: Omit<UpdateContextDto, "accountId"> & {
     archive?: true;
-    deletes?: Tuple[];
   },
 ) => {
-  const { id, name, archive, end, deletes } = requestBody;
+  const { id, name, archive, end } = requestBody;
 
   return await prisma.$transaction(async (trx) => {
     if (end) {
@@ -84,7 +70,7 @@ export const updateContext = async (
       });
     }
 
-    await writeRelationships({ deletes, singletonKey: id, trx });
+    await syncAuthorization({ type: "context", id }, trx);
     return await trx.context.update({
       where: { id },
       data: {

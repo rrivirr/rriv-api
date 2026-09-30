@@ -1,6 +1,9 @@
 import prisma from "../infra/prisma.ts";
-import { writeRelationships } from "../service/auth.service.ts";
-import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "../service/utils/constants.ts";
+import { syncAuthorization } from "../service/authorization-sync.service.ts";
+import {
+  ACTIVE_CONFIG_SNAPSHOT_NAME,
+  CONFIG_SNAPSHOT_KIND,
+} from "../service/utils/constants.ts";
 import {
   UniqueDeviceContextDto,
   UpdateDeviceContextDto,
@@ -24,16 +27,7 @@ export const createDeviceContext = async (
 ) => {
   const { accountId, deviceId, contextId, assignedDeviceName } = body;
   return await prisma.$transaction(async (trx) => {
-    await writeRelationships({
-      writes: [{
-        user: `context:${contextId}`,
-        relation: "context",
-        object: `device:${deviceId}`,
-      }],
-      trx,
-      singletonKey: contextId,
-    });
-    return await trx.deviceContext.create({
+    const deviceContext = await trx.deviceContext.create({
       data: {
         deviceId,
         contextId,
@@ -41,12 +35,15 @@ export const createDeviceContext = async (
         ConfigSnapshot: {
           create: {
             name: ACTIVE_CONFIG_SNAPSHOT_NAME,
+            kind: CONFIG_SNAPSHOT_KIND.DEVICE_ACTIVE,
             active: true,
             Creator: { connect: { id: accountId } },
           },
         },
       },
     });
+    await syncAuthorization({ type: "context", id: contextId }, trx);
+    return deviceContext;
   });
 };
 
@@ -54,18 +51,7 @@ export const updateDeviceContext = async (body: UpdateDeviceContextDto) => {
   const { contextId, deviceId, assignedDeviceName, end } = body;
 
   return await prisma.$transaction(async (trx) => {
-    if (end) {
-      await writeRelationships({
-        deletes: [{
-          user: `context:${contextId}`,
-          relation: "context",
-          object: `device:${deviceId}`,
-        }],
-        trx,
-        singletonKey: contextId,
-      });
-    }
-    return await trx.deviceContext.updateMany({
+    const result = await trx.deviceContext.updateMany({
       where: {
         deviceId,
         contextId,
@@ -77,6 +63,8 @@ export const updateDeviceContext = async (body: UpdateDeviceContextDto) => {
         ...(end && { endedAt: new Date() }),
       },
     });
+    await syncAuthorization({ type: "context", id: contextId }, trx);
+    return result;
   });
 };
 
@@ -84,16 +72,7 @@ export const deleteDeviceContext = async (body: UniqueDeviceContextDto) => {
   const { contextId, deviceId } = body;
 
   return await prisma.$transaction(async (trx) => {
-    await writeRelationships({
-      deletes: [{
-        user: `context:${contextId}`,
-        relation: "context",
-        object: `device:${deviceId}`,
-      }],
-      trx,
-      singletonKey: contextId,
-    });
-    return await trx.deviceContext.updateMany({
+    const result = await trx.deviceContext.updateMany({
       where: {
         deviceId,
         contextId,
@@ -102,5 +81,7 @@ export const deleteDeviceContext = async (body: UniqueDeviceContextDto) => {
       },
       data: { archivedAt: new Date(), endedAt: new Date() },
     });
+    await syncAuthorization({ type: "context", id: contextId }, trx);
+    return result;
   });
 };

@@ -21,19 +21,22 @@ import {
 import { getChirpstackConnection } from "../infra/chirpstack.ts";
 import * as deviceRepository from "../repository/device.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
+import { isUniqueConstraintError } from "../utils/prisma-errors.ts";
 import { IdDto } from "../types/generic.types.ts";
 import { getSeed } from "./utils/get-seed.ts";
 import { validateDeviceContext } from "./utils/validate-device-context.ts";
 import { idSchema } from "../handler/generic/generic.schema.ts";
-import {
-  authorizationCheck,
-  listObjects,
-  listUsers,
-  read,
-  SYSTEM,
-} from "./auth.service.ts";
+import { authorizationCheck, listObjects, listUsers } from "./auth.service.ts";
 
-const getNewIdentifiers = async (lastSerialNumber?: string) => {
+const MAX_PROVISION_ATTEMPTS = 5;
+
+/**
+ * Derives the next serial number and its seeded unique name. Pure: collisions
+ * are caught by the database's unique constraints and handled by the bounded
+ * retry in `provisionDevice` (the previous in-method pre-check was racy and
+ * surfaced as a 500).
+ */
+const getNewIdentifiers = (lastSerialNumber?: string) => {
   let newSerialNumber = 0n;
   if (lastSerialNumber) {
     const number = [...lastSerialNumber].reduce(
@@ -52,24 +55,7 @@ const getNewIdentifiers = async (lastSerialNumber?: string) => {
     separator: "-",
   });
 
-  const devices = await deviceRepository.getAllDevices({
-    query: { uniqueName },
-  });
-
-  if (devices.length) {
-    throw new HttpException(
-      500,
-      `duplicate unique name generated\nunique name:${uniqueName}, 
-      serialNumber:${serialNumber}\ndevice:${devices[0].id},serialnumber:${
-        devices[0].serialNumber
-      }`,
-    );
-  }
-
-  return {
-    serialNumber,
-    uniqueName,
-  };
+  return { serialNumber, uniqueName };
 };
 
 export const authDeviceCheck = async (
@@ -99,34 +85,52 @@ export const authDeviceCheck = async (
 export const provisionDevice = async (body: ProvisionDeviceDto) => {
   const { uid, accountId, type } = body;
 
-  const existingDevices = await deviceRepository.getAllDevices({
-    query: { uid, type },
-  });
+  for (let attempt = 1; attempt <= MAX_PROVISION_ATTEMPTS; attempt++) {
+    // Idempotent: a device with this uid may already exist — including one a
+    // concurrent request just created.
+    const existingDevices = await deviceRepository.getAllDevices({
+      query: { uid, type },
+    });
 
-  if (existingDevices.length) {
-    const existingDevice = existingDevices[0];
-    return { status: 200, device: { ...existingDevice, Bind: undefined } };
+    if (existingDevices.length) {
+      const existingDevice = existingDevices[0];
+      return { status: 200, device: { ...existingDevice, Bind: undefined } };
+    }
+
+    const [device] = await deviceRepository.getAllDevices({
+      orderBy: "createdAt",
+      order: "desc",
+      limit: 1,
+      query: {},
+    });
+
+    const { serialNumber, uniqueName } = getNewIdentifiers(
+      device?.serialNumber,
+    );
+
+    try {
+      const newDevice = await deviceRepository.createDevice({
+        serialNumber,
+        uniqueName,
+        uid,
+        accountId,
+        type,
+      });
+      return { status: 201, device: newDevice };
+    } catch (error) {
+      if (!isUniqueConstraintError(error)) {
+        throw error;
+      }
+      // Either our uid was created concurrently (the next iteration returns it)
+      // or the generated serial/unique name collided (the next iteration
+      // regenerates from the new latest device).
+    }
   }
 
-  const [device] = await deviceRepository.getAllDevices({
-    orderBy: "createdAt",
-    order: "desc",
-    limit: 1,
-    query: {},
-  });
-
-  const { serialNumber, uniqueName } = await getNewIdentifiers(
-    device?.serialNumber,
+  throw new HttpException(
+    409,
+    "could not allocate a unique device identifier, please retry",
   );
-
-  const newDevice = await deviceRepository.createDevice({
-    serialNumber,
-    uniqueName,
-    uid,
-    accountId,
-    type,
-  });
-  return { status: 201, device: newDevice };
 };
 
 export const getDeviceByIdentifierOrId = async (
@@ -191,17 +195,34 @@ export const bindDevice = async (requestBody: BindDeviceDto) => {
   });
 
   if (ownerIds.length) {
-    if (ownerIds[0].object.id !== accountId) {
+    if (!ownerIds.some((owner) => owner.object.id === accountId)) {
       throw new HttpException(409, "device bound to another user");
     }
 
     return device;
   }
 
-  await deviceRepository.bindDevice({
-    accountId,
-    deviceId: deviceObject.device.id,
-  });
+  try {
+    await deviceRepository.bindDevice({
+      accountId,
+      deviceId: deviceObject.device.id,
+    });
+  } catch (error) {
+    // The owner check above reads the authorization index, which lags the
+    // database. The partial unique index on (device_id) WHERE unbound_at IS
+    // NULL AND archived_at IS NULL is the real guard, so losing that race
+    // surfaces here.
+    if (!isUniqueConstraintError(error)) {
+      throw error;
+    }
+    const activeBind = await deviceRepository.getActiveBind({
+      deviceId: deviceObject.device.id,
+    });
+    if (activeBind?.accountId === accountId) {
+      return device;
+    }
+    throw new HttpException(409, "device bound to another user");
+  }
 
   return device;
 };
@@ -253,28 +274,7 @@ export const deleteDevice = async (requestBody: AccountUniqueDeviceDto) => {
     relation: "owner",
   });
 
-  const deviceId = deviceObject.device.id;
-
-  const tuples = await read({
-    object: `device:${deviceId}`,
-    relation: `context`,
-  });
-
-  const deletes = [{
-    user: SYSTEM,
-    object: `device:${deviceId}`,
-    relation: "system",
-  }, {
-    user: `user:${accountId}`,
-    object: `device:${deviceId}`,
-    relation: "owner",
-  }];
-
-  await deviceRepository.deleteDevice({
-    serialNumber,
-    accountId,
-    deletes: [...deletes, ...tuples],
-  });
+  await deviceRepository.deleteDevice({ serialNumber, accountId });
   return deviceObject.device;
 };
 
@@ -403,7 +403,15 @@ export const registerEui = async (body: RegisterEuiDto) => {
   await addDeviceToChirpstack();
   closeConnection();
 
-  await deviceRepository.registerEui(body);
+  try {
+    await deviceRepository.registerEui(body);
+  } catch (error) {
+    // Partial unique index on device_eui(eui) WHERE active.
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(409, "eui already registered to another device");
+    }
+    throw error;
+  }
   return 201;
 };
 

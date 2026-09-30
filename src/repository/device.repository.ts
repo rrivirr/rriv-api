@@ -1,7 +1,6 @@
 import prisma from "../infra/prisma.ts";
-import { SYSTEM, writeRelationships } from "../service/auth.service.ts";
+import { syncAuthorization } from "../service/authorization-sync.service.ts";
 import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "../service/utils/constants.ts";
-import { Tuple } from "../types/auth-service.types.ts";
 import {
   DeviceIdentifierDto,
   ProvisionDeviceDto,
@@ -19,13 +18,7 @@ export const getLogs = async (
     deviceId: string;
   },
 ) => {
-  const {
-    limit,
-    offset,
-    order,
-    orderBy,
-    deviceId,
-  } = query;
+  const { limit, offset, order, orderBy, deviceId } = query;
 
   return await prisma.deviceLog.findMany({
     where: {
@@ -47,9 +40,11 @@ export const getLogs = async (
   });
 };
 
-export const createLog = async (
-  body: { deviceId: string; accountId: string; log: string },
-) => {
+export const createLog = async (body: {
+  deviceId: string;
+  accountId: string;
+  log: string;
+}) => {
   const { deviceId, accountId, log } = body;
   await prisma.deviceLog.create({
     data: {
@@ -86,6 +81,18 @@ export const getActiveEui = async (body: { deviceId: string }) => {
   });
 };
 
+export const getActiveBind = async (body: { deviceId: string }) => {
+  return await prisma.bind.findFirst({
+    where: {
+      deviceId: body.deviceId,
+      unboundAt: null,
+      archivedAt: null,
+    },
+    select: { id: true, accountId: true },
+    orderBy: { boundAt: "asc" },
+  });
+};
+
 export const getDeviceByIdentifierOrId = async (
   body: DeviceIdentifierDto | IdDto,
 ) => {
@@ -111,7 +118,12 @@ export const getDeviceByIdentifierOrId = async (
           Context: { select: { name: true } },
           ConfigSnapshot: {
             select: { id: true },
-            where: { name: ACTIVE_CONFIG_SNAPSHOT_NAME, archivedAt: null },
+            where: {
+              name: ACTIVE_CONFIG_SNAPSHOT_NAME,
+              active: true,
+              archivedAt: null,
+            },
+            orderBy: { createdAt: "asc" },
           },
         },
         where: {
@@ -122,6 +134,7 @@ export const getDeviceByIdentifierOrId = async (
       DeviceEuis: {
         where: { active: true },
         select: { eui: true },
+        orderBy: { createdAt: "desc" },
       },
     },
   });
@@ -166,8 +179,10 @@ export const getDevices = async (
         : {
           id: { in: deviceIds },
           uniqueName: uniqueName || { contains: search, mode: "insensitive" },
-          serialNumber: serialNumber ||
-            { contains: search, mode: "insensitive" },
+          serialNumber: serialNumber || {
+            contains: search,
+            mode: "insensitive",
+          },
           ...(contextId && {
             DeviceContext: {
               some: {
@@ -222,50 +237,47 @@ export const createDevice = async (
       },
     });
 
-    await writeRelationships({
-      writes: [{
-        user: SYSTEM,
-        object: `device:${device.id}`,
-        relation: "system",
-      }],
-      trx,
-      singletonKey: accountId,
-    });
+    await syncAuthorization({ type: "account", id: accountId }, trx);
 
     return device;
   });
 };
 
-export const bindDevice = async (
-  body: { accountId: string; deviceId: string },
-) => {
+export const bindDevice = async (body: {
+  accountId: string;
+  deviceId: string;
+}) => {
   const { deviceId, accountId } = body;
   return await prisma.$transaction(async (trx) => {
-    await writeRelationships({
-      writes: [{
-        user: `user:${accountId}`,
-        object: `device:${deviceId}`,
-        relation: "owner",
-      }],
-      trx,
-      singletonKey: accountId,
-    });
-    return await trx.bind.create({
+    const bind = await trx.bind.create({
       data: {
         Account: { connect: { id: accountId } },
         Device: { connect: { id: deviceId } },
       },
     });
+    await syncAuthorization({ type: "account", id: accountId }, trx);
+    return bind;
   });
 };
 
-export const unbindDevice = async (
-  body: { bindId: string },
-) => {
+export const unbindDevice = async (body: { bindId: string }) => {
   const { bindId } = body;
 
   return await prisma.$transaction(async (trx) => {
-    const bind = await trx.bind.update({
+    const bind = await trx.bind.findUnique({
+      where: { id: bindId },
+      select: { accountId: true, deviceId: true },
+    });
+    if (!bind) {
+      return;
+    }
+
+    const endedContexts = await trx.deviceContext.findMany({
+      where: { deviceId: bind.deviceId, endedAt: null },
+      select: { contextId: true },
+    });
+
+    await trx.bind.update({
       where: { id: bindId },
       data: {
         unboundAt: new Date(),
@@ -281,24 +293,31 @@ export const unbindDevice = async (
         },
       },
     });
-    await writeRelationships({
-      deletes: [{
-        user: `user:${bind.accountId}`,
-        object: `device:${bind.deviceId}`,
-        relation: "owner",
-      }],
-      trx,
-      singletonKey: bind.accountId,
-    });
+
+    await syncAuthorization({ type: "account", id: bind.accountId }, trx);
+    for (const { contextId } of endedContexts) {
+      await syncAuthorization({ type: "context", id: contextId }, trx);
+    }
   });
 };
 
 export const deleteDevice = async (
-  body: SerialNumberDeviceDto & { accountId: string; deletes: Tuple[] },
+  body: SerialNumberDeviceDto & { accountId: string },
 ) => {
-  const { serialNumber, accountId, deletes } = body;
+  const { serialNumber, accountId } = body;
 
   return await prisma.$transaction(async (trx) => {
+    const device = await trx.device.findUnique({
+      where: { serialNumber },
+      select: { id: true },
+    });
+    const endedContexts = device
+      ? await trx.deviceContext.findMany({
+        where: { deviceId: device.id, endedAt: null },
+        select: { contextId: true },
+      })
+      : [];
+
     await trx.deviceContext.updateManyAndReturn({
       where: {
         Device: { serialNumber },
@@ -333,22 +352,19 @@ export const deleteDevice = async (
       },
     });
 
-    await writeRelationships({
-      deletes,
-      trx,
-      singletonKey: accountId,
-    });
+    await syncAuthorization({ type: "account", id: accountId }, trx);
+    for (const { contextId } of endedContexts) {
+      await syncAuthorization({ type: "context", id: contextId }, trx);
+    }
   });
 };
 
-export const createFirmwareEntry = async (
-  body: {
-    version: string;
-    installedAt: Date;
-    accountId: string;
-    deviceContextId: string;
-  },
-) => {
+export const createFirmwareEntry = async (body: {
+  version: string;
+  installedAt: Date;
+  accountId: string;
+  deviceContextId: string;
+}) => {
   const { version, installedAt, accountId, deviceContextId } = body;
   return await prisma.deviceFirmwareHistory.create({
     data: {
@@ -380,14 +396,12 @@ export const getFirmwareHistory = async (
 // provides additional flexibility
 // not intended for direct client requests/results
 // use getDevices instead
-export const getAllDevices = async (
-  body: {
-    query: { uniqueName?: string; uid?: string; type?: string };
-    orderBy?: "createdAt";
-    order?: "asc" | "desc";
-    limit?: number;
-  },
-) => {
+export const getAllDevices = async (body: {
+  query: { uniqueName?: string; uid?: string; type?: string };
+  orderBy?: "createdAt";
+  order?: "asc" | "desc";
+  limit?: number;
+}) => {
   const { query, orderBy, order, limit } = body;
   return await prisma.device.findMany({
     where: query,

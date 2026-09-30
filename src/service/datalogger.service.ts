@@ -10,6 +10,7 @@ import {
 } from "../types/datalogger.types.ts";
 import * as dataloggerRepository from "../repository/datalogger.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
+import { isUniqueConstraintError } from "../utils/prisma-errors.ts";
 import { AccountIdDto, IdDto, IdorNameDto } from "../types/generic.types.ts";
 import { getDeviceContext } from "./device-context.service.ts";
 import {
@@ -111,11 +112,18 @@ export const createDataloggerDriver = async (
     throw new HttpException(409, `${name} already exists`);
   }
 
-  return await dataloggerRepository.createDataloggerDriver({
-    name,
-    accountId,
-    validation,
-  });
+  try {
+    return await dataloggerRepository.createDataloggerDriver({
+      name,
+      accountId,
+      validation,
+    });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(409, `${name} already exists`);
+    }
+    throw error;
+  }
 };
 
 export const createDataloggerConfig = async (
@@ -162,13 +170,23 @@ export const createDataloggerConfig = async (
     throw new HttpException(422, "invalid config received");
   }
 
-  return await dataloggerRepository.createDataloggerConfig({
-    ...requestBody,
-    config: configToCreate,
-    active: true,
-    configSnapshotId,
-    dataloggerConfigToDeactivateId: dataloggerConfig?.id,
-  });
+  try {
+    return await dataloggerRepository.createDataloggerConfig({
+      ...requestBody,
+      config: configToCreate,
+      active: true,
+      configSnapshotId,
+      dataloggerConfigToDeactivateId: dataloggerConfig?.id,
+    });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(
+        409,
+        "an active datalogger config already exists in this snapshot",
+      );
+    }
+    throw error;
+  }
 };
 
 export const createDataloggerLibraryConfig = async (
@@ -185,12 +203,19 @@ export const createDataloggerLibraryConfig = async (
     throw new HttpException(409, `${name} already exists`);
   }
 
-  return await dataloggerRepository.createDataloggerLibraryConfig({
-    name,
-    accountId,
-    dataloggerConfig: { driverId: defaultDataloggerDriver[0].id, config },
-    description,
-  });
+  try {
+    return await dataloggerRepository.createDataloggerLibraryConfig({
+      name,
+      accountId,
+      dataloggerConfig: { driverId: defaultDataloggerDriver[0].id, config },
+      description,
+    });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(409, `${name} already exists`);
+    }
+    throw error;
+  }
 };
 
 export const createNewDataloggerLibraryConfigVersion = async (
@@ -210,13 +235,20 @@ export const createNewDataloggerLibraryConfigVersion = async (
     dataloggerLibraryConfig.DataloggerLibraryConfigVersion;
 
   if (!dataloggerLibraryConfigVersions.length) {
-    await dataloggerRepository.createNewDataloggerLibraryConfigVersion({
-      accountId,
-      dataloggerConfig,
-      dataloggerLibraryConfigId: id,
-      version: 1,
-      description,
-    });
+    try {
+      await dataloggerRepository.createNewDataloggerLibraryConfigVersion({
+        accountId,
+        dataloggerConfig,
+        dataloggerLibraryConfigId: id,
+        version: 1,
+        description,
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new HttpException(409, "version already published, retry");
+      }
+      throw error;
+    }
   } else {
     // already ordered in the db query
     const latestLibraryConfigVersion = dataloggerLibraryConfigVersions[0];
@@ -231,13 +263,20 @@ export const createNewDataloggerLibraryConfigVersion = async (
         `current datalogger config is already published as latest version`,
       );
     }
-    await dataloggerRepository.createNewDataloggerLibraryConfigVersion({
-      accountId,
-      dataloggerConfig,
-      dataloggerLibraryConfigId: id,
-      version: latestLibraryConfigVersion.version + 1,
-      description,
-    });
+    try {
+      await dataloggerRepository.createNewDataloggerLibraryConfigVersion({
+        accountId,
+        dataloggerConfig,
+        dataloggerLibraryConfigId: id,
+        version: latestLibraryConfigVersion.version + 1,
+        description,
+      });
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new HttpException(409, "version already published, retry");
+      }
+      throw error;
+    }
   }
 };
 

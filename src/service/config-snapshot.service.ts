@@ -15,6 +15,7 @@ import { AccountIdDto, IdDto, IdorNameDto } from "../types/generic.types.ts";
 import * as configSnapshotRepository from "../repository/config-snapshot.repository.ts";
 import { getDeviceContext } from "./device-context.service.ts";
 import { HttpException } from "../utils/http-exception.ts";
+import { isUniqueConstraintError } from "../utils/prisma-errors.ts";
 import {
   getDataloggerConfigHistory,
   getDataloggerDriver,
@@ -57,9 +58,7 @@ export const getConfigSnapshots = async (query: QueryConfigSnapshotDto) => {
   return await configSnapshotRepository.getConfigSnapshots(query);
 };
 
-export const getActiveConfig = async (
-  query: QueryActiveConfigDto,
-) => {
+export const getActiveConfig = async (query: QueryActiveConfigDto) => {
   const configSnapshot = await getActiveConfigSnapshot(query);
   const { DataloggerConfig, SensorConfig } = configSnapshot;
 
@@ -145,13 +144,23 @@ export const overwriteActiveConfigSnapshot = async (
     deviceId,
   });
 
-  await configSnapshotRepository.overwriteActiveConfigSnapshot({
-    configSnapshotId: configSnapshot.id,
-    sensorConfigIds,
-    dataloggerConfigId,
-    accountId,
-    createdAt,
-  });
+  try {
+    await configSnapshotRepository.overwriteActiveConfigSnapshot({
+      configSnapshotId: configSnapshot.id,
+      sensorConfigIds,
+      dataloggerConfigId,
+      accountId,
+      createdAt,
+    });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(
+        409,
+        "active config changed concurrently, please retry",
+      );
+    }
+    throw error;
+  }
 };
 
 export const saveConfigSnapshot = async (body: SaveConfigSnapshotDto) => {
@@ -179,11 +188,21 @@ export const saveConfigSnapshot = async (body: SaveConfigSnapshotDto) => {
     throw new HttpException(409, `no active config snapshot found`);
   }
 
-  return await configSnapshotRepository.saveConfigSnapshot({
-    name,
-    configSnapshot,
-    accountId,
-  });
+  try {
+    return await configSnapshotRepository.saveConfigSnapshot({
+      name,
+      configSnapshot,
+      accountId,
+    });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(
+        409,
+        `config snapshot with ${name} already exists`,
+      );
+    }
+    throw error;
+  }
 };
 
 export const createConfigSnapshotLibraryConfig = async (
@@ -206,23 +225,32 @@ export const createConfigSnapshotLibraryConfig = async (
   const defaultSensorDriver = await getSensorDriver({ limit: 1 });
   const defaultDataloggerDriver = await getDataloggerDriver({ limit: 1 });
 
-  return await configSnapshotRepository.createConfigSnapshotLibraryConfig({
-    name,
-    description,
-    accountId,
-    configSnapshot: {
-      DataloggerConfig: [{
-        name: "datalogger",
-        config: datalogger,
-        "dataloggerDriverId": defaultDataloggerDriver[0].id,
-      }],
-      SensorConfig: sensors.map(({ name, ...config }) => ({
-        name,
-        config,
-        sensorDriverId: defaultSensorDriver[0].id,
-      })),
-    } as ConfigSnapshotDto,
-  });
+  try {
+    return await configSnapshotRepository.createConfigSnapshotLibraryConfig({
+      name,
+      description,
+      accountId,
+      configSnapshot: {
+        DataloggerConfig: [
+          {
+            name: "datalogger",
+            config: datalogger,
+            dataloggerDriverId: defaultDataloggerDriver[0].id,
+          },
+        ],
+        SensorConfig: sensors.map(({ name, ...config }) => ({
+          name,
+          config,
+          sensorDriverId: defaultSensorDriver[0].id,
+        })),
+      } as ConfigSnapshotDto,
+    });
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(409, `${name} already exists`);
+    }
+    throw error;
+  }
 };
 
 export const createNewConfigSnapshotLibraryConfigVersion = async (
@@ -242,11 +270,13 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (
   const defaultDataloggerDriver = await getDataloggerDriver({ limit: 1 });
 
   const configSnapshot = {
-    DataloggerConfig: [{
-      name: "datalogger",
-      config: datalogger,
-      "dataloggerDriverId": defaultDataloggerDriver[0].id,
-    }],
+    DataloggerConfig: [
+      {
+        name: "datalogger",
+        config: datalogger,
+        dataloggerDriverId: defaultDataloggerDriver[0].id,
+      },
+    ],
     SensorConfig: sensors.map(({ name, ...config }) => ({
       name,
       config,
@@ -258,14 +288,23 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (
     configSnapshotLibraryConfig.SystemLibraryConfigVersion;
 
   if (!configSnapshotLibraryConfigVersions.length) {
-    return await configSnapshotRepository
-      .createNewConfigSnapshotLibraryConfigVersion({
-        accountId,
-        description,
-        version: 1,
-        configSnapshot,
-        configSnapshotLibraryConfigId: id,
-      });
+    try {
+      return await configSnapshotRepository
+        .createNewConfigSnapshotLibraryConfigVersion(
+          {
+            accountId,
+            description,
+            version: 1,
+            configSnapshot,
+            configSnapshotLibraryConfigId: id,
+          },
+        );
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new HttpException(409, "version already published, retry");
+      }
+      throw error;
+    }
   } else {
     const latestConfigVersion = configSnapshotLibraryConfigVersions[0];
 
@@ -297,14 +336,23 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (
       );
     }
 
-    return await configSnapshotRepository
-      .createNewConfigSnapshotLibraryConfigVersion({
-        accountId,
-        description,
-        version: latestConfigVersion.version + 1,
-        configSnapshot,
-        configSnapshotLibraryConfigId: id,
-      });
+    try {
+      return await configSnapshotRepository
+        .createNewConfigSnapshotLibraryConfigVersion(
+          {
+            accountId,
+            description,
+            version: latestConfigVersion.version + 1,
+            configSnapshot,
+            configSnapshotLibraryConfigId: id,
+          },
+        );
+    } catch (error) {
+      if (isUniqueConstraintError(error)) {
+        throw new HttpException(409, "version already published, retry");
+      }
+      throw error;
+    }
   }
 };
 

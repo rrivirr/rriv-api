@@ -38,10 +38,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.CD_GITHUB_TOKEN }}
 
+  tests:
+    name: Tests
+    uses: ./.github/workflows/tests.yml
+
   build:
     name: Build
     if: ${{ needs.release.outputs.new-release-git-tag }}
-    needs: release
+    needs: [release, tests]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository

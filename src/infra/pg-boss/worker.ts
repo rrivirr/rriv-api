@@ -1,10 +1,16 @@
 import type { WorkHandler } from "pg-boss";
 import logger from "../../winston.ts";
-import authServiceAxios from "../axios/auth-service.ts";
-import { TYPES } from "./constants.ts";
+import { DLQ_NAME, TYPES } from "./constants.ts";
 import { JobDto } from "./types.ts";
-import { getM2MToken } from "../keycloak/keycloak.ts";
 import { serializeError } from "../../utils/log-error.ts";
+import {
+  applyAuthorizationSync,
+  type AuthResource,
+  isPermanentAuthError,
+  notifySyncFailure,
+  recordSyncFailure,
+} from "../../service/authorization-sync.service.ts";
+import { sendMessage } from "./pg-boss.ts";
 
 export const worker: WorkHandler<JobDto> = async ([job]) => {
   const workerLogger = logger.child({ source: "pgBossWorker" });
@@ -12,33 +18,34 @@ export const worker: WorkHandler<JobDto> = async ([job]) => {
 
   const message = job.data;
   switch (message.type) {
-    case TYPES.AUTH_SERVICE_WRITE: {
-      const { writes, deletes } = message.payload;
-      if (deletes?.length || writes?.length) {
-        try {
-          const token = await getM2MToken(true);
-          await authServiceAxios.post(
-            `/relationship`,
-            { ...message.payload },
-            { headers: { Authorization: `Bearer ${token}` } },
-          );
-          workerLogger.info({ jobId: job.id, status: "processed" });
-        } catch (error) {
-          workerLogger.error({
-            jobId: job.id,
-            status: "failed",
-            type: message.type,
-            payload: message.payload,
-            error: serializeError(error),
-          });
-          throw error;
-        }
-      } else {
+    case TYPES.AUTH_SYNC: {
+      const { resourceType, resourceId, version } = message.payload;
+      const resource: AuthResource = { type: resourceType, id: resourceId };
+      try {
+        const result = await applyAuthorizationSync(resource);
         workerLogger.info({
           jobId: job.id,
-          message: "empty write received",
           status: "processed",
+          resource: `${resourceType}:${resourceId}`,
+          version,
+          ...result,
         });
+      } catch (error) {
+        await recordSyncFailure(resource, error);
+        workerLogger.error({
+          jobId: job.id,
+          status: "failed",
+          resource: `${resourceType}:${resourceId}`,
+          error: serializeError(error),
+        });
+        if (isPermanentAuthError(error)) {
+          // Deterministic failure: park it for ops instead of burning retries,
+          // and tell the owner.
+          await sendMessage(DLQ_NAME, message, {});
+          await notifySyncFailure(resource, error);
+          return;
+        }
+        throw error;
       }
       break;
     }

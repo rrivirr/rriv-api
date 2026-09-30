@@ -14,7 +14,11 @@
     "hook": "deno run --allow-read --allow-run --allow-write https://deno.land/x/deno_hooks@0.1.1/mod.ts",
     "start": "deno run --allow-read --allow-net --allow-env --allow-sys --allow-ffi src/server.ts",
     "prisma": "deno run --allow-all npm:prisma",
-    "migrate:openfga": "deno run --allow-all --no-check --env-file scripts/migrate.ts",
+    "reconcile": "deno run --allow-all scripts/reconcile.ts",
+    "test:prepare": "deno run --allow-all --env-file=.env.test tests/support/prepare-db.ts",
+    "test": "deno test --allow-all --env-file=.env.test tests/",
+    "test:watch": "deno test --allow-all --env-file=.env.test --watch tests/",
+    "coverage": "deno test --allow-all --env-file=.env.test --coverage=coverage tests/ && deno coverage coverage --threshold 60",
     "install": "deno task prisma migrate deploy && deno task prisma generate && deno install --entrypoint src/server.ts --allow-scripts && deno task hook install"
   },
   "imports": {

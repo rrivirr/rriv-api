@@ -9,19 +9,19 @@ import {
 import { IdDto } from "../types/generic.types.ts";
 import { InputJsonValue } from "generated/internal/prismaNamespace.ts";
 import { HttpException } from "../utils/http-exception.ts";
+import { CONFIG_SNAPSHOT_KIND } from "../service/utils/constants.ts";
 
-export const createConfigSnapshot = async (
-  body: {
-    name: string;
-    accountId: string;
-    active: boolean;
-    deviceContextId: string;
-  },
-) => {
+export const createConfigSnapshot = async (body: {
+  name: string;
+  accountId: string;
+  active: boolean;
+  deviceContextId: string;
+}) => {
   const { name, accountId, active, deviceContextId } = body;
   return await prisma.configSnapshot.create({
     data: {
       name,
+      kind: CONFIG_SNAPSHOT_KIND.DEVICE_ACTIVE,
       active,
       Creator: { connect: { id: accountId } },
       DeviceContext: { connect: { id: deviceContextId } },
@@ -38,23 +38,37 @@ export const getConfigSnapshotById = async (body: IdDto) => {
       DataloggerConfig: {
         where: { active: true, archivedAt: null },
         select: { config: true, name: true, dataloggerDriverId: true },
+        orderBy: { createdAt: "asc" },
       },
       SensorConfig: {
         where: { active: true, archivedAt: null },
         select: { config: true, name: true, sensorDriverId: true, id: true },
+        orderBy: { createdAt: "asc" },
       },
     },
   });
 };
 
-export const getConfigSnapshots = async (
-  body: QueryConfigSnapshotDto,
-) => {
+export const getActiveConfigSnapshotByDeviceContext = async (body: {
+  deviceContextId: string;
+}) => {
+  return await prisma.configSnapshot.findFirst({
+    where: {
+      deviceContextId: body.deviceContextId,
+      active: true,
+      archivedAt: null,
+    },
+    orderBy: { createdAt: "asc" },
+  });
+};
+
+export const getConfigSnapshots = async (body: QueryConfigSnapshotDto) => {
   const { accountId, orderBy, limit, offset, order, search, active, name } =
     body;
 
   return await prisma.configSnapshot.findMany({
     where: {
+      kind: CONFIG_SNAPSHOT_KIND.SAVED,
       active,
       archivedAt: null,
       creatorId: accountId,
@@ -164,13 +178,11 @@ export const getConfigSnapshotLibraryConfigById = async (query: IdDto) => {
   });
 };
 
-export const saveConfigSnapshot = async (
-  body: {
-    name: string;
-    configSnapshot: ConfigSnapshotDto;
-    accountId: string;
-  },
-) => {
+export const saveConfigSnapshot = async (body: {
+  name: string;
+  configSnapshot: Pick<ConfigSnapshotDto, "SensorConfig" | "DataloggerConfig">;
+  accountId: string;
+}) => {
   const {
     name,
     configSnapshot: { SensorConfig, DataloggerConfig },
@@ -180,6 +192,7 @@ export const saveConfigSnapshot = async (
   return await prisma.configSnapshot.create({
     data: {
       name,
+      kind: CONFIG_SNAPSHOT_KIND.SAVED,
       Creator: { connect: { id: accountId } },
       active: false,
       ...(DataloggerConfig.length && {
@@ -235,6 +248,7 @@ export const createConfigSnapshotLibraryConfig = async (body: {
           ConfigSnapshot: {
             create: {
               name: `v1`,
+              kind: CONFIG_SNAPSHOT_KIND.LIBRARY,
               Creator: { connect: { id: accountId } },
               active: false,
               ...(DataloggerConfig.length && {
@@ -293,6 +307,7 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (body: {
       ConfigSnapshot: {
         create: {
           name: `v${version}`,
+          kind: CONFIG_SNAPSHOT_KIND.LIBRARY,
           Creator: { connect: { id: accountId } },
           active: false,
           ...(DataloggerConfig.length && {
@@ -325,15 +340,13 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (body: {
   });
 };
 
-export const overwriteActiveConfigSnapshot = async (
-  body: {
-    configSnapshotId: string;
-    sensorConfigIds: Array<string>;
-    dataloggerConfigId?: string;
-    accountId: string;
-    createdAt: Date;
-  },
-) => {
+export const overwriteActiveConfigSnapshot = async (body: {
+  configSnapshotId: string;
+  sensorConfigIds: Array<string>;
+  dataloggerConfigId?: string;
+  accountId: string;
+  createdAt: Date;
+}) => {
   const {
     configSnapshotId,
     sensorConfigIds,
