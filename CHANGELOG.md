@@ -1,3 +1,15 @@
+# [1.17.0](https://github.com/rrivirr/rriv-api/compare/v1.16.7...v1.17.0) (2026-09-30)
+
+
+### Bug Fixes
+
+* logging ([7d9d3b7](https://github.com/rrivirr/rriv-api/commit/7d9d3b79da890749d6ae68dda8f53c64ebe1006a))
+
+
+### Features
+
+* rework oopenfga ([43a2c94](https://github.com/rrivirr/rriv-api/commit/43a2c94d81cfa0a19fb097844787d607ef7e6855))
+
 ## [1.16.7](https://github.com/rrivirr/rriv-api/compare/v1.16.6...v1.16.7) (2026-09-28)
 
 
