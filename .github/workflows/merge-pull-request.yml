@@ -15,8 +15,13 @@ permissions:
   id-token: write
 
 jobs:
+  tests:
+    name: Tests
+    uses: ./.github/workflows/tests.yml
+
   release:
     name: Release
+    needs: tests
     runs-on: ubuntu-latest
     outputs:
       new-release-published: ${{ steps.next-version.outputs.new-release-published }}
@@ -38,14 +43,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.CD_GITHUB_TOKEN }}
 
-  tests:
-    name: Tests
-    uses: ./.github/workflows/tests.yml
-
   build:
     name: Build
     if: ${{ needs.release.outputs.new-release-git-tag }}
-    needs: [release, tests]
+    needs: release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
