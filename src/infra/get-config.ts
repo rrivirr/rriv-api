@@ -12,6 +12,8 @@ const readSchema = z.strictObject({
   KEYCLOAK_URL: z.string().url(),
   KEYCLOAK_REALM: z.string(),
   DATABASE_URL: z.string(),
+  DATABASE_POOL_MAX: z.coerce.number().int().positive().optional(),
+  PGBOSS_POOL_MAX: z.coerce.number().int().positive().optional(),
   AUTH_SERVICE_URL: z.string().url(),
   KEYCLOAK_CLIENT_ID: z.string(),
   KEYCLOAK_CLIENT_SECRET: z.string(),
@@ -26,6 +28,8 @@ const readSchema = z.strictObject({
 const getConfigValues = () => {
   const KEYCLOAK_URL = Deno.env.get("KEYCLOAK_URL");
   const DATABASE_URL = Deno.env.get("DATABASE_URL");
+  const DATABASE_POOL_MAX = Deno.env.get("DATABASE_POOL_MAX");
+  const PGBOSS_POOL_MAX = Deno.env.get("PGBOSS_POOL_MAX");
   const KEYCLOAK_REALM = Deno.env.get("KEYCLOAK_REALM");
   const NODE_PORT = Deno.env.get("NODE_PORT");
   const LOG_LEVEL = Deno.env.get("LOG_LEVEL");
@@ -43,6 +47,8 @@ const getConfigValues = () => {
   const envConfig = {
     ...(KEYCLOAK_REALM && { KEYCLOAK_REALM }),
     ...(DATABASE_URL && { DATABASE_URL }),
+    ...(DATABASE_POOL_MAX && { DATABASE_POOL_MAX }),
+    ...(PGBOSS_POOL_MAX && { PGBOSS_POOL_MAX }),
     ...(KEYCLOAK_URL && { KEYCLOAK_URL }),
     ...(NODE_PORT && { NODE_PORT }),
     ...(LOG_LEVEL && { LOG_LEVEL }),

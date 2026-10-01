@@ -5,10 +5,18 @@ import config from "./get-config.ts";
 const connectionString = config.DATABASE_URL;
 const schema = connectionString?.split("schema=")[1];
 
-const adapter = new PrismaPg({
-  connectionString,
-  options: schema && `-c search_path="${schema}"`,
-}, { schema });
+const poolMax = config.DATABASE_POOL_MAX ?? 5;
+
+const adapter = new PrismaPg(
+  {
+    connectionString,
+    options: schema && `-c search_path="${schema}"`,
+    max: poolMax,
+    idleTimeoutMillis: 30_000,
+    connectionTimeoutMillis: 10_000,
+  },
+  { schema },
+);
 
 export default new PrismaClient({
   adapter,
