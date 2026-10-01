@@ -73,14 +73,57 @@ const queueStats = async (queue: string) => {
 const secondsSince = (date: Date | null | undefined): number | null =>
   date ? Math.max(0, Math.round((Date.now() - date.getTime()) / 1000)) : null;
 
-export const getSystemMetrics = async () => {
-  const now = Date.now();
+/** Compact age, e.g. `45s`, `12 min`, `1h 5m`, `2d 3h`. */
+export const formatDuration = (seconds: number): string => {
+  if (seconds < 60) return `${Math.round(seconds)}s`;
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ${minutes % 60}m`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ${hours % 24}h`;
+};
 
+/**
+ * Plain-language reasons health isn't `ok`, most severe first. The admin banner
+ * renders these directly and the `health` value is derived from them, so the
+ * explanation and the status can't disagree.
+ */
+export const healthReasons = (input: {
+  failed: number;
+  dlqDepth: number;
+  stuckPendingSeconds: number | null;
+  oldestQueuedSeconds: number | null;
+}): string[] => {
+  const reasons: string[] = [];
+  if (input.failed > 0) {
+    reasons.push(`${input.failed} resource(s) failed to sync`);
+  }
+  if (input.dlqDepth > 0) {
+    reasons.push(`${input.dlqDepth} job(s) parked in the dead-letter queue`);
+  }
+  if (input.stuckPendingSeconds != null) {
+    reasons.push(
+      `a sync has been pending for ${
+        formatDuration(input.stuckPendingSeconds)
+      }`,
+    );
+  }
+  const oldestQueued = input.oldestQueuedSeconds;
+  if (oldestQueued != null && oldestQueued > BACKLOG_SECONDS) {
+    reasons.push(
+      `the oldest queued job is ${formatDuration(oldestQueued)} old`,
+    );
+  }
+  return reasons;
+};
+
+export const getSystemMetrics = async () => {
   const [
     grouped,
     recentFailures,
     oldestFailed,
-    oldestStuckPending,
+    oldestPending,
     queue,
     dlq,
     unreadNotifications,
@@ -104,7 +147,7 @@ export const getSystemMetrics = async () => {
       select: { updatedAt: true },
     }),
     prisma.authSync.findFirst({
-      where: { status: "pending", updatedAt: { lt: new Date(now - STUCK_MS) } },
+      where: { status: "pending" },
       orderBy: { updatedAt: "asc" },
       select: { updatedAt: true },
     }),
@@ -120,23 +163,34 @@ export const getSystemMetrics = async () => {
   const total = byStatus.pending + byStatus.synced + byStatus.failed;
 
   const oldestFailedSeconds = secondsSince(oldestFailed?.updatedAt);
-  const stuckPendingSeconds = secondsSince(oldestStuckPending?.updatedAt);
+  const oldestPendingSeconds = secondsSince(oldestPending?.updatedAt);
+  const stuckPendingSeconds =
+    oldestPendingSeconds != null && oldestPendingSeconds >= STUCK_MS / 1000
+      ? oldestPendingSeconds
+      : null;
   const dlqDepth = dlq.total;
-  const backlog = (queue.oldestQueuedSeconds ?? 0) > BACKLOG_SECONDS;
 
+  const reasons = healthReasons({
+    failed: byStatus.failed,
+    dlqDepth,
+    stuckPendingSeconds,
+    oldestQueuedSeconds: queue.oldestQueuedSeconds,
+  });
   const health = byStatus.failed > 0 || dlqDepth > 0
     ? "critical"
-    : stuckPendingSeconds != null || backlog
+    : reasons.length > 0
     ? "degraded"
     : "ok";
 
   return {
     generatedAt: new Date().toISOString(),
     health,
+    healthReasons: reasons,
     authSync: {
       byStatus,
       total,
       oldestFailedSeconds,
+      oldestPendingSeconds,
       stuckPendingSeconds,
       inSyncPercent: total === 0
         ? 100
@@ -154,6 +208,7 @@ export const getSystemMetrics = async () => {
       available: dlq.available,
       depth: dlqDepth,
       byState: dlq.byState,
+      oldestQueuedSeconds: dlq.oldestQueuedSeconds,
     },
     notifications: { unread: unreadNotifications },
     recentFailures,

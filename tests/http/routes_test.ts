@@ -24,14 +24,14 @@ Deno.test("protected routes require a bearer token", async () => {
   }
 });
 
-Deno.test("CORS allows the web origin", async () => {
+Deno.test("CORS allows the web origin and the app's methods", async () => {
   const server = await listen();
   try {
     const response = await apiFetch(server.url, "/context", {
       method: "OPTIONS",
       headers: {
         origin: "http://localhost:5173",
-        "access-control-request-method": "GET",
+        "access-control-request-method": "DELETE",
       },
     });
     assertEquals(response.status, 204);
@@ -39,6 +39,17 @@ Deno.test("CORS allows the web origin", async () => {
       response.headers.get("access-control-allow-origin"),
       "http://localhost:5173",
     );
+
+    // Regression guard: a `GET,OPTIONS` allow-list blocked every write/delete
+    // preflight from the web app.
+    const methods = response.headers.get("access-control-allow-methods") ?? "";
+    for (const method of ["GET", "POST", "PATCH", "PUT", "DELETE"]) {
+      assertEquals(
+        methods.split(",").map((m) => m.trim()).includes(method),
+        true,
+        `Access-Control-Allow-Methods is missing ${method}`,
+      );
+    }
   } finally {
     await server.close();
   }
