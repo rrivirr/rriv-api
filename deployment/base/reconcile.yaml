@@ -61,6 +61,10 @@ spec:
                   value: chirpstack:8080
                 - name: APP_ENV
                   value: production
+                - name: DATABASE_POOL_MAX
+                  value: "2"
+                - name: PGBOSS_POOL_MAX
+                  value: "2"
               resources:
                 requests:
                   cpu: 50m
@@ -129,6 +133,10 @@ spec:
                   value: chirpstack:8080
                 - name: APP_ENV
                   value: production
+                - name: DATABASE_POOL_MAX
+                  value: "2"
+                - name: PGBOSS_POOL_MAX
+                  value: "2"
               resources:
                 requests:
                   cpu: 50m

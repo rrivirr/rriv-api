@@ -5,8 +5,11 @@ import { SCHEMA } from "./constants.ts";
 import config from "../get-config.ts";
 
 const connectionString = config.DATABASE_URL.split("schema=")[0];
+const poolMax = config.PGBOSS_POOL_MAX ?? 2;
 const pgBoss = new PgBoss({
   connectionString: connectionString!,
+  max: poolMax,
+  connectionTimeoutMillis: 10_000,
   persistWarnings: true,
   warningRetentionDays: 60,
   schema: SCHEMA,
