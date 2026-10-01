@@ -1,3 +1,10 @@
+## [1.17.4](https://github.com/rrivirr/rriv-api/compare/v1.17.3...v1.17.4) (2026-10-01)
+
+
+### Bug Fixes
+
+* recreate queue ([b860950](https://github.com/rrivirr/rriv-api/commit/b860950d238e7de59545c56581b5671cc636be2e))
+
 ## [1.17.3](https://github.com/rrivirr/rriv-api/compare/v1.17.2...v1.17.3) (2026-09-30)
 
 
