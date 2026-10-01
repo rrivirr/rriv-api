@@ -52,7 +52,6 @@ const queueStats = async (queue: string) => {
       }
     }
 
-    // Only outstanding work is counted; terminal rows are history.
     return {
       available: true,
       byState,
@@ -60,7 +59,6 @@ const queueStats = async (queue: string) => {
       oldestQueuedSeconds,
     };
   } catch {
-    // Queue tables may not exist on a fresh environment.
     return {
       available: false,
       byState: {},
@@ -73,7 +71,6 @@ const queueStats = async (queue: string) => {
 const secondsSince = (date: Date | null | undefined): number | null =>
   date ? Math.max(0, Math.round((Date.now() - date.getTime()) / 1000)) : null;
 
-/** Compact age, e.g. `45s`, `12 min`, `1h 5m`, `2d 3h`. */
 export const formatDuration = (seconds: number): string => {
   if (seconds < 60) return `${Math.round(seconds)}s`;
   const minutes = Math.floor(seconds / 60);
@@ -84,11 +81,6 @@ export const formatDuration = (seconds: number): string => {
   return `${days}d ${hours % 24}h`;
 };
 
-/**
- * Plain-language reasons health isn't `ok`, most severe first. The admin banner
- * renders these directly and the `health` value is derived from them, so the
- * explanation and the status can't disagree.
- */
 export const healthReasons = (input: {
   failed: number;
   dlqDepth: number;
@@ -105,7 +97,9 @@ export const healthReasons = (input: {
   if (input.stuckPendingSeconds != null) {
     reasons.push(
       `a sync has been pending for ${
-        formatDuration(input.stuckPendingSeconds)
+        formatDuration(
+          input.stuckPendingSeconds,
+        )
       }`,
     );
   }
