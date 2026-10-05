@@ -10,52 +10,62 @@ export const configSnapshotQuerySchema = z
     search: getNameSchema().optional(),
     name: getNameSchema().optional(),
   })
-  .merge(
-    getPaginationSchema(["createdAt", "name"], "createdAt"),
-  ).strict();
+  .merge(getPaginationSchema(["createdAt", "name"], "createdAt"))
+  .strict();
 
 export const activeConfigQuerySchema = z
   .object({
     deviceId: z.string().uuid(),
     contextId: z.string().uuid(),
-  }).strict();
+  })
+  .strict();
 
 export const configHistoryQuerySchema = z
   .object({
     deviceIdentifier: z.string(),
     limit: z.coerce.number().int().min(1).max(100).optional().default(100),
-    offset: z.number().int().min(0).max(100).optional().default(0),
+    offset: z.coerce.number().int().min(0).optional().default(0),
     order: z.enum(["asc", "desc"]).optional().default("asc"),
     asAt: z.coerce.date().optional(),
+    from: z.coerce.date().optional(),
+    to: z.coerce.date().optional(),
     sensorName: z.string().optional(),
-  }).strict();
+  })
+  .strict();
 
-export const saveConfigSnapshotSchema = z.object({
-  name: getNameSchema(),
-  deviceId: z.string().uuid(),
-  contextId: z.string().uuid(),
-}).strict();
+export const saveConfigSnapshotSchema = z
+  .object({
+    name: getNameSchema(),
+    deviceId: z.string().uuid(),
+    contextId: z.string().uuid(),
+  })
+  .strict();
 
-export const overwriteActiveConfigSnapshotSchema = z.object({
-  deviceId: z.string().uuid(),
-  contextId: z.string().uuid(),
-  dataloggerConfigId: z.string().uuid().optional(),
-  sensorConfigIds: z.string().uuid().array(),
-  createdAt: z.coerce.date(),
-}).strict();
+export const overwriteActiveConfigSnapshotSchema = z
+  .object({
+    deviceId: z.string().uuid(),
+    contextId: z.string().uuid(),
+    dataloggerConfigId: z.string().uuid().optional(),
+    sensorConfigIds: z.string().uuid().array(),
+    createdAt: z.coerce.date(),
+  })
+  .strict();
 
-export const configSnapshotLibraryConfigQuerySchema = z.object({
-  search: getNameSchema().optional(),
-  name: getNameSchema().optional(),
-  isPublic: booleanQuerySchema,
-  author: getNameSchema().optional(),
-}).merge(
-  getPaginationSchema(["createdAt", "name"], "createdAt"),
-).strict();
+export const configSnapshotLibraryConfigQuerySchema = z
+  .object({
+    search: getNameSchema().optional(),
+    name: getNameSchema().optional(),
+    isPublic: booleanQuerySchema,
+    author: getNameSchema().optional(),
+  })
+  .merge(getPaginationSchema(["createdAt", "name"], "createdAt"))
+  .strict();
 
-export const updateLibraryConfigSchema = z.object({
-  isPublic: z.boolean(),
-}).strict();
+export const updateLibraryConfigSchema = z
+  .object({
+    isPublic: z.boolean(),
+  })
+  .strict();
 
 export const createConfigSnapshotLibraryConfigSchema = z.object({
   name: getNameSchema(),

@@ -97,14 +97,25 @@ Deno.test("createFirmwareEntry + getFirmwareHistory", async () => {
       },
     ]);
 
-    await harness.asUser(account.id, () =>
-      createFirmwareEntry({
+    const older = new Date(Date.now() - 2 * 3_600_000);
+    const newer = new Date(Date.now() - 1 * 3_600_000);
+
+    await harness.asUser(account.id, async () => {
+      await createFirmwareEntry({
         deviceId: device.id,
         contextId: context.id,
         accountId: account.id,
         version: "1.4.2",
-        installedAt: new Date(),
-      }));
+        installedAt: older,
+      });
+      await createFirmwareEntry({
+        deviceId: device.id,
+        contextId: context.id,
+        accountId: account.id,
+        version: "1.5.0",
+        installedAt: newer,
+      });
+    });
 
     const history = await harness.asUser(account.id, () =>
       getFirmwareHistory({
@@ -115,9 +126,51 @@ Deno.test("createFirmwareEntry + getFirmwareHistory", async () => {
         order: "asc",
         orderBy: "createdAt",
       }));
-    assertEquals(history.length, 1);
+    assertEquals(history.length, 2);
     assertEquals(history[0].version, "1.4.2");
     assertEquals(history[0].contextName, context.name);
+
+    // asAt reconstructs the firmware in effect at an instant: latest install
+    // at or before the timestamp.
+    const between = await harness.asUser(account.id, () =>
+      getFirmwareHistory({
+        accountId: account.id,
+        serialNumber: device.serialNumber,
+        limit: 10,
+        offset: 0,
+        order: "desc",
+        orderBy: "createdAt",
+        asAt: new Date(Date.now() - 90 * 60_000),
+      }));
+    assertEquals(between.length, 1);
+    assertEquals(between[0].version, "1.4.2");
+
+    const now = await harness.asUser(account.id, () =>
+      getFirmwareHistory({
+        accountId: account.id,
+        serialNumber: device.serialNumber,
+        limit: 10,
+        offset: 0,
+        order: "desc",
+        orderBy: "createdAt",
+        asAt: new Date(),
+      }));
+    assertEquals(now.length, 1);
+    assertEquals(now[0].version, "1.5.0");
+
+    // from/to scope the history to a window (chart markers); ignored by asAt.
+    const windowed = await harness.asUser(account.id, () =>
+      getFirmwareHistory({
+        accountId: account.id,
+        serialNumber: device.serialNumber,
+        limit: 10,
+        offset: 0,
+        order: "asc",
+        orderBy: "createdAt",
+        from: new Date(Date.now() - 90 * 60_000),
+      }));
+    assertEquals(windowed.length, 1);
+    assertEquals(windowed[0].version, "1.5.0");
   } finally {
     await harness.stop();
   }

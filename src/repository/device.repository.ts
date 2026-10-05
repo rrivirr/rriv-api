@@ -379,10 +379,27 @@ export const createFirmwareEntry = async (body: {
 export const getFirmwareHistory = async (
   query: QueryFirmwareHistoryDto & { id: string },
 ) => {
-  const { limit, offset, order, orderBy, id } = query;
+  const { limit, offset, order, orderBy, id, asAt, from, to } = query;
+
+  if (asAt) {
+    // Latest install at or before `asAt` — the firmware in effect then.
+    return await prisma.deviceFirmwareHistory.findMany({
+      where: {
+        DeviceContext: { deviceId: id },
+        installedAt: { lte: asAt },
+      },
+      include: {
+        DeviceContext: { select: { Context: { select: { name: true } } } },
+      },
+      orderBy: { installedAt: "desc" },
+      take: 1,
+    });
+  }
+
   return await prisma.deviceFirmwareHistory.findMany({
     where: {
       DeviceContext: { deviceId: id },
+      installedAt: { gte: from, lte: to },
     },
     include: {
       DeviceContext: { select: { Context: { select: { name: true } } } },

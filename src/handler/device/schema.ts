@@ -5,21 +5,25 @@ import {
 } from "../generic/generic.schema.ts";
 
 export const provisionDeviceSchema = z.object({
-  uid: z.string().regex(/^[0-9A-Fa-f]{24}$/g).trim().toUpperCase(),
+  uid: z
+    .string()
+    .regex(/^[0-9A-Fa-f]{24}$/g)
+    .trim()
+    .toUpperCase(),
   type: z.enum(["rriv_0_4_2"]),
 });
 
-export const logsQuerySchema = z.object({ identifier: z.string() }).merge(
-  getPaginationSchema(
-    ["createdAt"],
-    "createdAt",
-  ),
-).strict();
+export const logsQuerySchema = z
+  .object({ identifier: z.string() })
+  .merge(getPaginationSchema(["createdAt"], "createdAt"))
+  .strict();
 
-export const createLogSchema = z.object({
-  log: z.string().max(100),
-  identifier: z.string(),
-}).strict();
+export const createLogSchema = z
+  .object({
+    log: z.string().max(100),
+    identifier: z.string(),
+  })
+  .strict();
 
 export const deviceQuerySchema = z
   .object({
@@ -38,23 +42,35 @@ export const deviceQuerySchema = z
   )
   .strict();
 
-export const serialNumberSchema = z.object({
-  serialNumber: z.string().min(3).max(25).trim(),
-})
+export const serialNumberSchema = z
+  .object({
+    serialNumber: z.string().min(3).max(25).trim(),
+  })
   .strict();
 
-const paginationObject = getPaginationSchema(["createdAt"], "createdAt");
+const firmwarePaginationObject = getPaginationSchema(
+  ["createdAt"],
+  "createdAt",
+).extend({
+  asAt: z.coerce.date().optional(),
+  from: z.coerce.date().optional(),
+  to: z.coerce.date().optional(),
+});
 
-export const firmwareHistoryQuerySchema = paginationObject.extend({
-  deviceId: z.string().uuid(),
-}).or(paginationObject.extend({ serialNumber: z.string() }));
+export const firmwareHistoryQuerySchema = firmwarePaginationObject
+  .extend({
+    deviceId: z.string().uuid(),
+  })
+  .or(firmwarePaginationObject.extend({ serialNumber: z.string() }));
 
-export const createFirmwareEntrySchema = z.object({
-  version: z.string(),
-  installedAt: z.coerce.date(),
-  deviceId: z.string().uuid(),
-  contextId: z.string().uuid(),
-}).strict();
+export const createFirmwareEntrySchema = z
+  .object({
+    version: z.string(),
+    installedAt: z.coerce.date(),
+    deviceId: z.string().uuid(),
+    contextId: z.string().uuid(),
+  })
+  .strict();
 
 export const registerEuiSchema = z.object({
   deviceId: z.string().uuid(),

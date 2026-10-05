@@ -120,6 +120,8 @@ export const getSensorConfig = async (
       order,
       sensorName,
       deviceIdentifier,
+      from,
+      to,
     } = query;
 
     if (asAt) {
@@ -169,6 +171,7 @@ export const getSensorConfig = async (
             },
           },
         },
+        createdAt: { gte: from, lte: to },
         archivedAt: null,
       },
       take: limit,

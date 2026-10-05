@@ -3,7 +3,7 @@ import config from "../../infra/get-config.ts";
 
 const ALLOWED_ORIGINS = config.APP_ENV === "production"
   ? "https://*.rriv.org"
-  : "http://localhost:5173";
+  : "http://localhost:8080";
 
 const allowedOriginPatterns = ALLOWED_ORIGINS.split(",").map((origin) =>
   origin.trim()
