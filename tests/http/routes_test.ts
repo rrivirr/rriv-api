@@ -40,12 +40,13 @@ Deno.test("CORS allows the web origin and the app's methods", async () => {
       "http://localhost:5173",
     );
 
-    // Regression guard: a `GET,OPTIONS` allow-list blocked every write/delete
-    // preflight from the web app.
     const methods = response.headers.get("access-control-allow-methods") ?? "";
     for (const method of ["GET", "POST", "PATCH", "PUT", "DELETE"]) {
       assertEquals(
-        methods.split(",").map((m) => m.trim()).includes(method),
+        methods
+          .split(",")
+          .map((m) => m.trim())
+          .includes(method),
         true,
         `Access-Control-Allow-Methods is missing ${method}`,
       );
@@ -55,43 +56,46 @@ Deno.test("CORS allows the web origin and the app's methods", async () => {
   }
 });
 
-Deno.test("POST /account onboards; GET /account/me reflects admin", async () => {
-  const harness = await startHarness();
-  const server = await listen();
-  try {
-    await resetDb();
-    const created = await apiFetch(server.url, "/account", {
-      method: "POST",
-      body: JSON.stringify({
-        firstName: "Ada",
-        lastName: "Admin",
-        email: "ada@test.local",
-        password: "secret123",
-      }),
-    });
-    assertEquals(created.status, 201);
+Deno.test(
+  "POST /account onboards; GET /account/me reflects admin",
+  async () => {
+    const harness = await startHarness();
+    const server = await listen();
+    try {
+      await resetDb();
+      const created = await apiFetch(server.url, "/account", {
+        method: "POST",
+        body: JSON.stringify({
+          firstName: "Ada",
+          lastName: "Admin",
+          email: "ada@test.local",
+          password: "secret123",
+        }),
+      });
+      assertEquals(created.status, 201);
 
-    const accountId = harness.keycloak.createdUsers[0].id;
-    const token = await harness.tokenFor(accountId);
+      const accountId = harness.keycloak.createdUsers[0].id;
+      const token = await harness.tokenFor(accountId);
 
-    const me = await apiFetch(server.url, "/account/me", {
-      headers: { authorization: `Bearer ${token}` },
-    });
-    assertEquals(me.status, 200);
-    assertEquals((await me.json()).isAdmin, false);
+      const me = await apiFetch(server.url, "/account/me", {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      assertEquals(me.status, 200);
+      assertEquals((await me.json()).isAdmin, false);
 
-    harness.authApi.seed([
-      { user: `user:${accountId}`, relation: "admin", object: "system:rriv" },
-    ]);
-    const meAdmin = await apiFetch(server.url, "/account/me", {
-      headers: { authorization: `Bearer ${token}` },
-    });
-    assertEquals((await meAdmin.json()).isAdmin, true);
-  } finally {
-    await server.close();
-    await harness.stop();
-  }
-});
+      harness.authApi.seed([
+        { user: `user:${accountId}`, relation: "admin", object: "system:rriv" },
+      ]);
+      const meAdmin = await apiFetch(server.url, "/account/me", {
+        headers: { authorization: `Bearer ${token}` },
+      });
+      assertEquals((await meAdmin.json()).isAdmin, true);
+    } finally {
+      await server.close();
+      await harness.stop();
+    }
+  },
+);
 
 Deno.test("auth-api outage fails protected reads closed (500)", async () => {
   const harness = await startHarness();
