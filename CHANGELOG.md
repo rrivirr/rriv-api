@@ -1,3 +1,11 @@
+## [1.17.6](https://github.com/rrivirr/rriv-api/compare/v1.17.5...v1.17.6) (2026-10-05)
+
+
+### Bug Fixes
+
+* cors minor issue ([2df24ec](https://github.com/rrivirr/rriv-api/commit/2df24ec84525eb8bd29ff4815b08595bedafc905))
+* pagination fixes ([0bdcfd6](https://github.com/rrivirr/rriv-api/commit/0bdcfd6799f0aec205466d02cf4f9c785c9799db))
+
 ## [1.17.5](https://github.com/rrivirr/rriv-api/compare/v1.17.4...v1.17.5) (2026-10-01)
 
 
