@@ -19,7 +19,7 @@ Deno.test("admin routes require the admin relation", async () => {
 
     // Non-admin is forbidden on every admin route.
     for (
-      const path of ["/admin/admins", "/admin/auth-sync", "/admin/metrics"]
+      const path of ["/admin/roles", "/admin/auth-sync", "/admin/metrics"]
     ) {
       const response = await apiFetch(server.url, path, { headers: otherAuth });
       assertEquals(response.status, 403, `${path} should be 403`);
@@ -33,25 +33,35 @@ Deno.test("admin routes require the admin relation", async () => {
       authorization: `Bearer ${await harness.tokenFor(admin.id)}`,
     };
     for (
-      const path of ["/admin/admins", "/admin/auth-sync", "/admin/metrics"]
+      const path of ["/admin/roles", "/admin/auth-sync", "/admin/metrics"]
     ) {
       const response = await apiFetch(server.url, path, { headers: adminAuth });
       assertEquals(response.status, 200, `${path} should be 200`);
     }
 
-    // Grant + revoke through the API.
-    const granted = await apiFetch(server.url, "/admin/admins", {
+    // Grant + revoke the admin role through the API.
+    const granted = await apiFetch(server.url, "/admin/roles", {
       method: "POST",
       headers: adminAuth,
-      body: JSON.stringify({ email: "other@test.local" }),
+      body: JSON.stringify({ email: "other@test.local", role: "admin" }),
     });
     assertEquals(granted.status, 201);
+    await granted.body?.cancel();
 
-    const removed = await apiFetch(server.url, `/admin/admins/${other.id}`, {
-      method: "DELETE",
+    const removed = await apiFetch(
+      server.url,
+      `/admin/roles/admin/${other.id}`,
+      { method: "DELETE", headers: adminAuth },
+    );
+    assertEquals(removed.status, 204);
+    await removed.body?.cancel();
+
+    // The old alias is gone.
+    const alias = await apiFetch(server.url, "/admin/admins", {
       headers: adminAuth,
     });
-    assertEquals(removed.status, 204);
+    assertEquals(alias.status, 404);
+    await alias.body?.cancel();
   } finally {
     await server.close();
     await harness.stop();

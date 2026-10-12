@@ -5,59 +5,43 @@ import { createAccount } from "../support/factories.ts";
 import { assertRejectsWithCode } from "../support/assert.ts";
 import * as adminService from "../../src/service/admin.service.ts";
 
-Deno.test("grantAdmin/listAdmins/revokeAdmin with the last-admin guard", async () => {
+Deno.test("admin role: grant, list, revoke with the last-admin guard", async () => {
   const harness = await startHarness();
   try {
     await resetDb();
     const admin = await createAccount({ email: "admin@test.local" });
     const other = await createAccount({ email: "other@test.local" });
+    const grantAdmin = (email: string) =>
+      harness.asUser(
+        admin.id,
+        () =>
+          adminService.grantRole({ email, role: "admin", grantedBy: admin.id }),
+      );
+    const revokeAdmin = (accountId: string) =>
+      harness.asUser(
+        admin.id,
+        () => adminService.revokeRole({ accountId, role: "admin" }),
+      );
+    const adminEmails = async () =>
+      (await harness.asUser(admin.id, () => adminService.listRoleHolders()))
+        .filter((holder) => holder.roles.includes("admin"))
+        .map((holder) => holder.email);
 
     // Bootstrap grant.
-    await harness.asUser(admin.id, () =>
-      adminService.grantAdmin({
-        email: "admin@test.local",
-        grantedBy: admin.id,
-      }));
-
-    let admins = await harness.asUser(
-      admin.id,
-      () => adminService.listAdmins(),
-    );
-    assertEquals(admins.map((a) => a.email), ["admin@test.local"]);
+    await grantAdmin("admin@test.local");
+    assertEquals(await adminEmails(), ["admin@test.local"]);
 
     // Granting is idempotent.
-    const again = await harness.asUser(admin.id, () =>
-      adminService.grantAdmin({
-        email: "admin@test.local",
-        grantedBy: admin.id,
-      }));
-    assertEquals(again.created, false);
+    assertEquals((await grantAdmin("admin@test.local")).created, false);
 
     // Grant a second admin, then revoke them.
-    await harness.asUser(admin.id, () =>
-      adminService.grantAdmin({
-        email: "other@test.local",
-        grantedBy: admin.id,
-      }));
-    admins = await harness.asUser(admin.id, () => adminService.listAdmins());
-    assertEquals(admins.length, 2);
-
-    await harness.asUser(
-      admin.id,
-      () => adminService.revokeAdmin({ accountId: other.id }),
-    );
-    admins = await harness.asUser(admin.id, () => adminService.listAdmins());
-    assertEquals(admins.map((a) => a.email), ["admin@test.local"]);
+    await grantAdmin("other@test.local");
+    assertEquals((await adminEmails()).length, 2);
+    await revokeAdmin(other.id);
+    assertEquals(await adminEmails(), ["admin@test.local"]);
 
     // The last admin cannot be removed.
-    await assertRejectsWithCode(
-      () =>
-        harness.asUser(
-          admin.id,
-          () => adminService.revokeAdmin({ accountId: admin.id }),
-        ),
-      409,
-    );
+    await assertRejectsWithCode(() => revokeAdmin(admin.id), 409);
     assertEquals(
       harness.authApi.has(`user:${admin.id}`, "admin", "system:rriv"),
       true,

@@ -6,7 +6,6 @@ import {
 } from "../../src/handler/context/schema.ts";
 import { createDeviceContextSchema } from "../../src/handler/device-context/schema.ts";
 import {
-  grantAdminSchema,
   grantRoleSchema,
   revokeRoleParamsSchema,
 } from "../../src/handler/admin/schema.ts";
@@ -41,12 +40,15 @@ Deno.test("createDeviceContextSchema normalizes the assigned name", () => {
   );
 });
 
-Deno.test("grantAdminSchema requires an email", () => {
-  assertEquals(grantAdminSchema.parse({ email: "admin@rriv.org" }), {
-    email: "admin@rriv.org",
-  });
-  assertThrows(() => grantAdminSchema.parse({ email: "nope" }));
-  assertThrows(() => grantAdminSchema.parse({ email: "a@b.co", extra: true }));
+Deno.test("grantRoleSchema requires a valid email and no extra fields", () => {
+  assertEquals(
+    grantRoleSchema.parse({ email: "admin@rriv.org", role: "admin" }),
+    { email: "admin@rriv.org", role: "admin" },
+  );
+  assertThrows(() => grantRoleSchema.parse({ email: "nope", role: "admin" }));
+  assertThrows(() =>
+    grantRoleSchema.parse({ email: "a@b.co", role: "admin", extra: true })
+  );
 });
 
 Deno.test("saveConfigSnapshotSchema validates ids", () => {

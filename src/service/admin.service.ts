@@ -132,18 +132,3 @@ export const revokeRole = async (input: {
     await writeRelationshipsNow({ writes: [], deletes: [tuple] });
   });
 };
-
-export const listAdmins = async () => {
-  const ids = await roleAccountIds("admin");
-  if (!ids.length) {
-    return [];
-  }
-  const accounts = await getAccountsByIds(ids);
-  return accounts.sort(byEmail);
-};
-
-export const grantAdmin = (input: { email: string; grantedBy: string }) =>
-  grantRole({ ...input, role: "admin" });
-
-export const revokeAdmin = (input: { accountId: string }) =>
-  revokeRole({ ...input, role: "admin" });
