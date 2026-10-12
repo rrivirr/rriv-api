@@ -12,6 +12,7 @@ import {
   serialNumberSchema,
 } from "./schema.ts";
 import * as deviceService from "../../service/device.service.ts";
+import { assertProvisioner } from "../../service/auth.service.ts";
 
 export const bindDevice = async (req: Request, res: Response) => {
   const accountId = req.accountId;
@@ -25,6 +26,7 @@ export const bindDevice = async (req: Request, res: Response) => {
 
 export const provisionDevice = async (req: Request, res: Response) => {
   const accountId = req.accountId;
+  await assertProvisioner(accountId);
   const requestBody = provisionDeviceSchema.parse(req.body);
   const { device, status } = await deviceService.provisionDevice({
     accountId,

@@ -26,12 +26,7 @@ import { IdDto } from "../types/generic.types.ts";
 import { getSeed } from "./utils/get-seed.ts";
 import { validateDeviceContext } from "./utils/validate-device-context.ts";
 import { idSchema } from "../handler/generic/generic.schema.ts";
-import {
-  assertProvisioner,
-  authorizationCheck,
-  listObjects,
-  listUsers,
-} from "./auth.service.ts";
+import { authorizationCheck, listObjects, listUsers } from "./auth.service.ts";
 
 const MAX_PROVISION_ATTEMPTS = 5;
 
@@ -89,7 +84,6 @@ export const authDeviceCheck = async (
 
 export const provisionDevice = async (body: ProvisionDeviceDto) => {
   const { uid, accountId, type } = body;
-  await assertProvisioner(accountId);
 
   for (let attempt = 1; attempt <= MAX_PROVISION_ATTEMPTS; attempt++) {
     // Idempotent: a device with this uid may already exist — including one a
