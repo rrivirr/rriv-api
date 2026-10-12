@@ -26,7 +26,12 @@ import { IdDto } from "../types/generic.types.ts";
 import { getSeed } from "./utils/get-seed.ts";
 import { validateDeviceContext } from "./utils/validate-device-context.ts";
 import { idSchema } from "../handler/generic/generic.schema.ts";
-import { authorizationCheck, listObjects, listUsers } from "./auth.service.ts";
+import {
+  assertProvisioner,
+  authorizationCheck,
+  listObjects,
+  listUsers,
+} from "./auth.service.ts";
 
 const MAX_PROVISION_ATTEMPTS = 5;
 
@@ -84,6 +89,7 @@ export const authDeviceCheck = async (
 
 export const provisionDevice = async (body: ProvisionDeviceDto) => {
   const { uid, accountId, type } = body;
+  await assertProvisioner(accountId);
 
   for (let attempt = 1; attempt <= MAX_PROVISION_ATTEMPTS; attempt++) {
     // Idempotent: a device with this uid may already exist — including one a
@@ -159,7 +165,9 @@ export const getDeviceByIdentifierOrId = async (
     throw new HttpException(
       500,
       `device, ${
-        JSON.stringify(requestBody)
+        JSON.stringify(
+          requestBody,
+        )
       } has more that one active device contexts`,
     );
   }
@@ -179,10 +187,7 @@ export const bindDevice = async (requestBody: BindDeviceDto) => {
   });
 
   if (!deviceObject) {
-    throw new HttpException(
-      422,
-      "invalid serial number received",
-    );
+    throw new HttpException(422, "invalid serial number received");
   }
   const { device } = deviceObject;
 
@@ -318,21 +323,25 @@ export const getFirmwareHistory = async (query: QueryFirmwareHistoryDto) => {
     ...query,
     id: device.device.id,
   });
-  return firmwareHistory.map((
-    { version, installedAt, createdAt, DeviceContext: { Context: { name } } },
-  ) => ({
-    version,
-    installedAt,
-    createdAt,
-    contextName: name,
-  }));
+  return firmwareHistory.map(
+    ({
+      version,
+      installedAt,
+      createdAt,
+      DeviceContext: {
+        Context: { name },
+      },
+    }) => ({
+      version,
+      installedAt,
+      createdAt,
+      contextName: name,
+    }),
+  );
 };
 
 export const getChirpstackApplications = async () => {
-  const {
-    getApplications,
-    closeConnection,
-  } = getChirpstackConnection();
+  const { getApplications, closeConnection } = getChirpstackConnection();
 
   const applications = await getApplications();
   closeConnection();
@@ -362,8 +371,8 @@ export const registerEui = async (body: RegisterEuiDto) => {
 
   const deviceApplication = application || "rriv";
   const applications = await getApplications();
-  const applicationToUse = applications.find((a) =>
-    a.name.toUpperCase() === deviceApplication.toUpperCase()
+  const applicationToUse = applications.find(
+    (a) => a.name.toUpperCase() === deviceApplication.toUpperCase(),
   );
   if (!applicationToUse) {
     throw new HttpException(422, "invalid application received");
