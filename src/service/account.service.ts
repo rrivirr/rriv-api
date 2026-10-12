@@ -4,14 +4,18 @@ import * as accountRepository from "../repository/account.repository.ts";
 import { KEYCLOAK_ACTIONS_EMAIL } from "../infra/keycloak/enum.ts";
 import { HttpException } from "../utils/http-exception.ts";
 import prisma from "../infra/prisma.ts";
-import { isAdmin } from "./auth.service.ts";
+import { isAdmin, isProvisioner } from "./auth.service.ts";
 
 export const getMe = async (accountId: string) => {
   const account = await prisma.account.findUnique({ where: { id: accountId } });
   if (!account) {
     throw new HttpException(404, "account not found");
   }
-  return { ...account, isAdmin: await isAdmin(accountId) };
+  const [admin, provisioner] = await Promise.all([
+    isAdmin(accountId),
+    isProvisioner(accountId),
+  ]);
+  return { ...account, isAdmin: admin, isProvisioner: provisioner };
 };
 
 export const createAccount = async (body: CreateAccountDto) => {

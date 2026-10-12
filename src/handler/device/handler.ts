@@ -23,10 +23,7 @@ export const bindDevice = async (req: Request, res: Response) => {
   res.json(device);
 };
 
-export const provisionDevice = async (
-  req: Request,
-  res: Response,
-) => {
+export const provisionDevice = async (req: Request, res: Response) => {
   const accountId = req.accountId;
   const requestBody = provisionDeviceSchema.parse(req.body);
   const { device, status } = await deviceService.provisionDevice({
@@ -62,10 +59,7 @@ export const deleteDevice = async (req: Request, res: Response) => {
   res.json(device);
 };
 
-export const createFirmwareEntry = async (
-  req: Request,
-  res: Response,
-) => {
+export const createFirmwareEntry = async (req: Request, res: Response) => {
   const accountId = req.accountId;
   const requestBody = createFirmwareEntrySchema.parse(req.body);
 

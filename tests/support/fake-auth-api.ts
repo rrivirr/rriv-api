@@ -6,7 +6,7 @@
  *   - enforces a bearer token whose `azp` is accepted (like the real
  *     jwtMiddleware) — this is what catches an unauthenticated caller
  *   - evaluates the direct and derived relations the app checks
- *     (owner/editor/system/admin, can_edit, can_write)
+ *     (owner/editor/system/admin, can_edit, can_write, provisioner)
  *   - supports failure injection for the transient (5xx) / permanent (4xx)
  *     worker paths
  */
@@ -83,6 +83,10 @@ export const startFakeAuthApi = async (port: number): Promise<FakeAuthApi> => {
     }
     if (type === "device" && relation === "can_write") {
       return canWriteDevice(user, object);
+    }
+    // model: `define provisioner: [user] or admin`
+    if (type === "system" && relation === "provisioner") {
+      return has(user, "provisioner", object) || has(user, "admin", object);
     }
     return has(user, relation, object);
   };

@@ -5,7 +5,11 @@ import {
   updateContextSchema,
 } from "../../src/handler/context/schema.ts";
 import { createDeviceContextSchema } from "../../src/handler/device-context/schema.ts";
-import { grantAdminSchema } from "../../src/handler/admin/schema.ts";
+import {
+  grantAdminSchema,
+  grantRoleSchema,
+  revokeRoleParamsSchema,
+} from "../../src/handler/admin/schema.ts";
 import { saveConfigSnapshotSchema } from "../../src/handler/config-snapshot/schema.ts";
 import { createSensorDriverSchema } from "../../src/handler/sensor/schema.ts";
 
@@ -66,5 +70,16 @@ Deno.test("createSensorDriverSchema validates the JSON schema payload", () => {
   );
   assertThrows(() =>
     createSensorDriverSchema.parse({ name: "ds18b20", validation: {} })
+  );
+});
+
+Deno.test("role schemas accept only known system roles", () => {
+  assertEquals(
+    grantRoleSchema.parse({ email: "a@b.co", role: "provisioner" }).role,
+    "provisioner",
+  );
+  assertThrows(() => grantRoleSchema.parse({ email: "a@b.co", role: "owner" }));
+  assertThrows(() =>
+    revokeRoleParamsSchema.parse({ role: "admin", id: "not-a-uuid" })
   );
 });

@@ -81,7 +81,9 @@ Deno.test(
         headers: { authorization: `Bearer ${token}` },
       });
       assertEquals(me.status, 200);
-      assertEquals((await me.json()).isAdmin, false);
+      const plainMe = await me.json();
+      assertEquals(plainMe.isAdmin, false);
+      assertEquals(plainMe.isProvisioner, false);
 
       harness.authApi.seed([
         { user: `user:${accountId}`, relation: "admin", object: "system:rriv" },
@@ -89,7 +91,10 @@ Deno.test(
       const meAdmin = await apiFetch(server.url, "/account/me", {
         headers: { authorization: `Bearer ${token}` },
       });
-      assertEquals((await meAdmin.json()).isAdmin, true);
+      const adminMe = await meAdmin.json();
+      assertEquals(adminMe.isAdmin, true);
+      // Admins are provisioners through the model.
+      assertEquals(adminMe.isProvisioner, true);
     } finally {
       await server.close();
       await harness.stop();

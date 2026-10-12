@@ -33,6 +33,23 @@ export const isAdmin = async (accountId: string): Promise<boolean> => {
   }
 };
 
+export const assertProvisioner = async (accountId: string) => {
+  await authorizationCheck({
+    user: `user:${accountId}`,
+    object: SYSTEM,
+    relation: "provisioner",
+  });
+};
+
+export const isProvisioner = async (accountId: string): Promise<boolean> => {
+  try {
+    await assertProvisioner(accountId);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export const read = async (body: {
   user?: string;
   relation?: string;

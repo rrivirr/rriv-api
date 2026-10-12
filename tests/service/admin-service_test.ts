@@ -71,3 +71,64 @@ Deno.test("grantAdmin/listAdmins/revokeAdmin with the last-admin guard", async (
     await harness.stop();
   }
 });
+
+Deno.test("grantRole notifies provisioners and revokeRole is idempotent", async () => {
+  const harness = await startHarness();
+  try {
+    await resetDb();
+    const admin = await createAccount({ email: "admin@test.local" });
+    const other = await createAccount({ email: "other@test.local" });
+    harness.authApi.seed([
+      { user: `user:${admin.id}`, relation: "admin", object: "system:rriv" },
+    ]);
+
+    const first = await harness.asUser(admin.id, () =>
+      adminService.grantRole({
+        email: "other@test.local",
+        role: "provisioner",
+        grantedBy: admin.id,
+      }));
+    assertEquals(first.created, true);
+    const again = await harness.asUser(admin.id, () =>
+      adminService.grantRole({
+        email: "other@test.local",
+        role: "provisioner",
+        grantedBy: admin.id,
+      }));
+    assertEquals(again.created, false);
+
+    assertEquals(
+      await prisma.notification.count({
+        where: { accountId: other.id, type: "PROVISIONER_GRANTED" },
+      }),
+      1,
+    );
+
+    // Admins hold provisioner through the model, not as a listed grant.
+    const holders = await harness.asUser(
+      admin.id,
+      () => adminService.listRoleHolders(),
+    );
+    assertEquals(holders.map((h) => [h.email, h.roles]), [
+      ["admin@test.local", ["admin"]],
+      ["other@test.local", ["provisioner"]],
+    ]);
+
+    await harness.asUser(
+      admin.id,
+      () =>
+        adminService.revokeRole({ accountId: other.id, role: "provisioner" }),
+    );
+    await harness.asUser(
+      admin.id,
+      () =>
+        adminService.revokeRole({ accountId: other.id, role: "provisioner" }),
+    );
+    assertEquals(
+      harness.authApi.has(`user:${other.id}`, "provisioner", "system:rriv"),
+      false,
+    );
+  } finally {
+    await harness.stop();
+  }
+});
