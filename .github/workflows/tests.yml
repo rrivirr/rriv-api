@@ -52,6 +52,9 @@ jobs:
       - name: Prepare database
         run: deno task test:prepare
 
+      - name: Format check
+        run: deno fmt --check
+
       - name: Lint
         run: deno lint
 
