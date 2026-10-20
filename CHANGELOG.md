@@ -1,3 +1,10 @@
+# [1.18.0](https://github.com/rrivirr/rriv-api/compare/v1.17.7...v1.18.0) (2026-10-20)
+
+
+### Features
+
+* data readings endpoint ([1c49145](https://github.com/rrivirr/rriv-api/commit/1c49145ce24718f1bc7f2255eb4004adf15445bf))
+
 ## [1.17.7](https://github.com/rrivirr/rriv-api/compare/v1.17.6...v1.17.7) (2026-10-12)
 
 
