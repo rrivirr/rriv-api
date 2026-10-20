@@ -1,3 +1,12 @@
+## [1.17.7](https://github.com/rrivirr/rriv-api/compare/v1.17.6...v1.17.7) (2026-10-12)
+
+
+### Bug Fixes
+
+* admin updates ([da4b5c3](https://github.com/rrivirr/rriv-api/commit/da4b5c3b9088f852d6d3062c44b9960585973636))
+* move assertion to handler ([c1376d2](https://github.com/rrivirr/rriv-api/commit/c1376d22def08397187fdef6f6bda9e3e2da6d74))
+* remove duplicate admin endpoints ([e1fa5a9](https://github.com/rrivirr/rriv-api/commit/e1fa5a9b6173f200d97776384478b17e1c5ecfbc))
+
 ## [1.17.6](https://github.com/rrivirr/rriv-api/compare/v1.17.5...v1.17.6) (2026-10-05)
 
 
