@@ -16,6 +16,7 @@ import {
   registerDeviceSchema,
 } from "./schema.ts";
 import { swaggerBuilder } from "../index.ts";
+import { readingsQuerySchema } from "../../handler/readings/schema.ts";
 import { serialNumberSchema } from "../../handler/device/schema.ts";
 
 export const basePath = "/device";
@@ -67,6 +68,8 @@ swaggerBuilder.addPath(basePath, {
   post: {
     tags,
     summary: `provision a new device`,
+    description:
+      "Requires the `provisioner` role on the system (admins are implied). An existing device with the same uid is returned with 200.",
     requestBody: {
       content: {
         [mediaTypeHeader]: {
@@ -77,6 +80,7 @@ swaggerBuilder.addPath(basePath, {
     responses: {
       201: singleDeviceResponse,
       200: singleDeviceResponse,
+      403: { description: "The caller isn't a provisioner." },
     },
   },
 });
@@ -247,6 +251,65 @@ swaggerBuilder.addPath(`${basePath}/log`, {
     },
     responses: {
       200: {},
+    },
+  },
+});
+
+swaggerBuilder.addPath(`${basePath}/{id}/readings`, {
+  get: {
+    tags,
+    summary: `a device's readings, limited to what the caller may see`,
+    description: [
+      "Readings come from the internal data-api. They are limited to the",
+      "times an EUI belonged to the device and, within that, to the",
+      "caller's own ownership periods and the device's time in a context the",
+      "caller belongs to (within the owner's period). Admins see every period",
+      "an EUI belonged to the device. Periods the caller may not see are",
+      "simply absent.",
+    ].join(" "),
+    security: [{ bearerAuth: [] }],
+    parameters: [
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+      ...Object.entries(
+        generateSchema(readingsQuerySchema).properties ?? {},
+      ).map(([name, schema]) =>
+        ({ name, in: "query", schema }) as ParameterObject
+      ),
+    ],
+    responses: {
+      200: {
+        description:
+          "Readings: a flat object of the device's channels plus an ISO `timestamp` per row (JSON), or a CSV attachment.",
+        content: {
+          [mediaTypeHeader]: {
+            schema: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  timestamp: { type: "string", format: "date-time" },
+                },
+                additionalProperties: true,
+              },
+            },
+          },
+          "text/csv": { schema: { type: "string" } },
+        },
+      },
+      404: {
+        description:
+          "Device not found or not visible to the caller (CSV: no readings in range).",
+      },
+      422: { description: "Invalid query (e.g. rangeEnd before rangeStart)." },
+      503: {
+        description:
+          "data-api isn't configured, or the authentication service is unavailable.",
+      },
     },
   },
 });

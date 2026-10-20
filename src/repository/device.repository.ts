@@ -58,10 +58,11 @@ export const createLog = async (body: {
 export const registerEui = async (body: RegisterEuiDto) => {
   const { deviceId, eui, accountId } = body;
 
+  const now = new Date();
   return await prisma.$transaction(async (trx) => {
     await trx.deviceEui.updateMany({
       where: { active: true, deviceId },
-      data: { active: false },
+      data: { active: false, deactivatedAt: now },
     });
 
     await trx.deviceEui.create({
@@ -70,6 +71,7 @@ export const registerEui = async (body: RegisterEuiDto) => {
         active: true,
         creatorId: accountId,
         deviceId,
+        createdAt: now,
       },
     });
   });
@@ -433,6 +435,31 @@ export const getAllDevices = async (body: {
           unboundAt: null,
           archivedAt: null,
         },
+      },
+    },
+  });
+};
+
+export const getReadingAccessRecords = async (deviceId: string) => {
+  return await prisma.device.findFirst({
+    where: { id: deviceId, archivedAt: null },
+    select: {
+      id: true,
+      DeviceEuis: {
+        select: {
+          eui: true,
+          active: true,
+          createdAt: true,
+          deactivatedAt: true,
+        },
+      },
+      Bind: {
+        where: { archivedAt: null },
+        select: { accountId: true, boundAt: true, unboundAt: true },
+      },
+      DeviceContext: {
+        where: { archivedAt: null },
+        select: { contextId: true, startedAt: true, endedAt: true },
       },
     },
   });

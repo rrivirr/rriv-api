@@ -28,6 +28,7 @@ spec:
           DATABASE_URL="{{ .Data.data.database_url }}"
           KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
           KEYCLOAK_AUTH_CLIENT_SECRET="{{ .Data.data.keycloak_auth_client_secret }}"
+          KEYCLOAK_DATA_CLIENT_SECRET="{{ .Data.data.keycloak_data_client_secret }}"
           CHIRPSTACK_API_KEY="{{ .Data.data.chirpstack_downlink_key }}"
           DATABASE_CA_CRT="{{ .Data.data.database_ca_cert }}"
           {{ end }}
@@ -50,6 +51,10 @@ spec:
               value: auth-api
             - name: AUTH_SERVICE_URL
               value: http://auth-api:80
+            - name: DATA_API_URL
+              value: http://data-api:80
+            - name: KEYCLOAK_DATA_CLIENT_ID
+              value: data-api
             - name: CHIRPSTACK_API_URL
               value: chirpstack:8080
             - name: APP_ENV

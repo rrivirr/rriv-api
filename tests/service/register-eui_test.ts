@@ -44,6 +44,18 @@ Deno.test("registerEui: registers via ChirpStack and replaces the active EUI", a
     });
     assertEquals(active.map((row) => row.eui), ["0102030405060703"]);
     assertEquals(chirpstack.created.length, 2);
+
+    // The replaced EUI's period ends exactly where the new one's begins.
+    const [previous, current] = await prisma.deviceEui.findMany({
+      where: { deviceId: device.id },
+      orderBy: { createdAt: "asc" },
+    });
+    assertEquals(previous.active, false);
+    assertEquals(current.deactivatedAt, null);
+    assertEquals(
+      previous.deactivatedAt?.getTime(),
+      current.createdAt.getTime(),
+    );
   } finally {
     chirpstack.restore();
     await harness.stop();

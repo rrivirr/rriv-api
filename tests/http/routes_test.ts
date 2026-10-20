@@ -102,6 +102,29 @@ Deno.test(
   },
 );
 
+Deno.test("auth-api outage: /account/me is an error, not a downgraded role", async () => {
+  const harness = await startHarness();
+  const server = await listen();
+  try {
+    await resetDb();
+    const account = await createAccount();
+    harness.authApi.seed([
+      { user: `user:${account.id}`, relation: "admin", object: "system:rriv" },
+    ]);
+    const token = await harness.tokenFor(account.id);
+    harness.authApi.failNext([503]);
+
+    const response = await apiFetch(server.url, "/account/me", {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    assertEquals(response.status, 500);
+    await response.body?.cancel();
+  } finally {
+    await server.close();
+    await harness.stop();
+  }
+});
+
 Deno.test("auth-api outage fails protected reads closed (500)", async () => {
   const harness = await startHarness();
   const server = await listen();

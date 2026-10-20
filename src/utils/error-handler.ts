@@ -1,11 +1,5 @@
 // @deno-types="npm:@types/express@5"
 import { NextFunction, Request, Response } from "npm:express";
-// @deno-types="npm:@types/jsonwebtoken@9"
-import {
-  JsonWebTokenError,
-  NotBeforeError,
-  TokenExpiredError,
-} from "npm:jsonwebtoken";
 import { ZodError } from "zod";
 import logger from "../winston.ts";
 import { HttpException } from "./http-exception.ts";
@@ -39,17 +33,6 @@ export default (
       message: err.issues.map(
         ({ path, message }) => `field: ${path}, error: ${message}`,
       ),
-    });
-  } else if (
-    err instanceof JsonWebTokenError ||
-    err instanceof NotBeforeError ||
-    err instanceof TokenExpiredError
-  ) {
-    errorLogger.warn(err.message);
-
-    res.status(401).send({
-      code: 401,
-      message: "invalid access token",
     });
   } else if (err instanceof AxiosError) {
     errorLogger.error("external service call", {

@@ -24,6 +24,36 @@ swaggerBuilder.addPath(basePath, {
   },
 });
 
+swaggerBuilder.addPath(`${basePath}/me`, {
+  get: {
+    tags,
+    summary: `the signed-in account and its system roles`,
+    security: [{ bearerAuth: [] }],
+    responses: {
+      200: {
+        content: {
+          [mediaTypeHeader]: {
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string", format: "uuid" },
+                email: { type: "string" },
+                firstName: { type: "string" },
+                lastName: { type: "string" },
+                isAdmin: { type: "boolean" },
+                isProvisioner: {
+                  type: "boolean",
+                  description: "Can provision devices (true for admins).",
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+});
+
 swaggerBuilder.addPath(`${basePath}/verifyEmail`, {
   post: {
     tags,

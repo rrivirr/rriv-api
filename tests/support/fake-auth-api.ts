@@ -35,7 +35,10 @@ export interface FakeAuthApi {
   seed: (tuples: Tuple[]) => void;
   has: (user: string, relation: string, object: string) => boolean;
   tuples: () => Tuple[];
-  /** Queue HTTP statuses returned before the real handler (e.g. [503]). */
+  /**
+   * Queue HTTP statuses returned before the real handler (e.g. [503]); a 0
+   * lets that request through, to fail a later call (e.g. [0, 0, 503]).
+   */
   failNext: (statuses: number[]) => void;
   reset: () => void;
   stop: () => Promise<void>;

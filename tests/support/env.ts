@@ -13,7 +13,10 @@ const require = (name: string): string => {
 export const AUTH_SERVICE_URL = require("AUTH_SERVICE_URL");
 export const KEYCLOAK_URL = require("KEYCLOAK_URL");
 export const KEYCLOAK_REALM = require("KEYCLOAK_REALM");
+export const KEYCLOAK_CLIENT_ID = require("KEYCLOAK_CLIENT_ID");
 export const DATABASE_URL = require("DATABASE_URL");
 
 export const AUTH_SERVICE_PORT = Number(new URL(AUTH_SERVICE_URL).port);
 export const KEYCLOAK_PORT = Number(new URL(KEYCLOAK_URL).port);
+export const DATA_API_URL = require("DATA_API_URL");
+export const DATA_API_PORT = Number(new URL(DATA_API_URL).port);

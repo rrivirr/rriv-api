@@ -157,7 +157,7 @@ export const desiredTuples = async (
 export const applyAuthorizationSync = async (resource: AuthResource) => {
   const desired = await desiredTuples(resource);
   // This runs in the pg-boss worker
-  const token = await getM2MToken(true);
+  const token = await getM2MToken("auth");
   const current = await readResource(
     { type: resource.type, id: resource.id },
     token,

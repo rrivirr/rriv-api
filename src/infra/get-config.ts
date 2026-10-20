@@ -19,6 +19,9 @@ const readSchema = z.strictObject({
   KEYCLOAK_CLIENT_SECRET: z.string(),
   KEYCLOAK_AUTH_CLIENT_ID: z.string(),
   KEYCLOAK_AUTH_CLIENT_SECRET: z.string(),
+  DATA_API_URL: z.string().url(),
+  KEYCLOAK_DATA_CLIENT_ID: z.string(),
+  KEYCLOAK_DATA_CLIENT_SECRET: z.string(),
   CHIRPSTACK_API_URL: z.string(),
   CHIRPSTACK_API_KEY: z.string(),
   DATABASE_CA_CRT: z.string().optional(),
@@ -40,6 +43,11 @@ const getConfigValues = () => {
   const KEYCLOAK_AUTH_CLIENT_SECRET = Deno.env.get(
     "KEYCLOAK_AUTH_CLIENT_SECRET",
   );
+  const DATA_API_URL = Deno.env.get("DATA_API_URL");
+  const KEYCLOAK_DATA_CLIENT_ID = Deno.env.get("KEYCLOAK_DATA_CLIENT_ID");
+  const KEYCLOAK_DATA_CLIENT_SECRET = Deno.env.get(
+    "KEYCLOAK_DATA_CLIENT_SECRET",
+  );
   const CHIRPSTACK_API_URL = Deno.env.get("CHIRPSTACK_API_URL");
   const CHIRPSTACK_API_KEY = Deno.env.get("CHIRPSTACK_API_KEY");
   const APP_ENV = Deno.env.get("APP_ENV");
@@ -57,6 +65,9 @@ const getConfigValues = () => {
     ...(KEYCLOAK_CLIENT_SECRET && { KEYCLOAK_CLIENT_SECRET }),
     ...(KEYCLOAK_AUTH_CLIENT_ID && { KEYCLOAK_AUTH_CLIENT_ID }),
     ...(KEYCLOAK_AUTH_CLIENT_SECRET && { KEYCLOAK_AUTH_CLIENT_SECRET }),
+    ...(DATA_API_URL && { DATA_API_URL }),
+    ...(KEYCLOAK_DATA_CLIENT_ID && { KEYCLOAK_DATA_CLIENT_ID }),
+    ...(KEYCLOAK_DATA_CLIENT_SECRET && { KEYCLOAK_DATA_CLIENT_SECRET }),
     ...(CHIRPSTACK_API_URL && { CHIRPSTACK_API_URL }),
     ...(CHIRPSTACK_API_KEY && { CHIRPSTACK_API_KEY }),
     ...(APP_ENV && { APP_ENV }),

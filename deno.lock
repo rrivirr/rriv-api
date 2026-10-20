@@ -24,8 +24,7 @@
     "npm:dotenv@^17.3.1": "17.4.2",
     "npm:express@*": "5.2.1",
     "npm:express@^5.0.1": "5.2.1",
-    "npm:jsonwebtoken@*": "9.0.3",
-    "npm:jsonwebtoken@^9.0.2": "9.0.3",
+    "npm:jose@^6.2.12": "6.2.12",
     "npm:openapi3-ts@^4.4.0": "4.6.0",
     "npm:pg-boss@*": "12.18.3",
     "npm:pg-boss@^12.18.3": "12.18.3",
@@ -390,7 +389,7 @@
       "dependencies": [
         "@opentelemetry/api",
         "axios",
-        "jose",
+        "jose@5.10.0",
         "tiny-async-pool"
       ]
     },
@@ -1152,9 +1151,6 @@
         "fill-range"
       ]
     },
-    "buffer-equal-constant-time@1.0.1": {
-      "integrity": "sha512-zRpUiDwd/xk6ADqPMATG8vc9VPrkck7T07OIx0gnjmJAnHnTVXNQG3vfvWNuiZIkwu9KrKdA1iJKfsfTVxE6NA=="
-    },
     "bytes@3.1.2": {
       "integrity": "sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg=="
     },
@@ -1612,12 +1608,6 @@
       "integrity": "sha512-asLFVfWWtJ90ZyOUHMqk7/S2w2guQKxUI2itj3d92ADHhxUSbCMGi1f1cBcJ7xM1To+pE/Khbwo1yuNbMEPKeA==",
       "dependencies": [
         "readable-stream@2.3.8"
-      ]
-    },
-    "ecdsa-sig-formatter@1.0.11": {
-      "integrity": "sha512-nagl3RYrbNv6kQkeJIpt6NJZy8twLB/2vtz6yN9Z4vRKHN4/QZJIEbqohALSgwKdnksuY3k5Addp5lg8sVoVcQ==",
-      "dependencies": [
-        "safe-buffer"
       ]
     },
     "ee-first@1.1.1": {
@@ -2253,6 +2243,9 @@
     "jose@5.10.0": {
       "integrity": "sha512-s+3Al/p9g32Iq+oqXxkW//7jk2Vig6FF1CFqzVXoTUXt2qz89YWbL+OwS17NFYEvxC35n0FKeGO2LGYSxeM2Gg=="
     },
+    "jose@6.2.12": {
+      "integrity": "sha512-9NiFmJEex0sy2Dk58j2UGBSHgUs2ypF9eZSu4L6vjOX3Dp96Sw1F3uL+H+D1sx02jZZdzUT0HgvCy59CuvXcWw=="
+    },
     "js-tokens@4.0.0": {
       "integrity": "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="
     },
@@ -2283,36 +2276,6 @@
     },
     "jsonparse@1.3.1": {
       "integrity": "sha512-POQXvpdL69+CluYsillJ7SUhKvytYjW9vG/GKpnf+xP8UWgYEM/RaMzHHofbALDiKbbP1W8UEYmgGl39WkPZsg=="
-    },
-    "jsonwebtoken@9.0.3": {
-      "integrity": "sha512-MT/xP0CrubFRNLNKvxJ2BYfy53Zkm++5bX9dtuPbqAeQpTVe0MQTFhao8+Cp//EmJp244xt6Drw/GVEGCUj40g==",
-      "dependencies": [
-        "jws",
-        "lodash.includes",
-        "lodash.isboolean",
-        "lodash.isinteger",
-        "lodash.isnumber",
-        "lodash.isplainobject",
-        "lodash.isstring",
-        "lodash.once",
-        "ms",
-        "semver@7.8.1"
-      ]
-    },
-    "jwa@2.0.1": {
-      "integrity": "sha512-hRF04fqJIP8Abbkq5NKGN0Bbr3JxlQ+qhZufXVr0DvujKy93ZCbXZMHDL4EOtodSbCWxOqR8MS1tXA5hwqCXDg==",
-      "dependencies": [
-        "buffer-equal-constant-time",
-        "ecdsa-sig-formatter",
-        "safe-buffer"
-      ]
-    },
-    "jws@4.0.1": {
-      "integrity": "sha512-EKI/M/yqPncGUUh44xz0PxSidXFr/+r0pA70+gIYhjv+et7yxM+s29Y+VGDkovRofQem0fs7Uvf4+YmAdyRduA==",
-      "dependencies": [
-        "jwa",
-        "safe-buffer"
-      ]
     },
     "kuler@2.0.0": {
       "integrity": "sha512-Xq9nH7KlWZmXAtodXDDRE7vs6DU1gTU8zYDHDiWLSip45Egwq3plLHzPn27NgvzL2r1LMPC1vdqh98sQxtqj4A=="
@@ -2353,18 +2316,6 @@
     "lodash.escaperegexp@4.1.2": {
       "integrity": "sha512-TM9YBvyC84ZxE3rgfefxUWiQKLilstD6k7PTGt6wfbtXF8ixIJLOL3VYyV/z+ZiPLsVxAsKAFVwWlWeb2Y8Yyw=="
     },
-    "lodash.includes@4.3.0": {
-      "integrity": "sha512-W3Bx6mdkRTGtlJISOvVD/lbqjTlPPUDTMnlXZFnVwi9NKJ6tiAk6LVdlhZMm17VZisqhKcgzpO5Wz91PCt5b0w=="
-    },
-    "lodash.isboolean@3.0.3": {
-      "integrity": "sha512-Bz5mupy2SVbPHURB98VAcw+aHh4vRV5IPNhILUCsOzRmsTmSQ17jIuqopAentWoehktxGd9e/hbIXq980/1QJg=="
-    },
-    "lodash.isinteger@4.0.4": {
-      "integrity": "sha512-DBwtEWN2caHQ9/imiNeEA5ys1JoRtRfY3d7V9wkqtbycnAmTvRRmbHKDV4a0EYc678/dia0jrte4tjYwVBaZUA=="
-    },
-    "lodash.isnumber@3.0.3": {
-      "integrity": "sha512-QYqzpfwO3/CWf3XP+Z+tkQsfaLL/EnUlXWVkIk5FUPc4sBdTehEqZONuyRt2P67PXAk+NXmTBcc97zw9t1FQrw=="
-    },
     "lodash.isplainobject@4.0.6": {
       "integrity": "sha512-oSXzaWypCMHkPC3NvBEaPHf0KsA5mvPrOPgQWDsbg8n7orZ290M0BmC/jgRZ4vcJ6DTAhjrsSYgdsW/F+MFOBA=="
     },
@@ -2379,9 +2330,6 @@
     },
     "lodash.mergewith@4.6.2": {
       "integrity": "sha512-GK3g5RPZWTRSeLSpgP8Xhra+pnjBC56q9FZYe1d5RN3TJ35dbkGy3YqBSMbyCrlbi+CM9Z3Jk5yTL7RCsqboyQ=="
-    },
-    "lodash.once@4.1.1": {
-      "integrity": "sha512-Sb487aTOCr9drQVL8pIxOzVhafOjZN9UU54hiN8PU3uAiSV7lx1yYNpbNmex2PK6dSJoNTSJUUswT651yww3Mg=="
     },
     "lodash.snakecase@4.1.1": {
       "integrity": "sha512-QZ1d4xoBHYUeuouhEq3lk3Uq7ldgyFXGBhg04+oRLnIz8o9T65Eh+8YdroUwn846zchkA9yDsDl5CVVaV2nqYw=="
@@ -3784,7 +3732,7 @@
         "npm:commitlint@^19.6.1",
         "npm:dotenv@^17.3.1",
         "npm:express@^5.0.1",
-        "npm:jsonwebtoken@^9.0.2",
+        "npm:jose@^6.2.12",
         "npm:openapi3-ts@^4.4.0",
         "npm:pg-boss@^12.18.3",
         "npm:pg@^8.16.3",

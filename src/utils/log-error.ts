@@ -8,11 +8,10 @@ const databasePassword = new URL(config.DATABASE_URL).password;
 const KNOWN_SECRETS = [
   config.KEYCLOAK_CLIENT_SECRET,
   config.KEYCLOAK_AUTH_CLIENT_SECRET,
+  config.KEYCLOAK_DATA_CLIENT_SECRET,
   databasePassword,
   databasePassword && decodeURIComponent(databasePassword),
-].filter(
-  (value): value is string => typeof value === "string" && value.length > 0,
-);
+];
 
 const PATTERNS: Array<[RegExp, string]> = [
   // Authorization headers

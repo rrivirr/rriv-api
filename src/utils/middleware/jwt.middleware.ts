@@ -28,9 +28,6 @@ export const jwtMiddleware = async (
   }
   const jwtToken = authorization.replace("Bearer ", "");
   const decoded = await verifyJwtToken(jwtToken);
-  if (typeof decoded === "string") {
-    throw new HttpException(401, "invalid access token");
-  }
 
   const { success, data } = idSchema.safeParse({ id: decoded.sub });
   if (!success) {

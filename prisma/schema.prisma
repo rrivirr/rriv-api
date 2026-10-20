@@ -117,17 +117,17 @@ model Notification {
 
 /// Tracks convergence of a resource's authorization state to OpenFGA.
 model AuthSync {
-  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  resourceType String   @map("resource_type")
-  resourceId   String   @map("resource_id") @db.Uuid
-  status       String   @default("pending")
-  attempts     Int      @default(0)
-  lastError    Json?    @map("last_error")
-  lastJobId    String?  @map("last_job_id")
-  version      Int      @default(1)
+  id           String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  resourceType String    @map("resource_type")
+  resourceId   String    @map("resource_id") @db.Uuid
+  status       String    @default("pending")
+  attempts     Int       @default(0)
+  lastError    Json?     @map("last_error")
+  lastJobId    String?   @map("last_job_id")
+  version      Int       @default(1)
   notifiedAt   DateTime? @map("notified_at") @db.Timestamp(6)
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
 
   @@unique([resourceType, resourceId])
   @@map("auth_sync")
@@ -165,14 +165,15 @@ model DeviceFirmwareHistory {
 }
 
 model DeviceEui {
-  id        String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  eui       String
-  Device    Device   @relation(fields: [deviceId], references: [id])
-  deviceId  String   @map("device_id") @db.Uuid
-  Creator   Account  @relation(fields: [creatorId], references: [id])
-  creatorId String   @map("creator_id") @db.Uuid
-  active    Boolean
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
+  id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  eui           String
+  Device        Device    @relation(fields: [deviceId], references: [id])
+  deviceId      String    @map("device_id") @db.Uuid
+  Creator       Account   @relation(fields: [creatorId], references: [id])
+  creatorId     String    @map("creator_id") @db.Uuid
+  active        Boolean
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  deactivatedAt DateTime? @map("deactivated_at") @db.Timestamp(6)
 
   @@unique([eui], map: "device_eui_eui_active_key", where: raw("\"active\""))
   @@unique([deviceId], map: "device_eui_device_id_active_key", where: raw("\"active\""))

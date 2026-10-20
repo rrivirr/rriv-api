@@ -12,6 +12,7 @@ import {
   sendCommand,
   unbindDevice,
 } from "../handler/device/handler.ts";
+import { getDeviceReadings } from "../handler/readings/handler.ts";
 import { basePath } from "../swagger/device/document.ts";
 import { getExpressRouter } from "../utils/helper-functions.ts";
 
@@ -30,6 +31,7 @@ router.route("/firmware/history").get(getFirmwareHistory).post(
 );
 router.route("/log").get(getLogs).post(createLog);
 router.route("/applications").get(getApplications);
+router.get("/:id/readings", getDeviceReadings);
 
 routerWrapper.use(basePath, router);
 

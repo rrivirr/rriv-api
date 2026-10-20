@@ -5,6 +5,8 @@ import {
   keycloakAuthClientSecret,
   keycloakClientId,
   keycloakClientSecret,
+  keycloakDataClientId,
+  keycloakDataClientSecret,
   keycloakRealm,
   keycloakUrl,
 } from "./config.ts";
@@ -14,30 +16,15 @@ import { serializeError } from "../../utils/log-error.ts";
 
 const logger = winston.child({ source: "KeycloakAPI" });
 
-export const getPublicKey = async () => {
-  try {
-    const response = await axios.get(`${keycloakUrl}/realms/${keycloakRealm}`);
-    return response.data.public_key;
-
-    // deno-lint-ignore no-explicit-any
-  } catch (error: any) {
-    logger.error({
-      message: "failed to fetch keycloak realm public key",
-      error: serializeError(error),
-    });
-    throw new HttpException(
-      500,
-      error,
-    );
-  }
-};
-
-export const getM2MToken = async (auth?: boolean) => {
+export const getM2MToken = async (type: "auth" | "data" | "admin") => {
   try {
     let clientId, clientSecret;
-    if (auth) {
+    if (type === "auth") {
       clientId = keycloakAuthClientId;
       clientSecret = keycloakAuthClientSecret;
+    } else if (type === "data") {
+      clientId = keycloakDataClientId;
+      clientSecret = keycloakDataClientSecret;
     } else {
       clientId = keycloakClientId;
       clientSecret = keycloakClientSecret;
@@ -63,23 +50,18 @@ export const getM2MToken = async (auth?: boolean) => {
       message: "keycloak token request failed",
       error: serializeError(error),
     });
-    throw new HttpException(
-      500,
-      error,
-    );
+    throw new HttpException(500, error);
   }
 };
 
-export const createUser = async (
-  body: {
-    email: string;
-    firstName: string;
-    lastName: string;
-    password: string;
-  },
-) => {
+export const createUser = async (body: {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+}) => {
   const { email, firstName, lastName, password } = body;
-  const m2mToken = await getM2MToken();
+  const m2mToken = await getM2MToken("admin");
 
   try {
     const response = await axios.post(
@@ -90,11 +72,13 @@ export const createUser = async (
         firstName,
         lastName,
         email,
-        credentials: [{
-          "type": "password",
-          "value": password,
-          "temporary": false,
-        }],
+        credentials: [
+          {
+            type: "password",
+            value: password,
+            temporary: false,
+          },
+        ],
       },
       { headers: { Authorization: `Bearer ${m2mToken}` } },
     );
@@ -114,10 +98,7 @@ export const createUser = async (
           errorResponse.error_description || errorResponse.error_description,
         );
       }
-      throw new HttpException(
-        500,
-        error,
-      );
+      throw new HttpException(500, error);
     }
     if (errorStatus === 400 || errorStatus === 409) {
       throw new HttpException(errorStatus, errorMessage);
@@ -131,7 +112,7 @@ export const executeActionsEmail = async (
   userId: string,
   errorOut: boolean,
 ) => {
-  const m2mToken = await getM2MToken();
+  const m2mToken = await getM2MToken("admin");
   try {
     await axios.put(
       `${keycloakUrl}/admin/realms/${keycloakRealm}/users/${userId}/execute-actions-email`,
@@ -143,10 +124,7 @@ export const executeActionsEmail = async (
     logger.debug(error);
     const errorInformation = error?.response?.data || error;
     if (errorOut) {
-      throw new HttpException(
-        500,
-        errorInformation,
-      );
+      throw new HttpException(500, errorInformation);
     } else {
       const logger = winston.child({ source: "executeActionsEmail" });
       logger.error({

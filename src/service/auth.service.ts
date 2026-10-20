@@ -24,14 +24,24 @@ export const assertAdmin = async (accountId: string) => {
   });
 };
 
-export const isAdmin = async (accountId: string): Promise<boolean> => {
+/**
+ * true/false for an allowed/denied check. Only a denial (403) is `false`: an
+ * auth-api failure is rethrown, so an outage never quietly downgrades a role.
+ */
+const allows = async (check: () => Promise<void>): Promise<boolean> => {
   try {
-    await assertAdmin(accountId);
+    await check();
     return true;
-  } catch {
-    return false;
+  } catch (error) {
+    if (error instanceof HttpException && error.code === 403) {
+      return false;
+    }
+    throw error;
   }
 };
+
+export const isAdmin = (accountId: string): Promise<boolean> =>
+  allows(() => assertAdmin(accountId));
 
 export const assertProvisioner = async (accountId: string) => {
   await authorizationCheck({
@@ -41,14 +51,8 @@ export const assertProvisioner = async (accountId: string) => {
   });
 };
 
-export const isProvisioner = async (accountId: string): Promise<boolean> => {
-  try {
-    await assertProvisioner(accountId);
-    return true;
-  } catch {
-    return false;
-  }
-};
+export const isProvisioner = (accountId: string): Promise<boolean> =>
+  allows(() => assertProvisioner(accountId));
 
 export const read = async (body: {
   user?: string;
