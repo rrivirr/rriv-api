@@ -1,3 +1,15 @@
+# [1.19.0](https://github.com/rrivirr/rriv-api/compare/v1.18.0...v1.19.0) (2026-10-31)
+
+
+### Bug Fixes
+
+* rename github api variable ([d6e083d](https://github.com/rrivirr/rriv-api/commit/d6e083d1b9e8cce2823501ad468228b5e6d6c0e7))
+
+
+### Features
+
+* endpoint to get firmware ([7805fd5](https://github.com/rrivirr/rriv-api/commit/7805fd517a3b618d90075694f54dcba7f1203ce3))
+
 # [1.18.0](https://github.com/rrivirr/rriv-api/compare/v1.17.7...v1.18.0) (2026-10-20)
 
 
