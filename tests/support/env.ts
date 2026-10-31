@@ -20,3 +20,5 @@ export const AUTH_SERVICE_PORT = Number(new URL(AUTH_SERVICE_URL).port);
 export const KEYCLOAK_PORT = Number(new URL(KEYCLOAK_URL).port);
 export const DATA_API_URL = require("DATA_API_URL");
 export const DATA_API_PORT = Number(new URL(DATA_API_URL).port);
+export const GITHUB_API_URL = require("GITHUB_API_URL");
+export const GITHUB_API_PORT = Number(new URL(GITHUB_API_URL).port);

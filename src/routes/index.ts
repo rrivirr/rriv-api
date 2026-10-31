@@ -8,6 +8,7 @@ import ConfigSnapshotRouter from "./config-snapshot.router.ts";
 import AuthSyncRouter from "./auth-sync.router.ts";
 import NotificationRouter from "./notification.router.ts";
 import AdminRouter from "./admin.router.ts";
+import FirmwareRouter from "./firmware.router.ts";
 
 export default [
   ContextRouter,
@@ -20,4 +21,5 @@ export default [
   AuthSyncRouter,
   NotificationRouter,
   AdminRouter,
+  FirmwareRouter,
 ];
