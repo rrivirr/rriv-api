@@ -26,7 +26,7 @@ const readSchema = z.strictObject({
   CHIRPSTACK_API_KEY: z.string(),
   DATABASE_CA_CRT: z.string().optional(),
   APP_ENV: z.enum(["production", "development"]).default("development"),
-  GITHUB_API_URL: z.string().url().default("https://api.github.com"),
+  FIRMWARE_GITHUB_API_URL: z.string().url().default("https://api.github.com"),
   /** Optional; raises GitHub's rate limit from 60 to 5000 requests an hour. */
   GITHUB_TOKEN: z.string().optional(),
 });
@@ -54,7 +54,7 @@ const getConfigValues = () => {
   const CHIRPSTACK_API_URL = Deno.env.get("CHIRPSTACK_API_URL");
   const CHIRPSTACK_API_KEY = Deno.env.get("CHIRPSTACK_API_KEY");
   const APP_ENV = Deno.env.get("APP_ENV");
-  const GITHUB_API_URL = Deno.env.get("GITHUB_API_URL");
+  const FIRMWARE_GITHUB_API_URL = Deno.env.get("FIRMWARE_GITHUB_API_URL");
   const GITHUB_TOKEN = Deno.env.get("GITHUB_TOKEN");
 
   const envConfig = {
@@ -76,7 +76,7 @@ const getConfigValues = () => {
     ...(CHIRPSTACK_API_URL && { CHIRPSTACK_API_URL }),
     ...(CHIRPSTACK_API_KEY && { CHIRPSTACK_API_KEY }),
     ...(APP_ENV && { APP_ENV }),
-    ...(GITHUB_API_URL && { GITHUB_API_URL }),
+    ...(FIRMWARE_GITHUB_API_URL && { FIRMWARE_GITHUB_API_URL }),
     ...(GITHUB_TOKEN && { GITHUB_TOKEN }),
   };
 

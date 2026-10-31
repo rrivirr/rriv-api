@@ -69,7 +69,7 @@ const github = async (path: string, accept: string, allowNotFound = false) => {
   let response: Response;
   try {
     response = await fetch(
-      `${config.GITHUB_API_URL}/repos/${FIRMWARE_RELEASES_REPO}/${path}`,
+      `${config.FIRMWARE_GITHUB_API_URL}/repos/${FIRMWARE_RELEASES_REPO}/${path}`,
       {
         headers: {
           accept,
