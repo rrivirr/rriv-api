@@ -15,7 +15,7 @@ spec:
         app: rriv-api
       annotations:
         vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/role: "webapp"
+        vault.hashicorp.com/role: "rriv-api"
         vault.hashicorp.com/auth-path: "auth/kubernetes-rriv"
         vault.hashicorp.com/agent-requests-cpu: "10m"
         vault.hashicorp.com/agent-requests-memory: "32Mi"
