@@ -1,3 +1,10 @@
+## [1.19.1](https://github.com/rrivirr/rriv-api/compare/v1.19.0...v1.19.1) (2026-11-06)
+
+
+### Bug Fixes
+
+* update vault role ([42aec94](https://github.com/rrivirr/rriv-api/commit/42aec94d18b456678ad411e7753809646d4d5181))
+
 # [1.19.0](https://github.com/rrivirr/rriv-api/compare/v1.18.0...v1.19.0) (2026-10-31)
 
 
