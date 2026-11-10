@@ -4,6 +4,7 @@ import { ZodError } from "zod";
 import logger from "../winston.ts";
 import { HttpException } from "./http-exception.ts";
 import { AxiosError } from "axios";
+import { serializeError } from "./log-error.ts";
 
 export default (
   // deno-lint-ignore no-explicit-any
@@ -13,7 +14,7 @@ export default (
   _next: NextFunction,
 ) => {
   const errorLogger = logger.child({ source: "errorHandler" });
-  errorLogger.debug(err);
+  errorLogger.debug(serializeError(err));
   if (err instanceof HttpException) {
     if (err.code === 500) {
       errorLogger.error(err.message);
