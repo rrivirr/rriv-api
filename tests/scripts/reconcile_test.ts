@@ -23,6 +23,17 @@ Deno.test("reconcile full enqueues every context and account with a bind", async
   assertEquals(await queuedJobCount(`account:${account.id}`), 1);
 });
 
+Deno.test("reconcile full enqueues accounts that provisioned a device but have no bind", async () => {
+  await startPgBoss();
+  await resetDb();
+  const provisioner = await createAccount();
+  await createDevice(provisioner.id);
+
+  await full();
+
+  assertEquals(await queuedJobCount(`account:${provisioner.id}`), 1);
+});
+
 Deno.test("reconcile sweep re-queues stale non-synced resources", async () => {
   await startPgBoss();
   await resetDb();

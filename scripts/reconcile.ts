@@ -5,8 +5,9 @@
  *   deno run --allow-all scripts/reconcile.ts full    # nightly
  *
  * `sweep` re-queues resources whose `auth_sync` row has not reached `synced`
- * after the settle window. `full` re-queues every context and every account
- * with an active bind, catching drift from changes made outside the API.
+ * after the settle window. `full` re-queues every context, every account with
+ * an active bind and every account that provisioned a device, catching drift
+ * from changes made outside the API (or rebuilding an emptied store).
  */
 import prisma from "../src/infra/prisma.ts";
 import logger from "../src/winston.ts";
@@ -36,24 +37,32 @@ export const sweep = async () => {
 };
 
 export const full = async () => {
-  const [contexts, accounts] = await Promise.all([
+  const [contexts, binders, provisioners] = await Promise.all([
     prisma.context.findMany({ select: { id: true } }),
     prisma.bind.findMany({
       where: { unboundAt: null, archivedAt: null },
       select: { accountId: true },
       distinct: ["accountId"],
     }),
+    prisma.device.findMany({
+      select: { provisionedBy: true },
+      distinct: ["provisionedBy"],
+    }),
+  ]);
+  const accounts = new Set([
+    ...binders.map((bind) => bind.accountId),
+    ...provisioners.map((device) => device.provisionedBy),
   ]);
 
   for (const context of contexts) {
     await syncAuthorization({ type: "context", id: context.id });
   }
-  for (const account of accounts) {
-    await syncAuthorization({ type: "account", id: account.accountId });
+  for (const accountId of accounts) {
+    await syncAuthorization({ type: "account", id: accountId });
   }
 
   logger.info(
-    `[reconcile] full re-queued ${contexts.length} context(s), ${accounts.length} account(s)`,
+    `[reconcile] full re-queued ${contexts.length} context(s), ${accounts.size} account(s)`,
   );
 };
 
