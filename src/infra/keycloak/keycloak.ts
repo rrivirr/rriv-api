@@ -16,7 +16,30 @@ import { serializeError } from "../../utils/log-error.ts";
 
 const logger = winston.child({ source: "KeycloakAPI" });
 
-export const getM2MToken = async (type: "auth" | "data" | "admin") => {
+type M2MTokenType = "auth" | "data" | "admin";
+
+/** Refresh this long before Keycloak's expiry so a token never lapses mid-call. */
+const M2M_REFRESH_MARGIN_MS = 30_000;
+
+const m2mTokens = new Map<M2MTokenType, { token: string; expiresAt: number }>();
+
+export const getM2MToken = async (type: M2MTokenType): Promise<string> => {
+  const cached = m2mTokens.get(type);
+  if (cached && Date.now() < cached.expiresAt - M2M_REFRESH_MARGIN_MS) {
+    return cached.token;
+  }
+
+  const result = await requestM2MToken(type);
+  m2mTokens.set(type, result);
+  return result.token;
+};
+
+/** Drops cached service tokens (tests). */
+export const clearM2MTokenCache = () => m2mTokens.clear();
+
+const requestM2MToken = async (
+  type: M2MTokenType,
+): Promise<{ token: string; expiresAt: number }> => {
   try {
     let clientId, clientSecret;
     if (type === "auth") {
@@ -43,7 +66,13 @@ export const getM2MToken = async (type: "auth" | "data" | "admin") => {
       }),
     );
 
-    return response.data.access_token;
+    const expiresInSeconds = Number(response.data.expires_in);
+    return {
+      token: response.data.access_token,
+      expiresAt:
+        Date.now() +
+        (Number.isFinite(expiresInSeconds) ? expiresInSeconds * 1000 : 0),
+    };
     // deno-lint-ignore no-explicit-any
   } catch (error: any) {
     logger.error({

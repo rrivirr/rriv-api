@@ -1,17 +1,14 @@
 import axios from "axios";
-import { storage } from "../../utils/async-local-storage.ts";
 import config from "../get-config.ts";
+import { getM2MToken } from "../keycloak/keycloak.ts";
 
 const authServiceAxios = axios.create({
   baseURL: config.AUTH_SERVICE_URL,
 });
 
-authServiceAxios.interceptors.request.use((config) => {
-  if (!config.headers.Authorization) {
-    const store = storage.getStore();
-    config.headers.Authorization = `Bearer ${store?.token}`;
-  }
-  return config;
+authServiceAxios.interceptors.request.use(async (request) => {
+  request.headers.Authorization = `Bearer ${await getM2MToken("auth")}`;
+  return request;
 });
 
 export default authServiceAxios;
