@@ -15,7 +15,7 @@ import express from "npm:express";
 
 export type Tuple = { user: string; relation: string; object: string };
 
-const ALLOWED_AZP = ["auth-api", "rrivctl", "rriv-web"];
+const ALLOWED_AZP = ["auth-api"];
 const SEP = "\u0000";
 const keyOf = (t: Tuple) => `${t.user}${SEP}${t.relation}${SEP}${t.object}`;
 

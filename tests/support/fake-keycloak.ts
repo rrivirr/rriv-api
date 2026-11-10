@@ -23,6 +23,8 @@ export interface FakeKeycloak {
   ) => Promise<string>;
   /** Make the JWKS endpoint fail (true) or recover (false). */
   setJwksUnavailable: (unavailable: boolean) => void;
+  /** Client-credentials token requests received, per client id. */
+  tokenRequests: Map<string, number>;
   createdUsers: { email: string; id: string }[];
   stop: () => Promise<void>;
 }
@@ -49,6 +51,7 @@ export const startFakeKeycloak = async (
     use: "sig",
   };
   let jwksUnavailable = false;
+  const tokenRequests = new Map<string, number>();
 
   const issuer = `${KEYCLOAK_URL}/realms/${KEYCLOAK_REALM}`;
   const createdUsers: { email: string; id: string }[] = [];
@@ -119,6 +122,9 @@ export const startFakeKeycloak = async (
       const grantType = String(req.body?.grant_type ?? "");
       const username = String(req.body?.username ?? "");
       const subject = grantType === "client_credentials" ? clientId : username;
+      if (grantType === "client_credentials") {
+        tokenRequests.set(clientId, (tokenRequests.get(clientId) ?? 0) + 1);
+      }
       const access_token = await issueToken({
         sub: subject,
         azp: clientId,
@@ -162,6 +168,7 @@ export const startFakeKeycloak = async (
       jwksUnavailable = value;
     },
     createdUsers,
+    tokenRequests,
     stop: () => new Promise<void>((resolve) => server.close(() => resolve())),
   };
 };

@@ -69,8 +69,7 @@ const requestM2MToken = async (
     const expiresInSeconds = Number(response.data.expires_in);
     return {
       token: response.data.access_token,
-      expiresAt:
-        Date.now() +
+      expiresAt: Date.now() +
         (Number.isFinite(expiresInSeconds) ? expiresInSeconds * 1000 : 0),
     };
     // deno-lint-ignore no-explicit-any
