@@ -1,3 +1,10 @@
+## [1.19.4](https://github.com/rrivirr/rriv-api/compare/v1.19.3...v1.19.4) (2026-11-10)
+
+
+### Bug Fixes
+
+* remove sidecar ([1cf0eb6](https://github.com/rrivirr/rriv-api/commit/1cf0eb6fb33cf8810469ce5c6b1d378dbe5445bd))
+
 ## [1.19.3](https://github.com/rrivirr/rriv-api/compare/v1.19.2...v1.19.3) (2026-11-10)
 
 
