@@ -1,3 +1,13 @@
+## [1.19.3](https://github.com/rrivirr/rriv-api/compare/v1.19.2...v1.19.3) (2026-11-10)
+
+
+### Bug Fixes
+
+* graceful shutdown ([1431177](https://github.com/rrivirr/rriv-api/commit/143117755546c506805e68f8c1c617c332ad10bb))
+* serialize debug message ([b34df7f](https://github.com/rrivirr/rriv-api/commit/b34df7f10229cf3709e1dcd43bd62dc3e0d2b24f))
+* shutdown helper file ([3d70b13](https://github.com/rrivirr/rriv-api/commit/3d70b13677c7f1a0cdd3423f6068518100d5e6a8))
+* use m2m token alone with auth-api ([d54d575](https://github.com/rrivirr/rriv-api/commit/d54d5751e765c6d86f1ddba6df3387832f6d9acf))
+
 ## [1.19.2](https://github.com/rrivirr/rriv-api/compare/v1.19.1...v1.19.2) (2026-11-06)
 
 
