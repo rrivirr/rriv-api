@@ -1,3 +1,10 @@
+## [1.19.5](https://github.com/rrivirr/rriv-api/compare/v1.19.4...v1.19.5) (2026-11-10)
+
+
+### Bug Fixes
+
+* full reconcile ([9d0d2d7](https://github.com/rrivirr/rriv-api/commit/9d0d2d72e04a6dd821a8a94708491ba16c5eacf1))
+
 ## [1.19.4](https://github.com/rrivirr/rriv-api/compare/v1.19.3...v1.19.4) (2026-11-10)
 
 
