@@ -1,26 +1,51 @@
 import { assert, assertEquals, assertRejects } from "@std/assert";
+import { AUTH_SERVICE_URL } from "../support/env.ts";
 import { startHarness } from "../support/harness.ts";
 import { read, readResource } from "../../src/service/auth.service.ts";
 
-Deno.test("auth-api contract: rriv-api authenticates its reads", async () => {
+Deno.test(
+  "auth-api contract: rriv-api calls auth-api with its service token",
+  async () => {
+    const harness = await startHarness();
+    try {
+      // No request context: the worker/reconciler path works on its own.
+      assertEquals(
+        await readResource({ type: "context", id: crypto.randomUUID() }),
+        [],
+      );
+      assertEquals(
+        await read({ object: "system:rriv", relation: "admin" }),
+        [],
+      );
+
+      // One Keycloak request serves every call until the token nears expiry.
+      assertEquals(harness.keycloak.tokenRequests.get("auth-api"), 1);
+    } finally {
+      await harness.stop();
+    }
+  },
+);
+
+Deno.test("auth-api contract: end-user tokens are rejected", async () => {
   const harness = await startHarness();
   try {
-    const serviceToken = await harness.tokenFor(
-      crypto.randomUUID(),
-      "auth-api",
-    );
-
-    // The worker/reconciler must pass the service token explicitly.
-    const tuples = await readResource(
-      { type: "context", id: crypto.randomUUID() },
-      serviceToken,
-    );
-    assertEquals(tuples, []);
-
-    // Without a token auth-api rejects the call (the regression this guards).
-    await assertRejects(() =>
-      readResource({ type: "context", id: crypto.randomUUID() })
-    );
+    for (const azp of ["rriv-web", "rrivctl"]) {
+      const token = await harness.tokenFor(crypto.randomUUID(), azp);
+      const res = await fetch(`${AUTH_SERVICE_URL}/check`, {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${token}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          user: "user:x",
+          relation: "admin",
+          object: "system:rriv",
+        }),
+      });
+      assertEquals(res.status, 401, azp);
+      await res.body?.cancel();
+    }
   } finally {
     await harness.stop();
   }
@@ -31,10 +56,6 @@ Deno.test(
   async () => {
     const harness = await startHarness();
     try {
-      const serviceToken = await harness.tokenFor(
-        crypto.randomUUID(),
-        "auth-api",
-      );
       const contextId = crypto.randomUUID();
       const deviceId = crypto.randomUUID();
       const ownerId = crypto.randomUUID();
@@ -54,7 +75,6 @@ Deno.test(
 
       const tuples = await readResource(
         { type: "context", id: contextId },
-        serviceToken,
       );
 
       assertEquals(tuples.length, 2);
@@ -71,10 +91,6 @@ Deno.test(
   async () => {
     const harness = await startHarness();
     try {
-      const serviceToken = await harness.tokenFor(
-        crypto.randomUUID(),
-        "auth-api",
-      );
       const accountId = crypto.randomUUID();
       const deviceId = crypto.randomUUID();
       const contextId = crypto.randomUUID();
@@ -95,7 +111,6 @@ Deno.test(
 
       const tuples = await readResource(
         { type: "account", id: accountId },
-        serviceToken,
       );
 
       assertEquals(tuples, [
