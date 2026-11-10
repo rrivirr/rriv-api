@@ -73,11 +73,8 @@ export const read = async (body: {
 
 export const readResource = async (
   resource: { type: string; id: string },
-  token?: string,
 ): Promise<Tuple[]> => {
-  const response = await authServiceAxios.post("/read-resource", resource, {
-    ...(token && { headers: { Authorization: `Bearer ${token}` } }),
-  });
+  const response = await authServiceAxios.post("/read-resource", resource);
   return response.data.tuples;
 };
 
@@ -101,8 +98,8 @@ export const listUsers = async (body: {
 /**
  * Direct, synchronous tuple write. Use for actions that must take effect
  * immediately and are not part of the convergent sync (e.g. managing the
- * `system:rriv` admin relation). The caller's request token is attached by the
- * client interceptor.
+ * `system:rriv` admin relation). Callers must check the actor's permission
+ * first; auth-api only sees rriv-api's service token.
  */
 export const writeRelationshipsNow = async (
   body: WriteRelationshipDto,

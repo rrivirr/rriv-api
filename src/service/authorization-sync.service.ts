@@ -3,7 +3,6 @@ import { AxiosError } from "axios";
 import { Prisma } from "generated/browser.ts";
 import prisma from "../infra/prisma.ts";
 import authServiceAxios from "../infra/axios/auth-service.ts";
-import { getM2MToken } from "../infra/keycloak/keycloak.ts";
 import { sendMessage } from "../infra/pg-boss/pg-boss.ts";
 import { QUEUE_NAME, TYPES } from "../infra/pg-boss/constants.ts";
 import { AuthResourceType } from "../infra/pg-boss/types.ts";
@@ -156,12 +155,7 @@ export const desiredTuples = async (
  */
 export const applyAuthorizationSync = async (resource: AuthResource) => {
   const desired = await desiredTuples(resource);
-  // This runs in the pg-boss worker
-  const token = await getM2MToken("auth");
-  const current = await readResource(
-    { type: resource.type, id: resource.id },
-    token,
-  );
+  const current = await readResource({ type: resource.type, id: resource.id });
 
   const currentByKey = new Map(
     current.map((tuple) => [tupleKey(tuple), tuple]),
@@ -174,11 +168,7 @@ export const applyAuthorizationSync = async (resource: AuthResource) => {
   const deletes = current.filter((tuple) => !desiredByKey.has(tupleKey(tuple)));
 
   if (writes.length || deletes.length) {
-    await authServiceAxios.post(
-      "/relationship",
-      { writes, deletes },
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
+    await authServiceAxios.post("/relationship", { writes, deletes });
   }
 
   await prisma.authSync.update({
