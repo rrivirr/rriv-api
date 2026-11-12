@@ -1,3 +1,10 @@
+## [1.19.6](https://github.com/rrivirr/rriv-api/compare/v1.19.5...v1.19.6) (2026-11-12)
+
+
+### Bug Fixes
+
+* add rriv.org to CORS ([c9c4825](https://github.com/rrivirr/rriv-api/commit/c9c48255efddf1b9ff98d347d58fbec50819566c))
+
 ## [1.19.5](https://github.com/rrivirr/rriv-api/compare/v1.19.4...v1.19.5) (2026-11-10)
 
 
