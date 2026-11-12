@@ -26,3 +26,5 @@ create schema rriv;
 grant usage on schema rriv to "rriv-api";
 grant create on schema rriv to "rriv-api";
 ```
+
+release
