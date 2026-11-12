@@ -23,3 +23,5 @@ spec:
               value: https://auth.rriv.org
             - name: KEYCLOAK_REALM
               value: rriv-beta-prod
+            - name: CORS_ALLOWED_ORIGINS
+              value: https://rriv.org
