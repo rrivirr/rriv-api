@@ -1,3 +1,11 @@
+## [1.19.9](https://github.com/rrivirr/rriv-api/compare/v1.19.8...v1.19.9) (2026-11-12)
+
+
+### Bug Fixes
+
+* cors env ([a2b4029](https://github.com/rrivirr/rriv-api/commit/a2b40290744539c47e4439899efb92633c38597d))
+* separate file loading logic ([1032513](https://github.com/rrivirr/rriv-api/commit/10325139ee525e62df0871915cf66eb69956f541))
+
 ## [1.19.8](https://github.com/rrivirr/rriv-api/compare/v1.19.7...v1.19.8) (2026-11-12)
 
 
