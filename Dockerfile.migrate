@@ -4,10 +4,6 @@ ENV DENO_DIR=/deno-dir
 
 WORKDIR /app
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends perl ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
-
 COPY deno.json deno.lock package.json* ./
 
 RUN deno ci --skip-types --prod
