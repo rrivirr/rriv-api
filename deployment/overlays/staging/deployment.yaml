@@ -23,3 +23,5 @@ spec:
               value: https://auth.staging.rriv.org
             - name: KEYCLOAK_REALM
               value: rriv-beta-staging
+            - name: CORS_ALLOWED_ORIGINS
+              value: https://app.staging.rriv.org
