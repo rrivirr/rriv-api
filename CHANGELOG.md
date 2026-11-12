@@ -1,3 +1,10 @@
+## [1.19.8](https://github.com/rrivirr/rriv-api/compare/v1.19.7...v1.19.8) (2026-11-12)
+
+
+### Bug Fixes
+
+* use new prod secrets paths ([20208cf](https://github.com/rrivirr/rriv-api/commit/20208cf5963952d9a22179eeaccae27a4a7bdbe4))
+
 ## [1.19.7](https://github.com/rrivirr/rriv-api/compare/v1.19.6...v1.19.7) (2026-11-12)
 
 
