@@ -1,8 +1,5 @@
-import dotenv from "dotenv";
 import { z } from "zod";
-import fs, { existsSync } from "node:fs";
-import path from "node:path";
-import { homedir } from "node:os";
+import { readConfigFiles, writeDatabaseCaCert } from "./config-files.ts";
 
 const readSchema = z.strictObject({
   NODE_PORT: z.coerce.number().optional(),
@@ -83,24 +80,7 @@ const getConfigValues = () => {
     ...(GITHUB_TOKEN && { GITHUB_TOKEN }),
   };
 
-  const dirPath = path.join(homedir(), ".auth-api");
-  const localDirPath = `${path.join("./config")}`;
-  const filePath = `${path.join(dirPath, "config")}`;
-  const localFilePath = `${path.join(localDirPath, "config")}`;
-  let fileContent;
-  let localFileContent;
-
-  if (existsSync(dirPath) && existsSync(filePath)) {
-    fileContent = fs.readFileSync(filePath, "utf8");
-  }
-  if (existsSync(localDirPath) && existsSync(localFilePath)) {
-    localFileContent = fs.readFileSync(localFilePath, "utf8");
-  }
-
-  const fileConfig = {
-    ...(fileContent && dotenv.parse(fileContent)),
-    ...(localFileContent && dotenv.parse(localFileContent)),
-  };
+  const fileConfig = readConfigFiles();
 
   const config = readSchema.parse({ ...fileConfig, ...envConfig });
 
@@ -110,9 +90,7 @@ const getConfigValues = () => {
     return config;
   }
 
-  const pem = `${DATABASE_CA_CRT.replace(/\s(?!CERTIFICATE)/g, "\n").trim()}\n`;
-  const certFilePath = path.join(".", "ca-certificate.crt");
-  fs.writeFileSync(certFilePath, pem, { mode: 0o600 });
+  writeDatabaseCaCert(DATABASE_CA_CRT);
   delete config.DATABASE_CA_CRT;
 
   return config;
