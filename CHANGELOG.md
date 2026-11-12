@@ -1,3 +1,10 @@
+## [1.19.7](https://github.com/rrivirr/rriv-api/compare/v1.19.6...v1.19.7) (2026-11-12)
+
+
+### Bug Fixes
+
+* force release ([ac904ef](https://github.com/rrivirr/rriv-api/commit/ac904ef744faaecd9ae4f3200d7a3fb8f78c70b0))
+
 ## [1.19.6](https://github.com/rrivirr/rriv-api/compare/v1.19.5...v1.19.6) (2026-11-12)
 
 
