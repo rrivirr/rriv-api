@@ -1,3 +1,10 @@
+## [1.19.10](https://github.com/rrivirr/rriv-api/compare/v1.19.9...v1.19.10) (2026-11-14)
+
+
+### Bug Fixes
+
+* update cors endpoint ([63705da](https://github.com/rrivirr/rriv-api/commit/63705daf9d7d761aee5c773d81f26871a3c3fc52))
+
 ## [1.19.9](https://github.com/rrivirr/rriv-api/compare/v1.19.8...v1.19.9) (2026-11-12)
 
 
