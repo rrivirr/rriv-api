@@ -13,7 +13,7 @@ spec:
             - name: KEYCLOAK_REALM
               value: rriv-beta-dev
             - name: CORS_ALLOWED_ORIGINS
-              value: https://app.dev.rriv.org
+              value: https://dev.rriv.org
           resources:
             requests:
               cpu: 50m
