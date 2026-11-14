@@ -1,3 +1,10 @@
+## [1.19.12](https://github.com/rrivirr/rriv-api/compare/v1.19.11...v1.19.12) (2026-11-14)
+
+
+### Bug Fixes
+
+* update envs in overlays ([ce1b00c](https://github.com/rrivirr/rriv-api/commit/ce1b00c18349845f338920796485c465454460f9))
+
 ## [1.19.11](https://github.com/rrivirr/rriv-api/compare/v1.19.10...v1.19.11) (2026-11-14)
 
 
