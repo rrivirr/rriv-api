@@ -1,3 +1,10 @@
+## [1.19.11](https://github.com/rrivirr/rriv-api/compare/v1.19.10...v1.19.11) (2026-11-14)
+
+
+### Bug Fixes
+
+* cors env optional for jobs ([b87bdc2](https://github.com/rrivirr/rriv-api/commit/b87bdc28f421e878e3b388c111bccbbe9d813598))
+
 ## [1.19.10](https://github.com/rrivirr/rriv-api/compare/v1.19.9...v1.19.10) (2026-11-14)
 
 
