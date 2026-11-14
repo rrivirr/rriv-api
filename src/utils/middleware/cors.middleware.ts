@@ -1,6 +1,10 @@
 import { NextFunction, Request, Response } from "express";
 import config from "../../infra/get-config.ts";
 
+if (!config.CORS_ALLOWED_ORIGINS) {
+  throw new Error("CORS_ALLOWED_ORIGINS must be set");
+}
+
 const allowedOriginPatterns = config.CORS_ALLOWED_ORIGINS.split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);

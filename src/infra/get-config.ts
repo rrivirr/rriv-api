@@ -23,7 +23,7 @@ const readSchema = z.strictObject({
   CHIRPSTACK_API_KEY: z.string(),
   DATABASE_CA_CRT: z.string().optional(),
   APP_ENV: z.enum(["production", "development"]).default("development"),
-  CORS_ALLOWED_ORIGINS: z.string(),
+  CORS_ALLOWED_ORIGINS: z.string().optional(),
   FIRMWARE_GITHUB_API_URL: z.string().url().default("https://api.github.com"),
   /** Optional; raises GitHub's rate limit from 60 to 5000 requests an hour. */
   GITHUB_TOKEN: z.string().optional(),
