@@ -12,6 +12,7 @@ spec:
           DATABASE_URL="{{ .Data.data.database_url }}"
           KEYCLOAK_CLIENT_SECRET="{{ .Data.data.keycloak_client_secret }}"
           KEYCLOAK_AUTH_CLIENT_SECRET="{{ .Data.data.keycloak_auth_client_secret }}"
+          KEYCLOAK_DATA_CLIENT_SECRET="{{ .Data.data.keycloak_data_client_secret }}"
           CHIRPSTACK_API_KEY="{{ .Data.data.chirpstack_downlink_key }}"
           DATABASE_CA_CRT="{{ .Data.data.database_ca_cert }}"
           {{ end }}
