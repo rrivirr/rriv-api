@@ -1,3 +1,9 @@
+## [1.19.13](https://github.com/rrivirr/rriv-api/compare/v1.19.12...v1.19.13) (2026-11-16)
+
+### Bug Fixes
+
+* update cors prod values ([819a53e](https://github.com/rrivirr/rriv-api/commit/819a53eb45f4859231f72b0f60d4159dc25038a7))
+
 ## [1.19.12](https://github.com/rrivirr/rriv-api/compare/v1.19.11...v1.19.12) (2026-11-14)
 
 
