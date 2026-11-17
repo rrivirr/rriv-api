@@ -11,6 +11,7 @@ import { HttpException } from "../utils/http-exception.ts";
 import { serializeError } from "../utils/log-error.ts";
 import { readResource, SYSTEM } from "./auth.service.ts";
 import { createNotification } from "./notification.service.ts";
+import logger from "../winston.ts";
 
 export type { AuthResourceType };
 export type AuthResource = { type: AuthResourceType; id: string };
@@ -186,6 +187,19 @@ export const applyAuthorizationSync = async (resource: AuthResource) => {
   });
 
   return { writes: writes.length, deletes: deletes.length };
+};
+
+// Applies a resource's sync right away
+export const applyAuthorizationSyncNow = async (resource: AuthResource) => {
+  try {
+    await applyAuthorizationSync(resource);
+  } catch (error) {
+    logger.warn({
+      message: "inline authorization sync failed; left to the queue",
+      resource: `${resource.type}:${resource.id}`,
+      error: serializeError(error),
+    });
+  }
 };
 
 /**

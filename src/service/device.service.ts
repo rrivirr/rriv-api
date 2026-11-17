@@ -27,25 +27,31 @@ import { getSeed } from "./utils/get-seed.ts";
 import { validateDeviceContext } from "./utils/validate-device-context.ts";
 import { idSchema } from "../handler/generic/generic.schema.ts";
 import { authorizationCheck, listObjects, listUsers } from "./auth.service.ts";
+import { applyAuthorizationSyncNow } from "./authorization-sync.service.ts";
 
 const MAX_PROVISION_ATTEMPTS = 5;
 
-/**
- * Derives the next serial number and its seeded unique name. Pure: collisions
- * are caught by the database's unique constraints and handled by the bounded
- * retry in `provisionDevice` (the previous in-method pre-check was racy and
- * surfaced as a 500).
- */
-const getNewIdentifiers = (lastSerialNumber?: string) => {
-  let newSerialNumber = 0n;
-  if (lastSerialNumber) {
-    const number = [...lastSerialNumber].reduce(
-      (acc, curr) => BigInt(parseInt(curr, 36)) + BigInt(36) * acc,
-      0n,
-    );
+const parseSerialNumber = (serialNumber: string) =>
+  [...serialNumber].reduce(
+    (acc, curr) => BigInt(parseInt(curr, 36)) + BigInt(36) * acc,
+    0n,
+  );
 
-    newSerialNumber = number + 1n;
-  }
+/** The numerically higher of two serial numbers; either may be missing. */
+const higherSerialNumber = (a?: string, b?: string) => {
+  if (!a || !b) return a || b;
+  return parseSerialNumber(a) >= parseSerialNumber(b) ? a : b;
+};
+
+/**
+ * Derives the serial number after `previousSerialNumber` and its seeded unique
+ * name. Pure: collisions are caught by the database's unique constraints and
+ * handled by the bounded retry in `provisionDevice`.
+ */
+export const getNewIdentifiers = (previousSerialNumber?: string) => {
+  const newSerialNumber = previousSerialNumber
+    ? parseSerialNumber(previousSerialNumber) + 1n
+    : 0n;
   const serialNumber = newSerialNumber.toString(36).padStart(5, "0");
   const seed = getSeed(serialNumber);
 
@@ -84,6 +90,7 @@ export const authDeviceCheck = async (
 
 export const provisionDevice = async (body: ProvisionDeviceDto) => {
   const { uid, accountId, type } = body;
+  let lastTriedSerialNumber: string | undefined;
 
   for (let attempt = 1; attempt <= MAX_PROVISION_ATTEMPTS; attempt++) {
     // Idempotent: a device with this uid may already exist — including one a
@@ -97,16 +104,15 @@ export const provisionDevice = async (body: ProvisionDeviceDto) => {
       return { status: 200, device: { ...existingDevice, Bind: undefined } };
     }
 
-    const [device] = await deviceRepository.getAllDevices({
-      orderBy: "createdAt",
-      order: "desc",
-      limit: 1,
-      query: {},
-    });
+    const highestSerialNumber = await deviceRepository.getHighestSerialNumber();
 
+    // highestSerialNumber covers another request taking our serial;
+    // lastTriedSerialNumber covers its generated unique name being taken,
+    //  where the highest serial doesn't move.
     const { serialNumber, uniqueName } = getNewIdentifiers(
-      device?.serialNumber,
+      higherSerialNumber(highestSerialNumber, lastTriedSerialNumber),
     );
+    lastTriedSerialNumber = serialNumber;
 
     try {
       const newDevice = await deviceRepository.createDevice({
@@ -122,8 +128,8 @@ export const provisionDevice = async (body: ProvisionDeviceDto) => {
         throw error;
       }
       // Either our uid was created concurrently (the next iteration returns it)
-      // or the generated serial/unique name collided (the next iteration
-      // regenerates from the new latest device).
+      // or the serial or its unique name collided (the next iteration moves on
+      // to a later serial, which also gives a different name).
     }
   }
 
@@ -223,6 +229,7 @@ export const bindDevice = async (requestBody: BindDeviceDto) => {
     throw new HttpException(409, "device bound to another user");
   }
 
+  await applyAuthorizationSyncNow({ type: "account", id: accountId });
   return device;
 };
 

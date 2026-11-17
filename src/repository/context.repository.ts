@@ -7,7 +7,7 @@ import prisma from "../infra/prisma.ts";
 import { syncAuthorization } from "../service/authorization-sync.service.ts";
 
 export const createContext = async (requestBody: CreateContextDto) => {
-  await prisma.$transaction(async (trx) => {
+  return await prisma.$transaction(async (trx) => {
     const context = await trx.context.create({
       data: { ...requestBody },
     });

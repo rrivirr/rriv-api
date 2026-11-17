@@ -417,15 +417,12 @@ export const getFirmwareHistory = async (
 // use getDevices instead
 export const getAllDevices = async (body: {
   query: { uniqueName?: string; uid?: string; type?: string };
-  orderBy?: "createdAt";
-  order?: "asc" | "desc";
   limit?: number;
 }) => {
-  const { query, orderBy, order, limit } = body;
+  const { query, limit } = body;
   return await prisma.device.findMany({
     where: query,
     take: limit,
-    orderBy: orderBy ? { [orderBy]: order } : undefined,
     include: {
       Bind: {
         select: {
@@ -438,6 +435,14 @@ export const getAllDevices = async (body: {
       },
     },
   });
+};
+
+export const getHighestSerialNumber = async (): Promise<string | undefined> => {
+  const device = await prisma.device.findFirst({
+    orderBy: { serialNumber: "desc" },
+    select: { serialNumber: true },
+  });
+  return device?.serialNumber;
 };
 
 export const getReadingAccessRecords = async (deviceId: string) => {
