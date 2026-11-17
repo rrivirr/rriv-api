@@ -113,42 +113,39 @@ export const healthReasons = (input: {
 };
 
 export const getSystemMetrics = async () => {
-  const [
-    grouped,
-    recentFailures,
-    oldestFailed,
-    oldestPending,
-    queue,
-    dlq,
-    unreadNotifications,
-  ] = await Promise.all([
-    prisma.authSync.groupBy({ by: ["status"], _count: { _all: true } }),
-    prisma.authSync.findMany({
-      where: { status: "failed" },
-      orderBy: { updatedAt: "desc" },
-      take: 20,
-      select: {
-        resourceType: true,
-        resourceId: true,
-        attempts: true,
-        lastError: true,
-        updatedAt: true,
-      },
-    }),
-    prisma.authSync.findFirst({
-      where: { status: "failed" },
-      orderBy: { updatedAt: "asc" },
-      select: { updatedAt: true },
-    }),
-    prisma.authSync.findFirst({
-      where: { status: "pending" },
-      orderBy: { updatedAt: "asc" },
-      select: { updatedAt: true },
-    }),
-    queueStats(QUEUE_NAME),
-    queueStats(DLQ_NAME),
-    prisma.notification.count({ where: { readAt: null } }),
-  ]);
+  // One query at a time: a page load then needs a single pooled connection
+  // instead of one per query
+  const grouped = await prisma.authSync.groupBy({
+    by: ["status"],
+    _count: { _all: true },
+  });
+  const recentFailures = await prisma.authSync.findMany({
+    where: { status: "failed" },
+    orderBy: { updatedAt: "desc" },
+    take: 20,
+    select: {
+      resourceType: true,
+      resourceId: true,
+      attempts: true,
+      lastError: true,
+      updatedAt: true,
+    },
+  });
+  const oldestFailed = await prisma.authSync.findFirst({
+    where: { status: "failed" },
+    orderBy: { updatedAt: "asc" },
+    select: { updatedAt: true },
+  });
+  const oldestPending = await prisma.authSync.findFirst({
+    where: { status: "pending" },
+    orderBy: { updatedAt: "asc" },
+    select: { updatedAt: true },
+  });
+  const queue = await queueStats(QUEUE_NAME);
+  const dlq = await queueStats(DLQ_NAME);
+  const unreadNotifications = await prisma.notification.count({
+    where: { readAt: null },
+  });
 
   const byStatus: Record<string, number> = { pending: 0, synced: 0, failed: 0 };
   for (const row of grouped) {
