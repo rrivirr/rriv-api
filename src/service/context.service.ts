@@ -8,7 +8,10 @@ import * as contextRepositoy from "../repository/context.repository.ts";
 import { HttpException } from "../utils/http-exception.ts";
 import { authorizationCheck, listObjects, listUsers } from "./auth.service.ts";
 import { getAccountByEmail, getAccountsByIds } from "./account.service.ts";
-import { syncAuthorization } from "./authorization-sync.service.ts";
+import {
+  applyAuthorizationSyncNow,
+  syncAuthorization,
+} from "./authorization-sync.service.ts";
 import { isUniqueConstraintError } from "../utils/prisma-errors.ts";
 import prisma from "../infra/prisma.ts";
 
@@ -62,8 +65,9 @@ export const createContext = async (requestBody: CreateContextDto) => {
   if (existingContext.length) {
     throw new HttpException(409, `'${name}' already exists`);
   }
+  let context;
   try {
-    return await contextRepositoy.createContext(requestBody);
+    context = await contextRepositoy.createContext(requestBody);
   } catch (error) {
     // The check above reads the authorization index, which lags the database.
     // The partial unique index on (account_id, name) WHERE archived_at IS NULL
@@ -73,6 +77,9 @@ export const createContext = async (requestBody: CreateContextDto) => {
     }
     throw error;
   }
+
+  await applyAuthorizationSyncNow({ type: "context", id: context.id });
+  return context;
 };
 
 export const shareContext = async (
@@ -105,6 +112,8 @@ export const shareContext = async (
 
     await syncAuthorization({ type: "context", id }, trx);
   });
+
+  await applyAuthorizationSyncNow({ type: "context", id });
 };
 
 export const getShareRecipients = async (

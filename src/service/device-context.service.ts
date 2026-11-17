@@ -11,6 +11,7 @@ import { ACTIVE_CONFIG_SNAPSHOT_NAME } from "./utils/constants.ts";
 import { validateDeviceContext } from "./utils/validate-device-context.ts";
 import { authContextCheck } from "./context.service.ts";
 import { authDeviceCheck } from "./device.service.ts";
+import { applyAuthorizationSyncNow } from "./authorization-sync.service.ts";
 
 /**
  * Returns the device context's "active" config snapshot, creating it if
@@ -92,6 +93,8 @@ export const createDeviceContext = async (
     }
     throw error;
   }
+
+  await applyAuthorizationSyncNow({ type: "context", id: contextId });
 };
 
 export const getDeviceContext = async (query: DeviceContextDto) => {
