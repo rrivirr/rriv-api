@@ -1,3 +1,9 @@
+## [1.19.15](https://github.com/rrivirr/rriv-api/compare/v1.19.14...v1.19.15) (2026-11-17)
+
+### Bug Fixes
+
+* systems metrics query one at a time ([e8420d0](https://github.com/rrivirr/rriv-api/commit/e8420d0dc2a2e5761231bc216c077daaabd878db))
+
 ## [1.19.14](https://github.com/rrivirr/rriv-api/compare/v1.19.13...v1.19.14) (2026-11-17)
 
 ### Bug Fixes
