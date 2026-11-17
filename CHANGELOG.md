@@ -1,3 +1,9 @@
+## [1.19.14](https://github.com/rrivirr/rriv-api/compare/v1.19.13...v1.19.14) (2026-11-17)
+
+### Bug Fixes
+
+* provisioning serial number allocstion and create then use auth lag ([4949160](https://github.com/rrivirr/rriv-api/commit/49491600dd2b8c157eada7a8287a92b43ff062a3))
+
 ## [1.19.13](https://github.com/rrivirr/rriv-api/compare/v1.19.12...v1.19.13) (2026-11-16)
 
 ### Bug Fixes
