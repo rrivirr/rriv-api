@@ -18,7 +18,12 @@ Deno.test("createContextSchema normalizes and bounds the name", () => {
     "hello world",
   );
   assertThrows(() => createContextSchema.parse({ name: "ab" }));
-  assertThrows(() => createContextSchema.parse({ name: "x".repeat(21) }));
+  // Context names allow up to 30 characters.
+  assertEquals(
+    createContextSchema.parse({ name: "x".repeat(30) }).name,
+    "x".repeat(30),
+  );
+  assertThrows(() => createContextSchema.parse({ name: "x".repeat(31) }));
   assertThrows(() => createContextSchema.parse({ name: "valid", extra: 1 }));
 });
 

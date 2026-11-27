@@ -10,7 +10,7 @@ import {
   activeConfigQuerySchema,
   configHistoryQuerySchema,
   configSnapshotQuerySchema,
-  overwriteActiveConfigSnapshotSchema,
+  renameSavedSnapshotSchema,
   saveConfigSnapshotSchema,
 } from "../../handler/config-snapshot/schema.ts";
 
@@ -126,17 +126,6 @@ swaggerBuilder.addPath(`${basePath}/active`, {
       },
     },
   },
-  put: {
-    tags,
-    summary: `completely overwrite the active config snapshot`,
-    requestBody: {
-      content: {
-        [mediaTypeHeader]: {
-          schema: generateSchema(overwriteActiveConfigSnapshotSchema),
-        },
-      },
-    },
-  },
 });
 
 swaggerBuilder.addPath(`${basePath}/save`, {
@@ -149,6 +138,55 @@ swaggerBuilder.addPath(`${basePath}/save`, {
           schema: generateSchema(saveConfigSnapshotSchema),
         },
       },
+    },
+    responses: {
+      201: {
+        description: "The saved snapshot",
+        content: {
+          [mediaTypeHeader]: {
+            schema: {
+              type: "object",
+              properties: {
+                id: { type: "string", format: "uuid" },
+                name: { type: "string" },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+});
+
+swaggerBuilder.addPath(`${basePath}/{id}`, {
+  parameters: [{
+    name: "id",
+    in: "path",
+    required: true,
+    schema: { type: "string", format: "uuid" },
+  }],
+  patch: {
+    tags,
+    summary: "rename one of your saved config snapshots",
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(renameSavedSnapshotSchema),
+        },
+      },
+    },
+    responses: {
+      200: { description: "The snapshot's id and new name" },
+      404: { description: "Not one of your saved snapshots" },
+      409: { description: "You already have a saved snapshot with that name" },
+    },
+  },
+  delete: {
+    tags,
+    summary: "delete (archive) one of your saved config snapshots",
+    responses: {
+      204: { description: "Archived" },
+      404: { description: "Not one of your saved snapshots" },
     },
   },
 });

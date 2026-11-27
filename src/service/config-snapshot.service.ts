@@ -1,9 +1,13 @@
+import {
+  assertLibraryUpdateAllowed,
+  assertMatchesDriver,
+  requireDriver,
+} from "./utils/library-config.ts";
 import { isDeepStrictEqual } from "node:util";
 import {
   ConfigSnapshotDto,
   CreateConfigSnapshotLibraryConfigDto,
   CreateConfigSnapshotLibraryConfigVersionDto,
-  OverwriteActiveConfigSnapshotDto,
   QueryActiveConfigDto,
   QueryConfigHistoryDto,
   QueryConfigSnapshotDto,
@@ -13,14 +17,13 @@ import {
 } from "../types/config-snapshot.types.ts";
 import { AccountIdDto, IdDto, IdorNameDto } from "../types/generic.types.ts";
 import * as configSnapshotRepository from "../repository/config-snapshot.repository.ts";
+import * as sensorRepository from "../repository/sensor.repository.ts";
+import * as dataloggerRepository from "../repository/datalogger.repository.ts";
 import { getDeviceContext } from "./device-context.service.ts";
 import { HttpException } from "../utils/http-exception.ts";
 import { isUniqueConstraintError } from "../utils/prisma-errors.ts";
-import {
-  getDataloggerConfigHistory,
-  getDataloggerDriver,
-} from "./datalogger.service.ts";
-import { getSensorConfigHistory, getSensorDriver } from "./sensor.service.ts";
+import { getDataloggerConfigHistory } from "./datalogger.service.ts";
+import { getSensorConfigHistory } from "./sensor.service.ts";
 import { authDeviceCheck } from "./device.service.ts";
 
 const getConfigSnapshotById = async (query: IdDto) => {
@@ -58,17 +61,152 @@ export const getConfigSnapshots = async (query: QueryConfigSnapshotDto) => {
   return await configSnapshotRepository.getConfigSnapshots(query);
 };
 
+type SourceVersion = {
+  id: string;
+  version: number;
+  library: { id: string; name: string; latestVersion: number | null };
+  /** The version's settings for this row. */
+  config: unknown;
+};
+
+/** Settings that differ between a device row and the version it came from. */
+const changedSettings = (device: unknown, library: unknown) => {
+  const a = (device && typeof device === "object" ? device : {}) as Record<
+    string,
+    unknown
+  >;
+  const b = (library && typeof library === "object" ? library : {}) as Record<
+    string,
+    unknown
+  >;
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  return [...keys].filter((key) => !isDeepStrictEqual(a[key], b[key])).length;
+};
+
+/**
+ * The library version a device config row came from, for "Based on <name>
+ * v3, 2 settings changed, v4 available". `null` when it was set by hand,
+ * from a saved snapshot, or before sources were recorded.
+ */
+const configSourceOf = (
+  kind: "sensor" | "datalogger" | "system",
+  version: SourceVersion | null,
+  deviceConfig: unknown,
+) => {
+  if (!version) return null;
+  const { latestVersion } = version.library;
+  return {
+    kind,
+    versionId: version.id,
+    version: version.version,
+    libraryConfigId: version.library.id,
+    name: version.library.name,
+    latestVersion,
+    updateAvailable: latestVersion !== null && latestVersion > version.version,
+    changedSettings: changedSettings(deviceConfig, version.config),
+  };
+};
+
+type SystemSource = {
+  id: string;
+  version: number;
+  SystemLibraryConfig: {
+    id: string;
+    name: string;
+    SystemLibraryConfigVersion: { version: number }[];
+  };
+  ConfigSnapshot: {
+    DataloggerConfig: { config: unknown }[];
+    SensorConfig: { name: string; config: unknown }[];
+  };
+};
+
+const fromSystem = (
+  system: SystemSource,
+  pick: (snapshot: SystemSource["ConfigSnapshot"]) => unknown,
+): SourceVersion => ({
+  id: system.id,
+  version: system.version,
+  library: {
+    id: system.SystemLibraryConfig.id,
+    name: system.SystemLibraryConfig.name,
+    latestVersion:
+      system.SystemLibraryConfig.SystemLibraryConfigVersion[0]?.version ?? null,
+  },
+  config: pick(system.ConfigSnapshot),
+});
+
 export const getActiveConfig = async (query: QueryActiveConfigDto) => {
   const configSnapshot = await getActiveConfigSnapshot(query);
   const { DataloggerConfig, SensorConfig } = configSnapshot;
 
+  const datalogger = DataloggerConfig[0];
+  const dataloggerOwn = datalogger?.SourceDataloggerLibraryConfigVersion;
+  const dataloggerSystem = datalogger?.SourceSystemLibraryConfigVersion;
+
   return {
-    dataloggerConfig: { config: DataloggerConfig[0]?.config || {} },
-    sensorConfig: SensorConfig.map((s) => ({
-      config: s.config,
-      name: s.name,
-      id: s.id,
-    })),
+    dataloggerConfig: {
+      config: datalogger?.config || {},
+      /** The driver the datalogger config is recorded with. */
+      dataloggerDriverId: datalogger?.dataloggerDriverId ?? null,
+      source: dataloggerOwn
+        ? configSourceOf("datalogger", {
+          id: dataloggerOwn.id,
+          version: dataloggerOwn.version,
+          library: {
+            id: dataloggerOwn.DataloggerLibraryConfig.id,
+            name: dataloggerOwn.DataloggerLibraryConfig.name,
+            latestVersion: dataloggerOwn.DataloggerLibraryConfig
+              .DataloggerLibraryConfigVersion[0]?.version ?? null,
+          },
+          config: dataloggerOwn.DataloggerConfig.config,
+        }, datalogger.config)
+        : dataloggerSystem
+        ? configSourceOf(
+          "system",
+          fromSystem(
+            dataloggerSystem,
+            (snapshot) => snapshot.DataloggerConfig[0]?.config,
+          ),
+          datalogger.config,
+        )
+        : null,
+    },
+    sensorConfig: SensorConfig.map((s) => {
+      const own = s.SourceSensorLibraryConfigVersion;
+      const system = s.SourceSystemLibraryConfigVersion;
+      return {
+        config: s.config,
+        name: s.name,
+        id: s.id,
+        sensorDriverId: s.sensorDriverId,
+        source: own
+          ? configSourceOf("sensor", {
+            id: own.id,
+            version: own.version,
+            library: {
+              id: own.SensorLibraryConfig.id,
+              name: own.SensorLibraryConfig.name,
+              latestVersion:
+                own.SensorLibraryConfig.SensorLibraryConfigVersion[0]
+                  ?.version ?? null,
+            },
+            config: own.SensorConfig.config,
+          }, s.config)
+          : system
+          ? configSourceOf(
+            "system",
+            fromSystem(
+              system,
+              (snapshot) =>
+                snapshot.SensorConfig.find((entry) => entry.name === s.name)
+                  ?.config,
+            ),
+            s.config,
+          )
+          : null,
+      };
+    }),
   };
 };
 
@@ -126,43 +264,6 @@ export const getConfigSnapshotLibraryConfigById = async (
   return configSnapshotLibraryConfig;
 };
 
-export const overwriteActiveConfigSnapshot = async (
-  body: OverwriteActiveConfigSnapshotDto,
-) => {
-  const {
-    accountId,
-    contextId,
-    deviceId,
-    sensorConfigIds,
-    dataloggerConfigId,
-    createdAt,
-  } = body;
-
-  const configSnapshot = await getActiveConfigSnapshot({
-    accountId,
-    contextId,
-    deviceId,
-  });
-
-  try {
-    await configSnapshotRepository.overwriteActiveConfigSnapshot({
-      configSnapshotId: configSnapshot.id,
-      sensorConfigIds,
-      dataloggerConfigId,
-      accountId,
-      createdAt,
-    });
-  } catch (error) {
-    if (isUniqueConstraintError(error)) {
-      throw new HttpException(
-        409,
-        "active config changed concurrently, please retry",
-      );
-    }
-    throw error;
-  }
-};
-
 export const saveConfigSnapshot = async (body: SaveConfigSnapshotDto) => {
   const { deviceId, contextId, accountId, name } = body;
 
@@ -205,10 +306,57 @@ export const saveConfigSnapshot = async (body: SaveConfigSnapshotDto) => {
   }
 };
 
+/**
+ * A whole-device library config's snapshot: the datalogger and each sensor
+ * with the driver the client chose for it, each checked against that
+ * driver's schema (as device uploads are).
+ */
+const snapshotWithDrivers = async (body: {
+  datalogger: Record<string, unknown>;
+  dataloggerDriverId: string;
+  sensors:
+    ({ name: string; sensorDriverId: string } & Record<string, unknown>)[];
+}): Promise<ConfigSnapshotDto> => {
+  const { datalogger, dataloggerDriverId, sensors } = body;
+  const dataloggerDriver = requireDriver(
+    await dataloggerRepository.getDataloggerDriverById({
+      id: dataloggerDriverId,
+    }),
+    "datalogger",
+  );
+  assertMatchesDriver(dataloggerDriver, datalogger, "datalogger");
+
+  const sensorDrivers = new Map<string, { id: string; validation: unknown }>();
+  const SensorConfig = [];
+  for (const { name, sensorDriverId, ...config } of sensors) {
+    let driver = sensorDrivers.get(sensorDriverId);
+    if (!driver) {
+      driver = requireDriver(
+        await sensorRepository.getSensorDriverById({ id: sensorDriverId }),
+        "sensor",
+      );
+      sensorDrivers.set(sensorDriverId, driver);
+    }
+    assertMatchesDriver(driver, config, "sensor");
+    SensorConfig.push({ name, config, sensorDriverId: driver.id });
+  }
+
+  return {
+    DataloggerConfig: [
+      {
+        name: "datalogger",
+        config: datalogger,
+        dataloggerDriverId: dataloggerDriver.id,
+      },
+    ],
+    SensorConfig,
+  } as ConfigSnapshotDto;
+};
+
 export const createConfigSnapshotLibraryConfig = async (
   body: CreateConfigSnapshotLibraryConfigDto,
 ) => {
-  const { name, description, accountId } = body;
+  const { name, description, firmwareVersion, accountId } = body;
 
   // chack if name exists
   const exisitingLibraryConfig = await getConfigSnapshotLibraryConfig({
@@ -220,30 +368,15 @@ export const createConfigSnapshotLibraryConfig = async (
     throw new HttpException(409, `${name} already exists`);
   }
 
-  const { datalogger, sensors } = body;
-
-  const defaultSensorDriver = await getSensorDriver({ limit: 1 });
-  const defaultDataloggerDriver = await getDataloggerDriver({ limit: 1 });
+  const configSnapshot = await snapshotWithDrivers(body);
 
   try {
     return await configSnapshotRepository.createConfigSnapshotLibraryConfig({
       name,
       description,
+      firmwareVersion,
       accountId,
-      configSnapshot: {
-        DataloggerConfig: [
-          {
-            name: "datalogger",
-            config: datalogger,
-            dataloggerDriverId: defaultDataloggerDriver[0].id,
-          },
-        ],
-        SensorConfig: sensors.map(({ name, ...config }) => ({
-          name,
-          config,
-          sensorDriverId: defaultSensorDriver[0].id,
-        })),
-      } as ConfigSnapshotDto,
+      configSnapshot,
     });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
@@ -256,7 +389,7 @@ export const createConfigSnapshotLibraryConfig = async (
 export const createNewConfigSnapshotLibraryConfigVersion = async (
   body: CreateConfigSnapshotLibraryConfigVersionDto,
 ) => {
-  const { id, accountId, description } = body;
+  const { id, accountId, description, firmwareVersion } = body;
 
   const configSnapshotLibraryConfig = await getConfigSnapshotLibraryConfigById({
     id,
@@ -264,25 +397,7 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (
     write: true,
   });
 
-  const { datalogger, sensors } = body;
-
-  const defaultSensorDriver = await getSensorDriver({ limit: 1 });
-  const defaultDataloggerDriver = await getDataloggerDriver({ limit: 1 });
-
-  const configSnapshot = {
-    DataloggerConfig: [
-      {
-        name: "datalogger",
-        config: datalogger,
-        dataloggerDriverId: defaultDataloggerDriver[0].id,
-      },
-    ],
-    SensorConfig: sensors.map(({ name, ...config }) => ({
-      name,
-      config,
-      sensorDriverId: defaultSensorDriver[0].id,
-    })),
-  } as ConfigSnapshotDto;
+  const configSnapshot = await snapshotWithDrivers(body);
 
   const configSnapshotLibraryConfigVersions =
     configSnapshotLibraryConfig.SystemLibraryConfigVersion;
@@ -294,6 +409,7 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (
           {
             accountId,
             description,
+            firmwareVersion,
             version: 1,
             configSnapshot,
             configSnapshotLibraryConfigId: id,
@@ -342,6 +458,7 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (
           {
             accountId,
             description,
+            firmwareVersion,
             version: latestConfigVersion.version + 1,
             configSnapshot,
             configSnapshotLibraryConfigId: id,
@@ -358,13 +475,21 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (
 
 export const updateLibraryConfig = async (body: UpdateLibraryConfigDto) => {
   const { id, accountId } = body;
-  await getConfigSnapshotLibraryConfigById({
+  const libraryConfig = await getConfigSnapshotLibraryConfigById({
     id,
     accountId,
     write: true,
   });
+  assertLibraryUpdateAllowed(libraryConfig, body);
 
-  await configSnapshotRepository.updateLibraryConfig(body);
+  try {
+    return await configSnapshotRepository.updateLibraryConfig(body);
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(409, `${body.name} already exists`);
+    }
+    throw error;
+  }
 };
 
 export const deleteConfigSnapshotLibraryConfig = async (
@@ -394,4 +519,31 @@ export const deleteConfigSnapshotLibraryConfig = async (
   return await configSnapshotRepository.deleteConfigSnapshotLibraryConfig({
     id: libraryId,
   });
+};
+
+/** Rename one of your saved snapshots. Names are unique among yours. */
+export const renameSavedSnapshot = async (
+  body: { id: string; accountId: string; name: string },
+) => {
+  try {
+    const count = await configSnapshotRepository.renameSavedSnapshot(body);
+    if (!count) throw new HttpException(404, "saved config not found");
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(
+        409,
+        `config snapshot with ${body.name} already exists`,
+      );
+    }
+    throw error;
+  }
+  return { id: body.id, name: body.name };
+};
+
+/** Delete (archive) one of your saved snapshots. */
+export const deleteSavedSnapshot = async (
+  body: { id: string; accountId: string },
+) => {
+  const count = await configSnapshotRepository.archiveSavedSnapshot(body);
+  if (!count) throw new HttpException(404, "saved config not found");
 };

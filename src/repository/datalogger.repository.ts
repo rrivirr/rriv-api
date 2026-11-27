@@ -11,6 +11,7 @@ import {
   QueryConfigHistoryDto,
   UpdateLibraryConfigDto,
 } from "../types/config-snapshot.types.ts";
+import { DataloggerSourceColumns } from "../service/utils/config-source.ts";
 
 export const getActiveDataloggerConfig = async (
   query: { configSnapshotId: string },
@@ -136,7 +137,9 @@ export const getDataloggerLibraryConfigById = async (query: IdDto) => {
         },
         orderBy: { version: "desc" },
         select: {
+          id: true,
           version: true,
+          firmwareVersion: true,
           description: true,
           DataloggerConfig: {
             select: {
@@ -192,11 +195,13 @@ export const getDataloggerLibraryConfig = async (
     isPublic,
     accountId,
     author,
+    isOfficial,
   } = query;
   return await prisma.dataloggerLibraryConfig.findMany({
     where: {
       name: name || { contains: search },
       archivedAt: null,
+      isOfficial,
       ...(author
         ? {
           Creator: {
@@ -234,7 +239,7 @@ export const createDataloggerDriver = async (
 };
 
 export const createDataloggerConfig = async (
-  body: CreateDataloggerConfigDto & {
+  body: CreateDataloggerConfigDto & DataloggerSourceColumns & {
     active: boolean;
     configSnapshotId: string;
     dataloggerConfigToDeactivateId?: string | null;
@@ -249,6 +254,8 @@ export const createDataloggerConfig = async (
     configSnapshotId,
     dataloggerConfigToDeactivateId,
     createdAt,
+    sourceDataloggerLibraryConfigVersionId,
+    sourceSystemLibraryConfigVersionId,
   } = body;
 
   return await prisma.$transaction(async (trx) => {
@@ -268,6 +275,16 @@ export const createDataloggerConfig = async (
         DataloggerDriver: { connect: { id: dataloggerDriverId } },
         Creator: { connect: { id: accountId } },
         ConfigSnapshot: { connect: { id: configSnapshotId } },
+        ...(sourceDataloggerLibraryConfigVersionId && {
+          SourceDataloggerLibraryConfigVersion: {
+            connect: { id: sourceDataloggerLibraryConfigVersionId },
+          },
+        }),
+        ...(sourceSystemLibraryConfigVersionId && {
+          SourceSystemLibraryConfigVersion: {
+            connect: { id: sourceSystemLibraryConfigVersionId },
+          },
+        }),
       },
     });
   });
@@ -279,9 +296,11 @@ export const createDataloggerLibraryConfig = async (
     dataloggerConfig: { config: object; driverId: string };
     accountId: string;
     description?: string;
+    firmwareVersion?: string;
   },
 ) => {
-  const { name, dataloggerConfig, accountId, description } = body;
+  const { name, dataloggerConfig, accountId, description, firmwareVersion } =
+    body;
   return await prisma.dataloggerLibraryConfig.create({
     data: {
       name,
@@ -290,6 +309,7 @@ export const createDataloggerLibraryConfig = async (
       DataloggerLibraryConfigVersion: {
         create: {
           version: 1,
+          firmwareVersion,
           Creator: { connect: { id: accountId } },
           DataloggerConfig: {
             create: {
@@ -315,11 +335,13 @@ export const createNewDataloggerLibraryConfigVersion = async (
     dataloggerLibraryConfigId: string;
     dataloggerConfig: { config: object; driverId: string };
     description?: string;
+    firmwareVersion?: string;
   },
 ) => {
   const {
     accountId,
     version,
+    firmwareVersion,
     dataloggerConfig,
     dataloggerLibraryConfigId,
     description,
@@ -327,6 +349,7 @@ export const createNewDataloggerLibraryConfigVersion = async (
   return await prisma.dataloggerLibraryConfigVersion.create({
     data: {
       version,
+      firmwareVersion,
       Creator: { connect: { id: accountId } },
       description,
       DataloggerLibraryConfig: { connect: { id: dataloggerLibraryConfigId } },
@@ -389,9 +412,9 @@ export const deleteDataloggerLibraryConfig = async (body: IdDto) => {
 export const updateDataloggerLibraryConfig = async (
   body: UpdateLibraryConfigDto,
 ) => {
-  const { isPublic, id } = body;
-  await prisma.dataloggerLibraryConfig.update({
+  const { isPublic, name, description, id } = body;
+  return await prisma.dataloggerLibraryConfig.update({
     where: { id },
-    data: { isPublic },
+    data: { isPublic, name, description },
   });
 };

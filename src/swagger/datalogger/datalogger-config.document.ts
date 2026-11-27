@@ -42,6 +42,11 @@ swaggerBuilder.addPath(basePath, {
     },
     responses: {
       201: singleDataloggerConfigResponse,
+      200: {
+        description:
+          "Same settings and source as the active config: nothing written, the active config is returned",
+        ...singleDataloggerConfigResponse,
+      },
     },
   },
 });

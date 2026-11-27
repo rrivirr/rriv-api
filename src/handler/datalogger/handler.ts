@@ -41,6 +41,12 @@ export const createDataloggerConfig = async (req: Request, res: Response) => {
     ...requestBody,
     accountId,
   });
+  // An upload identical to the active row is accepted without a new row.
+  if ("unchanged" in dataloggerConfig) {
+    const { unchanged: _unchanged, ...existing } = dataloggerConfig;
+    res.status(200).json(existing);
+    return;
+  }
   res.status(201).json(dataloggerConfig);
 };
 
@@ -109,7 +115,12 @@ export const getDataloggerLibraryConfigById = async (
       { ...params, accountId },
     );
 
-  res.json({ ...dataloggerLibraryConfig, creatorId: undefined });
+  res.json({
+    ...dataloggerLibraryConfig,
+    creatorId: undefined,
+    /** The caller owns it: they can edit, publish versions and archive. */
+    isMine: dataloggerLibraryConfig.creatorId === accountId,
+  });
 };
 
 export const createNewDataloggerLibraryConfigVersion = async (
@@ -177,10 +188,10 @@ export const updateDataloggerLibraryConfig = async (
   const params = idSchema.parse(req.params);
   const body = updateLibraryConfigSchema.parse(req.body);
 
-  await dataloggerService
+  const updated = await dataloggerService
     .updateDataloggerLibraryConfig(
       { ...body, accountId, ...params },
     );
 
-  res.json();
+  res.json(updated);
 };

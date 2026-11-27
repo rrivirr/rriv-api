@@ -7,7 +7,7 @@ import {
   configSnapshotQuerySchema,
   createConfigSnapshotLibraryConfigSchema,
   createNewConfigSnapshotLibraryConfigVersionSchema,
-  overwriteActiveConfigSnapshotSchema,
+  renameSavedSnapshotSchema,
   saveConfigSnapshotSchema,
   updateLibraryConfigSchema,
 } from "./schema.ts";
@@ -59,32 +59,17 @@ export const getConfigSnapshotHistory = async (
   res.json(configSnapshotHistory);
 };
 
-export const overwriteActiveConfigSnapshot = async (
-  req: Request,
-  res: Response,
-) => {
-  const accountId = req.accountId;
-  const body = overwriteActiveConfigSnapshotSchema.parse(req.body);
-
-  await configSnapshotService.overwriteActiveConfigSnapshot({
-    ...body,
-    accountId,
-  });
-
-  res.status(201).json();
-};
-
 export const saveConfigSnapshot = async (req: Request, res: Response) => {
   const accountId = req.accountId;
   const body = saveConfigSnapshotSchema.parse(req.body);
 
-  await configSnapshotService
+  const saved = await configSnapshotService
     .saveConfigSnapshot({
       ...body,
       accountId,
     });
 
-  res.status(201).json();
+  res.status(201).json({ id: saved.id, name: saved.name });
 };
 
 export const getConfigSnapshotLibraryConfig = async (
@@ -115,7 +100,12 @@ export const getConfigSnapshotLibraryConfigById = async (
       { ...params, accountId },
     );
 
-  res.json({ ...configSnapshotLibraryConfig, creatorId: undefined });
+  res.json({
+    ...configSnapshotLibraryConfig,
+    creatorId: undefined,
+    /** The caller owns it: they can edit, publish versions and archive. */
+    isMine: configSnapshotLibraryConfig.creatorId === accountId,
+  });
 };
 
 export const updateLibraryConfig = async (
@@ -126,12 +116,12 @@ export const updateLibraryConfig = async (
   const params = idSchema.parse(req.params);
   const body = updateLibraryConfigSchema.parse(req.body);
 
-  await configSnapshotService
+  const updated = await configSnapshotService
     .updateLibraryConfig(
       { ...body, accountId, ...params },
     );
 
-  res.json();
+  res.json(updated);
 };
 
 export const createConfigSnapshotLibraryConfig = async (
@@ -191,4 +181,25 @@ export const deleteConfigSnapshotLibraryConfig = async (
     });
 
   res.json(sensorLibraryConfig);
+};
+
+export const renameSavedSnapshot = async (req: Request, res: Response) => {
+  const params = idSchema.parse(req.params);
+  const body = renameSavedSnapshotSchema.parse(req.body);
+  res.json(
+    await configSnapshotService.renameSavedSnapshot({
+      ...params,
+      ...body,
+      accountId: req.accountId,
+    }),
+  );
+};
+
+export const deleteSavedSnapshot = async (req: Request, res: Response) => {
+  const params = idSchema.parse(req.params);
+  await configSnapshotService.deleteSavedSnapshot({
+    ...params,
+    accountId: req.accountId,
+  });
+  res.status(204).json();
 };

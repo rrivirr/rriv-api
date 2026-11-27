@@ -12,6 +12,7 @@ import {
   QueryConfigHistoryDto,
   UpdateLibraryConfigDto,
 } from "../types/config-snapshot.types.ts";
+import { SensorSourceColumns } from "../service/utils/config-source.ts";
 
 export const getSensorDriverById = async (query: IdDto) => {
   const { id } = query;
@@ -66,7 +67,9 @@ export const getSensorLibraryConfigById = async (query: IdDto) => {
         },
         orderBy: { version: "desc" },
         select: {
+          id: true,
           version: true,
+          firmwareVersion: true,
           description: true,
           SensorConfig: {
             select: {
@@ -152,9 +155,14 @@ export const getSensorConfig = async (
               ON device_context.device_id = device.id
         WHERE (device.serial_number = ${deviceIdentifier} OR device.unique_name = ${deviceIdentifier}) 
               AND sensor_config.created_at <= ${asAt}
+              AND sensor_config.archived_at IS NULL
               AND (${sensorName}::text is NULL OR sensor_config.name = ${sensorName})
       ) subquery
-      WHERE rn = 1;
+      -- The newest row per name, unless it had ended by then (the sensor was
+      -- removed). A replaced row ends when its successor starts, so the
+      -- newest row is only ended by a removal.
+      WHERE rn = 1
+        AND (deactivated_at IS NULL OR deactivated_at > ${asAt});
     `;
       return result.map((r) => ({ ...r, rn: undefined }));
     }
@@ -229,11 +237,13 @@ export const getSensorLibraryConfig = async (
     isPublic,
     accountId,
     author,
+    isOfficial,
   } = query;
   return await prisma.sensorLibraryConfig.findMany({
     where: {
       name: name || { contains: search },
       archivedAt: null,
+      isOfficial,
       ...(author
         ? {
           Creator: {
@@ -269,7 +279,7 @@ export const createSensorDriver = async (body: CreateSensorDriverDto) => {
 };
 
 export const createSensorConfig = async (
-  body: CreateSensorConfigDto & {
+  body: CreateSensorConfigDto & SensorSourceColumns & {
     active: boolean;
     configSnapshotId: string;
     sensorConfigToDeactivateId?: string;
@@ -284,6 +294,8 @@ export const createSensorConfig = async (
     configSnapshotId,
     sensorConfigToDeactivateId,
     createdAt,
+    sourceSensorLibraryConfigVersionId,
+    sourceSystemLibraryConfigVersionId,
   } = body;
 
   return await prisma.$transaction(async (trx) => {
@@ -303,9 +315,30 @@ export const createSensorConfig = async (
         SensorDriver: { connect: { id: sensorDriverId } },
         Creator: { connect: { id: accountId } },
         ConfigSnapshot: { connect: { id: configSnapshotId } },
+        ...(sourceSensorLibraryConfigVersionId && {
+          SourceSensorLibraryConfigVersion: {
+            connect: { id: sourceSensorLibraryConfigVersionId },
+          },
+        }),
+        ...(sourceSystemLibraryConfigVersionId && {
+          SourceSystemLibraryConfigVersion: {
+            connect: { id: sourceSystemLibraryConfigVersionId },
+          },
+        }),
       },
     });
   });
+};
+
+export const deactivateSensorConfigs = async (
+  body: { ids: string[]; deactivatedAt: Date },
+) => {
+  const { ids, deactivatedAt } = body;
+  const [deactivated] = await prisma.sensorConfig.updateManyAndReturn({
+    where: { id: { in: ids }, active: true },
+    data: { active: false, deactivatedAt },
+  });
+  return deactivated ?? null;
 };
 
 export const createSensorLibraryConfig = async (
@@ -314,9 +347,10 @@ export const createSensorLibraryConfig = async (
     sensorConfig: { config: object; driverId: string; name: string };
     accountId: string;
     description?: string;
+    firmwareVersion?: string;
   },
 ) => {
-  const { name, sensorConfig, accountId, description } = body;
+  const { name, sensorConfig, accountId, description, firmwareVersion } = body;
   return await prisma.sensorLibraryConfig.create({
     data: {
       name,
@@ -325,6 +359,7 @@ export const createSensorLibraryConfig = async (
       SensorLibraryConfigVersion: {
         create: {
           version: 1,
+          firmwareVersion,
           Creator: { connect: { id: accountId } },
           SensorConfig: {
             create: {
@@ -350,11 +385,13 @@ export const createNewSensorLibraryConfigVersion = async (
     sensorLibraryConfigId: string;
     sensorConfig: { config: object; driverId: string; name: string };
     description?: string;
+    firmwareVersion?: string;
   },
 ) => {
   const {
     accountId,
     version,
+    firmwareVersion,
     sensorConfig,
     sensorLibraryConfigId,
     description,
@@ -362,6 +399,7 @@ export const createNewSensorLibraryConfigVersion = async (
   return await prisma.sensorLibraryConfigVersion.create({
     data: {
       version,
+      firmwareVersion,
       Creator: { connect: { id: accountId } },
       description,
       SensorConfig: {
@@ -424,9 +462,9 @@ export const deleteSensorLibraryConfig = async (body: IdDto) => {
 export const updateSensorLibraryConfig = async (
   body: UpdateLibraryConfigDto,
 ) => {
-  const { isPublic, id } = body;
-  await prisma.sensorLibraryConfig.update({
+  const { isPublic, name, description, id } = body;
+  return await prisma.sensorLibraryConfig.update({
     where: { id },
-    data: { isPublic },
+    data: { isPublic, name, description },
   });
 };

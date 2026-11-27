@@ -7,7 +7,6 @@ import {
   configSnapshotQuerySchema,
   createConfigSnapshotLibraryConfigSchema,
   createNewConfigSnapshotLibraryConfigVersionSchema,
-  overwriteActiveConfigSnapshotSchema,
   saveConfigSnapshotSchema,
   updateLibraryConfigSchema,
 } from "../handler/config-snapshot/schema.ts";
@@ -21,10 +20,6 @@ export type UpdateLibraryConfigDto =
 
 export type SaveConfigSnapshotDto =
   & z.infer<typeof saveConfigSnapshotSchema>
-  & AccountIdDto;
-
-export type OverwriteActiveConfigSnapshotDto =
-  & z.infer<typeof overwriteActiveConfigSnapshotSchema>
   & AccountIdDto;
 
 export type QueryConfigSnapshotDto =

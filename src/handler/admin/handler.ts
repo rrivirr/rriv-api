@@ -2,7 +2,13 @@
 import { Request, Response } from "npm:express";
 import { assertAdmin } from "../../service/auth.service.ts";
 import * as adminService from "../../service/admin.service.ts";
-import { grantRoleSchema, revokeRoleParamsSchema } from "./schema.ts";
+import {
+  grantRoleSchema,
+  libraryOfficialBodySchema,
+  libraryOfficialParamsSchema,
+  revokeRoleParamsSchema,
+} from "./schema.ts";
+import { setLibraryConfigOfficial } from "../../service/library-official.service.ts";
 
 export const listRoles = async (req: Request, res: Response) => {
   await assertAdmin(req.accountId);
@@ -24,4 +30,11 @@ export const revokeRole = async (req: Request, res: Response) => {
   const params = revokeRoleParamsSchema.parse(req.params);
   await adminService.revokeRole({ accountId: params.id, role: params.role });
   res.status(204).json();
+};
+
+export const setLibraryOfficial = async (req: Request, res: Response) => {
+  await assertAdmin(req.accountId);
+  const params = libraryOfficialParamsSchema.parse(req.params);
+  const body = libraryOfficialBodySchema.parse(req.body);
+  res.json(await setLibraryConfigOfficial({ ...params, ...body }));
 };

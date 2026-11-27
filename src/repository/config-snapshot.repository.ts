@@ -1,4 +1,3 @@
-import { Prisma } from "generated/client.ts";
 import prisma from "../infra/prisma.ts";
 import {
   ConfigSnapshotDto,
@@ -8,7 +7,6 @@ import {
 } from "../types/config-snapshot.types.ts";
 import { IdDto } from "../types/generic.types.ts";
 import { InputJsonValue } from "generated/internal/prismaNamespace.ts";
-import { HttpException } from "../utils/http-exception.ts";
 import { CONFIG_SNAPSHOT_KIND } from "../service/utils/constants.ts";
 
 export const createConfigSnapshot = async (body: {
@@ -29,6 +27,37 @@ export const createConfigSnapshot = async (body: {
   });
 };
 
+const sourceSystemVersion = {
+  select: {
+    id: true,
+    version: true,
+    SystemLibraryConfig: {
+      select: {
+        id: true,
+        name: true,
+        SystemLibraryConfigVersion: {
+          where: { archivedAt: null },
+          orderBy: { version: "desc" },
+          take: 1,
+          select: { version: true },
+        },
+      },
+    },
+    ConfigSnapshot: {
+      select: {
+        DataloggerConfig: {
+          where: { archivedAt: null },
+          select: { config: true },
+        },
+        SensorConfig: {
+          where: { archivedAt: null },
+          select: { name: true, config: true },
+        },
+      },
+    },
+  },
+} as const;
+
 export const getConfigSnapshotById = async (body: IdDto) => {
   const { id } = body;
 
@@ -37,12 +66,61 @@ export const getConfigSnapshotById = async (body: IdDto) => {
     include: {
       DataloggerConfig: {
         where: { active: true, archivedAt: null },
-        select: { config: true, name: true, dataloggerDriverId: true },
+        select: {
+          config: true,
+          name: true,
+          dataloggerDriverId: true,
+          SourceDataloggerLibraryConfigVersion: {
+            select: {
+              id: true,
+              version: true,
+              DataloggerConfig: { select: { config: true } },
+              DataloggerLibraryConfig: {
+                select: {
+                  id: true,
+                  name: true,
+                  DataloggerLibraryConfigVersion: {
+                    where: { archivedAt: null },
+                    orderBy: { version: "desc" },
+                    take: 1,
+                    select: { version: true },
+                  },
+                },
+              },
+            },
+          },
+          SourceSystemLibraryConfigVersion: sourceSystemVersion,
+        },
         orderBy: { createdAt: "asc" },
       },
       SensorConfig: {
         where: { active: true, archivedAt: null },
-        select: { config: true, name: true, sensorDriverId: true, id: true },
+        select: {
+          config: true,
+          name: true,
+          sensorDriverId: true,
+          id: true,
+          SourceSensorLibraryConfigVersion: {
+            select: {
+              id: true,
+              version: true,
+              SensorConfig: { select: { config: true } },
+              SensorLibraryConfig: {
+                select: {
+                  id: true,
+                  name: true,
+                  SensorLibraryConfigVersion: {
+                    where: { archivedAt: null },
+                    orderBy: { version: "desc" },
+                    take: 1,
+                    select: { version: true },
+                  },
+                },
+              },
+            },
+          },
+          SourceSystemLibraryConfigVersion: sourceSystemVersion,
+        },
         orderBy: { createdAt: "asc" },
       },
     },
@@ -63,11 +141,12 @@ export const getActiveConfigSnapshotByDeviceContext = async (body: {
 };
 
 export const getConfigSnapshots = async (body: QueryConfigSnapshotDto) => {
-  const { accountId, orderBy, limit, offset, order, search, active, name } =
+  const { accountId, orderBy, limit, offset, order, search, active, name, id } =
     body;
 
   return await prisma.configSnapshot.findMany({
     where: {
+      id,
       kind: CONFIG_SNAPSHOT_KIND.SAVED,
       active,
       archivedAt: null,
@@ -77,11 +156,11 @@ export const getConfigSnapshots = async (body: QueryConfigSnapshotDto) => {
     include: {
       DataloggerConfig: {
         where: { archivedAt: null },
-        select: { config: true, id: true },
+        select: { config: true, id: true, dataloggerDriverId: true },
       },
       SensorConfig: {
         where: { archivedAt: null },
-        select: { config: true, name: true, id: true },
+        select: { config: true, name: true, id: true, sensorDriverId: true },
       },
     },
     take: limit,
@@ -103,11 +182,13 @@ export const getConfigSnapshotLibraryConfig = async (
     accountId,
     name,
     author,
+    isOfficial,
   } = query;
   return await prisma.systemLibraryConfig.findMany({
     where: {
       name: name || { contains: search },
       archivedAt: null,
+      isOfficial,
       ...(author
         ? {
           Creator: {
@@ -152,17 +233,24 @@ export const getConfigSnapshotLibraryConfigById = async (query: IdDto) => {
         },
         orderBy: { version: "desc" },
         select: {
+          id: true,
           version: true,
+          firmwareVersion: true,
           description: true,
           ConfigSnapshot: {
             select: {
               id: true,
               name: true,
               DataloggerConfig: {
-                select: { config: true, id: true },
+                select: { config: true, id: true, dataloggerDriverId: true },
               },
               SensorConfig: {
-                select: { name: true, config: true, id: true },
+                select: {
+                  name: true,
+                  config: true,
+                  id: true,
+                  sensorDriverId: true,
+                },
               },
             },
           },
@@ -227,12 +315,14 @@ export const createConfigSnapshotLibraryConfig = async (body: {
   name: string;
   accountId: string;
   description?: string;
+  firmwareVersion?: string;
   configSnapshot: ConfigSnapshotDto;
 }) => {
   const {
     name,
     accountId,
     description,
+    firmwareVersion,
     configSnapshot: { SensorConfig, DataloggerConfig },
   } = body;
 
@@ -244,6 +334,7 @@ export const createConfigSnapshotLibraryConfig = async (body: {
       SystemLibraryConfigVersion: {
         create: {
           version: 1,
+          firmwareVersion,
           Creator: { connect: { id: accountId } },
           ConfigSnapshot: {
             create: {
@@ -289,10 +380,12 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (body: {
   configSnapshotLibraryConfigId: string;
   configSnapshot: ConfigSnapshotDto;
   description?: string;
+  firmwareVersion?: string;
 }) => {
   const {
     accountId,
     version,
+    firmwareVersion,
     configSnapshot: { DataloggerConfig, SensorConfig },
     configSnapshotLibraryConfigId,
     description,
@@ -301,6 +394,7 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (body: {
   return await prisma.systemLibraryConfigVersion.create({
     data: {
       version,
+      firmwareVersion,
       Creator: { connect: { id: accountId } },
       description,
       SystemLibraryConfig: { connect: { id: configSnapshotLibraryConfigId } },
@@ -340,85 +434,11 @@ export const createNewConfigSnapshotLibraryConfigVersion = async (body: {
   });
 };
 
-export const overwriteActiveConfigSnapshot = async (body: {
-  configSnapshotId: string;
-  sensorConfigIds: Array<string>;
-  dataloggerConfigId?: string;
-  accountId: string;
-  createdAt: Date;
-}) => {
-  const {
-    configSnapshotId,
-    sensorConfigIds,
-    dataloggerConfigId,
-    accountId,
-    createdAt,
-  } = body;
-
-  return await prisma.$transaction(async (trx) => {
-    await trx.dataloggerConfig.updateMany({
-      where: { configSnapshotId, active: true, deactivatedAt: null },
-      data: { active: false, deactivatedAt: createdAt },
-    });
-
-    await trx.sensorConfig.updateMany({
-      where: { configSnapshotId, active: true, deactivatedAt: null },
-      data: { active: false, deactivatedAt: createdAt },
-    });
-
-    if (dataloggerConfigId) {
-      const dataloggerConfig = await trx.dataloggerConfig.findUnique({
-        where: { id: dataloggerConfigId },
-      });
-
-      if (!dataloggerConfig) {
-        throw new HttpException(422, "invalid datalogger config id received");
-      }
-
-      const { config, dataloggerDriverId } = dataloggerConfig;
-
-      await trx.dataloggerConfig.create({
-        data: {
-          name: "datalogger",
-          config: config as Prisma.JsonObject,
-          active: true,
-          createdAt,
-          DataloggerDriver: { connect: { id: dataloggerDriverId } },
-          Creator: { connect: { id: accountId } },
-          ConfigSnapshot: { connect: { id: configSnapshotId } },
-        },
-      });
-    }
-
-    if (sensorConfigIds.length) {
-      const sensorConfigs = await trx.sensorConfig.findMany({
-        where: { id: { in: sensorConfigIds } },
-      });
-
-      if (sensorConfigs.length !== sensorConfigIds.length) {
-        throw new HttpException(422, "invalid sensor config id received");
-      }
-
-      await trx.sensorConfig.createMany({
-        data: sensorConfigs.map((s) => ({
-          name: s.name,
-          config: s.config as Prisma.JsonObject,
-          active: true,
-          createdAt,
-          sensorDriverId: s.sensorDriverId,
-          creatorId: accountId,
-          configSnapshotId,
-        })),
-      });
-    }
-  });
-};
-
 export const updateLibraryConfig = async (body: UpdateLibraryConfigDto) => {
-  const { isPublic, id } = body;
-  await prisma.systemLibraryConfig.update({
+  const { isPublic, name, description, id } = body;
+  return await prisma.systemLibraryConfig.update({
     where: { id },
-    data: { isPublic },
+    data: { isPublic, name, description },
   });
 };
 
@@ -462,5 +482,50 @@ export const deleteConfigSnapshotLibraryConfig = async (body: IdDto) => {
       where: { id },
       data: { archivedAt: new Date() },
     });
+  });
+};
+
+const savedSnapshotWhere = (id: string, accountId: string) => ({
+  id,
+  creatorId: accountId,
+  kind: CONFIG_SNAPSHOT_KIND.SAVED,
+  archivedAt: null,
+});
+
+export const renameSavedSnapshot = async (body: {
+  id: string;
+  accountId: string;
+  name: string;
+}) => {
+  const { id, accountId, name } = body;
+  const { count } = await prisma.configSnapshot.updateMany({
+    where: savedSnapshotWhere(id, accountId),
+    data: { name },
+  });
+  return count;
+};
+
+/** Archive a saved snapshot and its rows (kept, hidden). */
+export const archiveSavedSnapshot = async (body: {
+  id: string;
+  accountId: string;
+}) => {
+  const { id, accountId } = body;
+  const archivedAt = new Date();
+  return await prisma.$transaction(async (trx) => {
+    const { count } = await trx.configSnapshot.updateMany({
+      where: savedSnapshotWhere(id, accountId),
+      data: { archivedAt },
+    });
+    if (!count) return 0;
+    await trx.dataloggerConfig.updateMany({
+      where: { configSnapshotId: id, archivedAt: null },
+      data: { archivedAt },
+    });
+    await trx.sensorConfig.updateMany({
+      where: { configSnapshotId: id, archivedAt: null },
+      data: { archivedAt },
+    });
+    return count;
   });
 };
