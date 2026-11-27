@@ -91,6 +91,7 @@ Deno.test("sensor driver/createConfig/deactivate + library versions", async () =
       accountId: account.id,
       config: { type: "temperature", pin: 1 },
       sensorName: "temp",
+      sensorDriverId: driver.id,
     });
     await assertRejectsWithCode(
       () =>
@@ -99,6 +100,7 @@ Deno.test("sensor driver/createConfig/deactivate + library versions", async () =
           accountId: account.id,
           config: { type: "temperature", pin: 2 },
           sensorName: "temp",
+          sensorDriverId: driver.id,
         }),
       409,
     );
@@ -110,6 +112,7 @@ Deno.test("sensor driver/createConfig/deactivate + library versions", async () =
           accountId: account.id,
           config: { type: "temperature", pin: 1 },
           sensorName: "temp",
+          sensorDriverId: driver.id,
         }),
       409,
     );
@@ -118,6 +121,7 @@ Deno.test("sensor driver/createConfig/deactivate + library versions", async () =
       accountId: account.id,
       config: { type: "temperature", pin: 9 },
       sensorName: "temp",
+      sensorDriverId: driver.id,
     });
     assertEquals(
       await prisma.sensorLibraryConfigVersion.count({
@@ -172,6 +176,7 @@ Deno.test("datalogger driver/config + library name uniqueness", async () => {
 
     await createDataloggerLibraryConfig({
       name: "shared-dl",
+      dataloggerDriverId: driver.id,
       accountId: account.id,
       config: { sleep: 60 },
     });
@@ -179,6 +184,7 @@ Deno.test("datalogger driver/config + library name uniqueness", async () => {
       () =>
         createDataloggerLibraryConfig({
           name: "shared-dl",
+          dataloggerDriverId: driver.id,
           accountId: account.id,
           config: { sleep: 90 },
         }),

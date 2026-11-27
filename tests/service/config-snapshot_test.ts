@@ -88,13 +88,12 @@ Deno.test("createConfigSnapshotLibraryConfig: duplicate name -> 409", async () =
   try {
     await resetDb();
     const account = await createAccount();
-    await createSensorDriver({
+    const sensorDriver = await createSensorDriver({
       name: "ds18b20",
       accountId: account.id,
       validation: { type: "object" },
     });
-    // A datalogger driver is also needed for the default driver lookup.
-    await createDataloggerDriver({
+    const dataloggerDriver = await createDataloggerDriver({
       name: "arduino",
       accountId: account.id,
       validation: { type: "object" },
@@ -104,7 +103,8 @@ Deno.test("createConfigSnapshotLibraryConfig: duplicate name -> 409", async () =
       name: "shared",
       accountId: account.id,
       datalogger: { sleep: 300 },
-      sensors: [{ name: "temp", pin: 1 }],
+      dataloggerDriverId: dataloggerDriver.id,
+      sensors: [{ name: "temp", sensorDriverId: sensorDriver.id, pin: 1 }],
     });
     await assertRejectsWithCode(
       () =>
@@ -112,7 +112,8 @@ Deno.test("createConfigSnapshotLibraryConfig: duplicate name -> 409", async () =
           name: "shared",
           accountId: account.id,
           datalogger: { sleep: 60 },
-          sensors: [{ name: "temp", pin: 2 }],
+          dataloggerDriverId: dataloggerDriver.id,
+          sensors: [{ name: "temp", sensorDriverId: sensorDriver.id, pin: 2 }],
         }),
       409,
     );

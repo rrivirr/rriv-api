@@ -5,6 +5,7 @@ import {
   createSensorConfigSchema,
   createSensorDriverSchema,
   createSensorLibraryConfigSchema,
+  deactivateSensorConfigSchema,
   sensorDriverQuerySchema,
   sensorLibraryConfigQuerySchema,
 } from "../handler/sensor/schema.ts";
@@ -45,4 +46,8 @@ export type CreateSensorLibraryConfigVersionDto =
     typeof createNewSensorLibraryConfigVersionSchema
   >
   & IdDto
+  & AccountIdDto;
+
+export type DeactivateSensorConfigDto =
+  & z.infer<typeof deactivateSensorConfigSchema>
   & AccountIdDto;

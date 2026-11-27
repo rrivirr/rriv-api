@@ -5,6 +5,7 @@ import {
   createSensorConfigSchema,
   createSensorDriverSchema,
   createSensorLibraryConfigSchema,
+  deactivateSensorConfigSchema,
   sensorDriverQuerySchema,
   sensorLibraryConfigQuerySchema,
 } from "./schema.ts";
@@ -41,7 +42,24 @@ export const createSensorConfig = async (req: Request, res: Response) => {
     ...requestBody,
     accountId,
   });
+  // An upload identical to the active row is accepted without a new row.
+  if ("unchanged" in sensorConfig) {
+    const { unchanged: _unchanged, ...existing } = sensorConfig;
+    res.status(200).json(existing);
+    return;
+  }
   res.status(201).json(sensorConfig);
+};
+
+export const deactivateSensorConfig = async (req: Request, res: Response) => {
+  const accountId = req.accountId;
+  const requestBody = deactivateSensorConfigSchema.parse(req.body);
+
+  const sensorConfig = await sensorService.deactivateSensorConfig({
+    ...requestBody,
+    accountId,
+  });
+  res.json(sensorConfig);
 };
 
 export const deleteSensorDriver = async (req: Request, res: Response) => {
@@ -99,7 +117,12 @@ export const getSensorLibraryConfigById = async (
     { ...params, accountId },
   );
 
-  res.json({ ...sensorLibraryConfig, creatorId: undefined });
+  res.json({
+    ...sensorLibraryConfig,
+    creatorId: undefined,
+    /** The caller owns it: they can edit, publish versions and archive. */
+    isMine: sensorLibraryConfig.creatorId === accountId,
+  });
 };
 
 export const createNewSensorLibraryConfigVersion = async (
@@ -166,10 +189,10 @@ export const updateSensorLibraryConfig = async (
   const params = idSchema.parse(req.params);
   const body = updateLibraryConfigSchema.parse(req.body);
 
-  await sensorService
+  const updated = await sensorService
     .updateSensorLibraryConfig(
       { ...body, accountId, ...params },
     );
 
-  res.json();
+  res.json(updated);
 };

@@ -2,12 +2,13 @@ import {
   createConfigSnapshotLibraryConfig,
   createNewConfigSnapshotLibraryConfigVersion,
   deleteConfigSnapshotLibraryConfig,
+  deleteSavedSnapshot,
   getActiveConfig,
   getConfigSnapshotHistory,
   getConfigSnapshotLibraryConfig,
   getConfigSnapshotLibraryConfigById,
   getConfigSnapshots,
-  overwriteActiveConfigSnapshot,
+  renameSavedSnapshot,
   saveConfigSnapshot,
   updateLibraryConfig,
 } from "../handler/config-snapshot/handler.ts";
@@ -20,16 +21,22 @@ const routerWrapper = getExpressRouter();
 
 router.route("/").get(getConfigSnapshots);
 router.route("/history").get(getConfigSnapshotHistory);
-router.route("/active").put(overwriteActiveConfigSnapshot).get(getActiveConfig);
+router.route("/active").get(getActiveConfig);
 router.route("/save").post(saveConfigSnapshot);
-router.route("/libraryConfig").post(createConfigSnapshotLibraryConfig).get(
-  getConfigSnapshotLibraryConfig,
-);
-router.route("/libraryConfig/:id/version").post(
-  createNewConfigSnapshotLibraryConfigVersion,
-);
-router.route("/libraryConfig/:id").get(getConfigSnapshotLibraryConfigById)
-  .patch(updateLibraryConfig).delete(deleteConfigSnapshotLibraryConfig);
+router
+  .route("/libraryConfig")
+  .post(createConfigSnapshotLibraryConfig)
+  .get(getConfigSnapshotLibraryConfig);
+router
+  .route("/libraryConfig/:id/version")
+  .post(createNewConfigSnapshotLibraryConfigVersion);
+router
+  .route("/libraryConfig/:id")
+  .get(getConfigSnapshotLibraryConfigById)
+  .patch(updateLibraryConfig)
+  .delete(deleteConfigSnapshotLibraryConfig);
+
+router.route("/:id").patch(renameSavedSnapshot).delete(deleteSavedSnapshot);
 
 routerWrapper.use("/configSnapshot", router);
 

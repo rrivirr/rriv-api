@@ -1,3 +1,8 @@
+import {
+  assertLibraryUpdateAllowed,
+  assertMatchesDriver,
+  requireDriver,
+} from "./utils/library-config.ts";
 import { Ajv, AnySchema } from "ajv";
 import { isDeepStrictEqual } from "node:util";
 import {
@@ -19,6 +24,7 @@ import {
 } from "../types/config-snapshot.types.ts";
 import { getDataloggerConfigChanges } from "./utils/get-datalogger-config-changes.ts";
 import { authDeviceCheck } from "./device.service.ts";
+import { isUnchanged, resolveDataloggerSource } from "./utils/config-source.ts";
 
 export const getDataloggerDriver = async (query: QueryDataloggerDriverDto) => {
   return await dataloggerRepository.getDataloggerDriver(query);
@@ -63,19 +69,13 @@ const getDataloggerConfigById = async (query: IdDto) => {
   return await dataloggerRepository.getDataloggerConfigById(query);
 };
 
-const getActiveDataloggerConfig = async (
-  query: {
-    deviceId: string;
-    contextId: string;
-    accountId: string;
-    configSnapshotId?: string;
-  },
-) => {
-  const {
-    contextId,
-    deviceId,
-    accountId,
-  } = query;
+const getActiveDataloggerConfig = async (query: {
+  deviceId: string;
+  contextId: string;
+  accountId: string;
+  configSnapshotId?: string;
+}) => {
+  const { contextId, deviceId, accountId } = query;
 
   const deviceContext = await getDeviceContext({
     contextId,
@@ -136,6 +136,7 @@ export const createDataloggerConfig = async (
     deviceId,
     contextId,
     singlePropertyChange,
+    source,
   } = requestBody;
 
   const { dataloggerConfig, configSnapshotId } =
@@ -159,7 +160,7 @@ export const createDataloggerConfig = async (
 
   const configToCreate = singlePropertyChange
     // deno-lint-ignore no-explicit-any
-    ? { ...(existingConfig && { ...existingConfig as any }), ...config }
+    ? { ...(existingConfig && { ...(existingConfig as any) }), ...config }
     : config;
 
   const { validation } = dataloggerDriver;
@@ -170,9 +171,21 @@ export const createDataloggerConfig = async (
     throw new HttpException(422, "invalid config received");
   }
 
+  const sourceColumns = await resolveDataloggerSource({
+    source,
+    accountId,
+    previous: dataloggerConfig,
+  });
+
+  // Same settings and source as the active row: accepted, nothing written.
+  if (isUnchanged(dataloggerConfig, configToCreate, sourceColumns)) {
+    return { ...dataloggerConfig, unchanged: true as const };
+  }
+
   try {
     return await dataloggerRepository.createDataloggerConfig({
       ...requestBody,
+      ...sourceColumns,
       config: configToCreate,
       active: true,
       configSnapshotId,
@@ -192,8 +205,19 @@ export const createDataloggerConfig = async (
 export const createDataloggerLibraryConfig = async (
   requestBody: CreateDataloggerLibraryConfigDto,
 ) => {
-  const { name, accountId, config, description } = requestBody;
-  const defaultDataloggerDriver = await getDataloggerDriver({ limit: 1 });
+  const {
+    name,
+    accountId,
+    config,
+    description,
+    firmwareVersion,
+    dataloggerDriverId,
+  } = requestBody;
+  const driver = requireDriver(
+    await getDataloggerDriverById({ id: dataloggerDriverId }),
+    "datalogger",
+  );
+  assertMatchesDriver(driver, config, "datalogger");
 
   const existingDataloggerLibraryConfig = await getDataloggerLibraryConfig({
     name,
@@ -207,8 +231,9 @@ export const createDataloggerLibraryConfig = async (
     return await dataloggerRepository.createDataloggerLibraryConfig({
       name,
       accountId,
-      dataloggerConfig: { driverId: defaultDataloggerDriver[0].id, config },
+      dataloggerConfig: { driverId: driver.id, config },
       description,
+      firmwareVersion,
     });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
@@ -221,15 +246,26 @@ export const createDataloggerLibraryConfig = async (
 export const createNewDataloggerLibraryConfigVersion = async (
   requestBody: CreateDataloggerLibraryConfigVersionDto,
 ) => {
-  const { id, config, accountId, description } = requestBody;
+  const {
+    id,
+    config,
+    accountId,
+    description,
+    firmwareVersion,
+    dataloggerDriverId,
+  } = requestBody;
 
   const dataloggerLibraryConfig = await getDataloggerLibraryConfigById({
     id,
     accountId,
     write: true,
   });
-  const defaultDataloggerDriver = await getDataloggerDriver({ limit: 1 });
-  const dataloggerConfig = { config, driverId: defaultDataloggerDriver[0].id };
+  const driver = requireDriver(
+    await getDataloggerDriverById({ id: dataloggerDriverId }),
+    "datalogger",
+  );
+  assertMatchesDriver(driver, config, "datalogger");
+  const dataloggerConfig = { config, driverId: driver.id };
 
   const dataloggerLibraryConfigVersions =
     dataloggerLibraryConfig.DataloggerLibraryConfigVersion;
@@ -242,6 +278,7 @@ export const createNewDataloggerLibraryConfigVersion = async (
         dataloggerLibraryConfigId: id,
         version: 1,
         description,
+        firmwareVersion,
       });
     } catch (error) {
       if (isUniqueConstraintError(error)) {
@@ -270,6 +307,7 @@ export const createNewDataloggerLibraryConfigVersion = async (
         dataloggerLibraryConfigId: id,
         version: latestLibraryConfigVersion.version + 1,
         description,
+        firmwareVersion,
       });
     } catch (error) {
       if (isUniqueConstraintError(error)) {
@@ -381,11 +419,19 @@ export const updateDataloggerLibraryConfig = async (
   body: UpdateLibraryConfigDto,
 ) => {
   const { id, accountId } = body;
-  await getDataloggerLibraryConfigById({
+  const libraryConfig = await getDataloggerLibraryConfigById({
     id,
     accountId,
     write: true,
   });
+  assertLibraryUpdateAllowed(libraryConfig, body);
 
-  await dataloggerRepository.updateDataloggerLibraryConfig(body);
+  try {
+    return await dataloggerRepository.updateDataloggerLibraryConfig(body);
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(409, `${body.name} already exists`);
+    }
+    throw error;
+  }
 };

@@ -1,9 +1,15 @@
+import {
+  assertLibraryUpdateAllowed,
+  assertMatchesDriver,
+  requireDriver,
+} from "./utils/library-config.ts";
 import { Ajv, AnySchema } from "ajv";
 import {
   CreateSensorConfigDto,
   CreateSensorDriverDto,
   CreateSensorLibraryConfigDto,
   CreateSensorLibraryConfigVersionDto,
+  DeactivateSensorConfigDto,
   QuerySensorConfigDto,
   QuerySensorDriverDto,
   QuerySensorLibraryConfigDto,
@@ -21,6 +27,7 @@ import {
 import { getSensorConfigChanges } from "./utils/get-sensor-config-changes.ts";
 import { JsonObject } from "generated/internal/prismaNamespace.ts";
 import { authDeviceCheck } from "./device.service.ts";
+import { isUnchanged, resolveSensorSource } from "./utils/config-source.ts";
 
 export const getSensorDriver = async (query: QuerySensorDriverDto) => {
   return await sensorRepository.getSensorDriver(query);
@@ -106,6 +113,7 @@ export const createSensorConfig = async (
     deviceId,
     contextId,
     singlePropertyChange,
+    source,
   } = requestBody;
 
   const deviceContext = await getDeviceContext({
@@ -126,9 +134,6 @@ export const createSensorConfig = async (
     active: true,
   });
 
-  let sensorConfigToDeactivateId: string | undefined;
-  let existingConfig;
-
   if (existingSensorConfig.length > 1) {
     throw new HttpException(
       500,
@@ -136,10 +141,8 @@ export const createSensorConfig = async (
     );
   }
 
-  if (existingSensorConfig.length) {
-    sensorConfigToDeactivateId = existingSensorConfig[0].id;
-    existingConfig = existingSensorConfig[0].config;
-  }
+  const previous = existingSensorConfig[0];
+  const sensorConfigToDeactivateId: string | undefined = previous?.id;
 
   const sensorDriver = await getSensorDriverById({
     id: sensorDriverId,
@@ -150,7 +153,7 @@ export const createSensorConfig = async (
 
   const configToCreate = singlePropertyChange
     // deno-lint-ignore no-explicit-any
-    ? { ...(existingConfig && { ...existingConfig as any }), ...config }
+    ? { ...(previous && { ...previous.config as any }), ...config }
     : config;
 
   const { validation } = sensorDriver;
@@ -161,9 +164,23 @@ export const createSensorConfig = async (
     throw new HttpException(422, "invalid config received");
   }
 
+  const sourceColumns = await resolveSensorSource({
+    source,
+    accountId,
+    name,
+    config: configToCreate,
+    previous,
+  });
+
+  // Same settings and source as the active row: accepted, nothing written.
+  if (isUnchanged(previous, configToCreate, sourceColumns)) {
+    return { ...previous, unchanged: true as const };
+  }
+
   try {
     return await sensorRepository.createSensorConfig({
       ...requestBody,
+      ...sourceColumns,
       config: configToCreate,
       active: true,
       configSnapshotId,
@@ -180,12 +197,58 @@ export const createSensorConfig = async (
   }
 };
 
+/**
+ * A sensor was removed from the device: end its active config row
+ * (`active = false`, `deactivatedAt`). The row stays as history. Nothing to
+ * end (already removed, or never synced) is not an error.
+ */
+export const deactivateSensorConfig = async (
+  requestBody: DeactivateSensorConfigDto,
+) => {
+  const { name, accountId, deviceId, contextId } = requestBody;
+  const deactivatedAt = requestBody.deactivatedAt ?? new Date();
+
+  const deviceContext = await getDeviceContext({
+    contextId,
+    deviceId,
+    accountId,
+  });
+  if (!deviceContext) {
+    throw new HttpException(422, "device context not found");
+  }
+
+  const active = await getSensorConfig({
+    name,
+    accountId,
+    configSnapshotId: deviceContext.configSnapshotId,
+    active: true,
+  });
+  if (!active.length) return null;
+
+  return await sensorRepository.deactivateSensorConfigs({
+    ids: active.map((s) => s.id),
+    deactivatedAt,
+  });
+};
+
 export const createSensorLibraryConfig = async (
   requestBody: CreateSensorLibraryConfigDto,
 ) => {
-  const { name, accountId, config, description, sensorName } = requestBody;
+  const {
+    name,
+    accountId,
+    config,
+    description,
+    firmwareVersion,
+    sensorName,
+    sensorDriverId,
+  } = requestBody;
 
-  const defaultSensorDriver = await getSensorDriver({ limit: 1 });
+  const driver = requireDriver(
+    await getSensorDriverById({ id: sensorDriverId }),
+    "sensor",
+  );
+  assertMatchesDriver(driver, config, "sensor");
 
   const existingSensorLibraryConfig = await getSensorLibraryConfig({
     name,
@@ -202,9 +265,10 @@ export const createSensorLibraryConfig = async (
       sensorConfig: {
         config,
         name: sensorName,
-        driverId: defaultSensorDriver[0].id,
+        driverId: driver.id,
       },
       description,
+      firmwareVersion,
     });
   } catch (error) {
     if (isUniqueConstraintError(error)) {
@@ -217,7 +281,15 @@ export const createSensorLibraryConfig = async (
 export const createNewSensorLibraryConfigVersion = async (
   requestBody: CreateSensorLibraryConfigVersionDto,
 ) => {
-  const { id, config, sensorName, accountId, description } = requestBody;
+  const {
+    id,
+    config,
+    sensorName,
+    accountId,
+    description,
+    firmwareVersion,
+    sensorDriverId,
+  } = requestBody;
 
   const sensorLibraryConfig = await getSensorLibraryConfigById({
     id,
@@ -225,12 +297,12 @@ export const createNewSensorLibraryConfigVersion = async (
     write: true,
   });
 
-  const defaultSensorDriver = await getSensorDriver({ limit: 1 });
-  const sensorConfig = {
-    name: sensorName,
-    config,
-    driverId: defaultSensorDriver[0].id,
-  };
+  const driver = requireDriver(
+    await getSensorDriverById({ id: sensorDriverId }),
+    "sensor",
+  );
+  assertMatchesDriver(driver, config, "sensor");
+  const sensorConfig = { name: sensorName, config, driverId: driver.id };
 
   const sensorLibraryConfigVersions =
     sensorLibraryConfig.SensorLibraryConfigVersion;
@@ -243,6 +315,7 @@ export const createNewSensorLibraryConfigVersion = async (
         sensorLibraryConfigId: id,
         version: 1,
         description,
+        firmwareVersion,
       });
     } catch (error) {
       if (isUniqueConstraintError(error)) {
@@ -284,6 +357,7 @@ export const createNewSensorLibraryConfigVersion = async (
         sensorLibraryConfigId: id,
         version: latestLibraryConfigVersion.version + 1,
         description,
+        firmwareVersion,
       });
     } catch (error) {
       if (isUniqueConstraintError(error)) {
@@ -382,11 +456,19 @@ export const updateSensorLibraryConfig = async (
   body: UpdateLibraryConfigDto,
 ) => {
   const { id, accountId } = body;
-  await getSensorLibraryConfigById({
+  const libraryConfig = await getSensorLibraryConfigById({
     id,
     accountId,
     write: true,
   });
+  assertLibraryUpdateAllowed(libraryConfig, body);
 
-  await sensorRepository.updateSensorLibraryConfig(body);
+  try {
+    return await sensorRepository.updateSensorLibraryConfig(body);
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      throw new HttpException(409, `${body.name} already exists`);
+    }
+    throw error;
+  }
 };

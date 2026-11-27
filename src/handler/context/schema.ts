@@ -5,30 +5,28 @@ import {
   getPaginationSchema,
 } from "../generic/generic.schema.ts";
 
+export const CONTEXT_NAME_MAX = 30;
+const contextNameSchema = () => getNameSchema(3, CONTEXT_NAME_MAX);
+
 export const createContextSchema = z
-  .object({ name: getNameSchema() })
+  .object({ name: contextNameSchema() })
   .strict();
 
 export const contextQuerySchema = z
   .object({
-    search: getNameSchema().optional(),
-    name: getNameSchema().optional(),
+    search: contextNameSchema().optional(),
+    name: contextNameSchema().optional(),
     ended: booleanQuerySchema,
   })
-  .merge(
-    getPaginationSchema(
-      ["startedAt", "endedAt", "name"],
-      "startedAt",
-    ),
-  )
+  .merge(getPaginationSchema(["startedAt", "endedAt", "name"], "startedAt"))
   .strict();
 
-export const updateContextSchema = z.object({
-  name: getNameSchema().optional(),
-  end: z.literal(true).optional(),
-}).strict().refine(
-  (data) => Object.values(data).length,
-  "empty data received",
-);
+export const updateContextSchema = z
+  .object({
+    name: contextNameSchema().optional(),
+    end: z.literal(true).optional(),
+  })
+  .strict()
+  .refine((data) => Object.values(data).length, "empty data received");
 
 export const shareSchema = z.object({ email: z.string().email() });

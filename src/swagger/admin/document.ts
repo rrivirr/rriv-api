@@ -2,10 +2,12 @@ import { generateSchema } from "@anatine/zod-openapi";
 import { swaggerBuilder } from "../index.ts";
 import {
   grantRoleSchema,
+  libraryOfficialBodySchema,
   systemRoleSchema,
 } from "../../handler/admin/schema.ts";
 
 export const basePath = "/admin/roles";
+export const libraryBasePath = "/admin/libraryConfig";
 const tags = ["admin"];
 const mediaTypeHeader = "application/json";
 const security = [{ bearerAuth: [] }];
@@ -99,6 +101,41 @@ swaggerBuilder.addPath(`${basePath}/{role}/{id}`, {
     responses: {
       204: { description: "Revoked (also when the account didn't hold it)." },
       409: { description: "Would remove the last admin." },
+      ...forbidden,
+    },
+  },
+});
+
+swaggerBuilder.addPath(`${libraryBasePath}/{kind}/{id}`, {
+  patch: {
+    tags,
+    summary: "mark a library config as an official RRIV config, or unmark it",
+    description: "Marking also makes the config public.",
+    security,
+    parameters: [
+      {
+        name: "kind",
+        in: "path",
+        required: true,
+        schema: { type: "string", enum: ["sensor", "datalogger", "system"] },
+      },
+      {
+        name: "id",
+        in: "path",
+        required: true,
+        schema: { type: "string", format: "uuid" },
+      },
+    ],
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(libraryOfficialBodySchema),
+        },
+      },
+    },
+    responses: {
+      200: { description: "The library config's id, name and visibility" },
+      404: { description: "No such library config" },
       ...forbidden,
     },
   },

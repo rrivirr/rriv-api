@@ -9,6 +9,7 @@ export const configSnapshotQuerySchema = z
   .object({
     search: getNameSchema().optional(),
     name: getNameSchema().optional(),
+    id: z.string().uuid().optional(),
   })
   .merge(getPaginationSchema(["createdAt", "name"], "createdAt"))
   .strict();
@@ -41,21 +42,12 @@ export const saveConfigSnapshotSchema = z
   })
   .strict();
 
-export const overwriteActiveConfigSnapshotSchema = z
-  .object({
-    deviceId: z.string().uuid(),
-    contextId: z.string().uuid(),
-    dataloggerConfigId: z.string().uuid().optional(),
-    sensorConfigIds: z.string().uuid().array(),
-    createdAt: z.coerce.date(),
-  })
-  .strict();
-
 export const configSnapshotLibraryConfigQuerySchema = z
   .object({
     search: getNameSchema().optional(),
     name: getNameSchema().optional(),
     isPublic: booleanQuerySchema,
+    isOfficial: booleanQuerySchema,
     author: getNameSchema().optional(),
   })
   .merge(getPaginationSchema(["createdAt", "name"], "createdAt"))
@@ -63,19 +55,53 @@ export const configSnapshotLibraryConfigQuerySchema = z
 
 export const updateLibraryConfigSchema = z
   .object({
-    isPublic: z.boolean(),
+    isPublic: z.boolean().optional(),
+    name: getNameSchema().optional(),
+    description: getNameSchema().nullable().optional(),
+  })
+  .strict()
+  .refine(
+    (body) => Object.values(body).some((value) => value !== undefined),
+    "nothing to update",
+  );
+
+export const createConfigSnapshotLibraryConfigSchema = z
+  .object({
+    name: getNameSchema(),
+    description: getNameSchema().optional(),
+    datalogger: z.object({}).passthrough(),
+    /** The datalogger's driver; its schema checks `datalogger`. */
+    dataloggerDriverId: z.string().uuid(),
+    /** Each sensor: its id on the board, its driver, and its settings. */
+    sensors: z
+      .object({ name: z.string(), sensorDriverId: z.string().uuid() })
+      .passthrough()
+      .array(),
+    firmwareVersion: z
+      .string()
+      .regex(/^[\x21-\x7e]{1,32}$/)
+      .optional(),
   })
   .strict();
 
-export const createConfigSnapshotLibraryConfigSchema = z.object({
-  name: getNameSchema(),
-  description: getNameSchema().optional(),
-  datalogger: z.object({}).passthrough(),
-  sensors: z.object({ name: z.string() }).passthrough().array(),
-});
+export const createNewConfigSnapshotLibraryConfigVersionSchema = z
+  .object({
+    description: getNameSchema().optional(),
+    datalogger: z.object({}).passthrough(),
+    /** The datalogger's driver; its schema checks `datalogger`. */
+    dataloggerDriverId: z.string().uuid(),
+    /** Each sensor: its id on the board, its driver, and its settings. */
+    sensors: z
+      .object({ name: z.string(), sensorDriverId: z.string().uuid() })
+      .passthrough()
+      .array(),
+    firmwareVersion: z
+      .string()
+      .regex(/^[\x21-\x7e]{1,32}$/)
+      .optional(),
+  })
+  .strict();
 
-export const createNewConfigSnapshotLibraryConfigVersionSchema = z.object({
-  description: getNameSchema().optional(),
-  datalogger: z.object({}).passthrough(),
-  sensors: z.object({ name: z.string() }).passthrough().array(),
-});
+export const renameSavedSnapshotSchema = z
+  .object({ name: getNameSchema() })
+  .strict();

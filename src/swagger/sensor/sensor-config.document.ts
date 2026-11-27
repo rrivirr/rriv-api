@@ -5,7 +5,10 @@ import {
   registerSensorConfigHistorySchema,
   registerSensorConfigSchema,
 } from "./schema.ts";
-import { createSensorConfigSchema } from "../../handler/sensor/schema.ts";
+import {
+  createSensorConfigSchema,
+  deactivateSensorConfigSchema,
+} from "../../handler/sensor/schema.ts";
 import { idSchema } from "../../handler/generic/generic.schema.ts";
 import {
   configHistoryQuerySchema,
@@ -40,6 +43,33 @@ swaggerBuilder.addPath(basePath, {
     },
     responses: {
       201: singleSensorConfigResponse,
+      200: {
+        description:
+          "Same settings and source as the active config: nothing written, the active config is returned",
+        ...singleSensorConfigResponse,
+      },
+    },
+  },
+});
+
+swaggerBuilder.addPath(`${basePath}/deactivate`, {
+  post: {
+    tags,
+    summary:
+      "End the active config of a sensor removed from the device (kept as history)",
+    requestBody: {
+      content: {
+        [mediaTypeHeader]: {
+          schema: generateSchema(deactivateSensorConfigSchema),
+        },
+      },
+    },
+    responses: {
+      200: {
+        description:
+          "The ended config, or null when the sensor had no active config",
+        ...singleSensorConfigResponse,
+      },
     },
   },
 });
